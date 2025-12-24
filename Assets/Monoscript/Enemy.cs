@@ -3,23 +3,37 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
-    
+
     // motion duration (get from GameManager)
     private float _walkDuration;
     private float _knockbackDuration;
     
-    // boundary coordinate (get from GameManager)
+    // cell size for scaling movement
+    private float _cellSize;
+    
+    // boundary coordinate (get from BoardManager)
     private float _minX, _maxX, _minY, _maxY;
 
     // initializing internal attribute
-    void Awake()
+    public void Initialize(GameManager gameManager, BoardManager boardManager, Sprite sprite)
     {
-        _walkDuration = GameManager.Instance.walkDuration;
-        _knockbackDuration = GameManager.Instance.knockbackDuration;
-        _minX = GameManager.GetMinX();
-        _maxX = GameManager.GetMaxX();
-        _minY = GameManager.GetMinY();
-        _maxY = GameManager.GetMaxY();
+        _walkDuration = gameManager.getWalkDuration();
+        _knockbackDuration = gameManager.getKnockbackDuration();
+        _cellSize = boardManager.GetCellSize();
+        _minX = boardManager.GetMinX();
+        _maxX = boardManager.GetMaxX();
+        _minY = boardManager.GetMinY();
+        _maxY = boardManager.GetMaxY();
+        
+        // Set sprite if provided
+        if (sprite != null)
+        {
+            SpriteRenderer sr = GetComponent<SpriteRenderer>();
+            if (sr != null)
+            {
+                sr.sprite = sprite;
+            }
+        }
     }
     
     // walk API
@@ -80,41 +94,43 @@ public class Enemy : MonoBehaviour
         return new Vector3(x, y, z);
     }
 
-    // get destination from direction, distance, start point
-    private static Vector3 GetTarget(Direction direction, int distance, Vector3 start)
+    // get destination from direction, distance, start point (scaled by cellSize)
+    private Vector3 GetTarget(Direction direction, int distance, Vector3 start)
     {
+        float scaledDistance = distance * _cellSize;
+        
         switch (direction)
         {
             case Direction.Up:
-                return start + new Vector3(0, distance, 0);
+                return start + new Vector3(0, scaledDistance, 0);
             
             case Direction.Down:
-                return start - new Vector3(0, distance, 0);
+                return start - new Vector3(0, scaledDistance, 0);
             
             case Direction.Right:
-                return start + new Vector3(distance, 0, 0);
+                return start + new Vector3(scaledDistance, 0, 0);
             
             case Direction.Left:
-                return start - new Vector3(distance, 0, 0);
+                return start - new Vector3(scaledDistance, 0, 0);
             
             case Direction.UpRight:
-                return start + new Vector3(distance, distance, 0);
+                return start + new Vector3(scaledDistance, scaledDistance, 0);
             
             case Direction.UpLeft:
-                return start + new Vector3(-distance, distance, 0);
+                return start + new Vector3(-scaledDistance, scaledDistance, 0);
             
             case Direction.DownRight:
-                return start + new Vector3(distance, -distance, 0);
+                return start + new Vector3(scaledDistance, -scaledDistance, 0);
             
             case Direction.DownLeft:
-                return start - new Vector3(distance, distance, 0);
+                return start - new Vector3(scaledDistance, scaledDistance, 0);
         }
 
         return new Vector3();
     }
     
     // get destination wrt boundary condition
-    private static Vector3 GetWrappedTarget(Direction direction, int distance, Vector3 start,
+    private Vector3 GetWrappedTarget(Direction direction, int distance, Vector3 start,
         float minX = float.NegativeInfinity, float maxX = float.PositiveInfinity,
         float minY = float.NegativeInfinity, float maxY = float.PositiveInfinity,
         float minZ = float.NegativeInfinity, float maxZ = float.PositiveInfinity)
@@ -147,3 +163,4 @@ public class Enemy : MonoBehaviour
         return (x % m + m) % m;
     }
 }
+

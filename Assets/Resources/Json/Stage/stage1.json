@@ -1,0 +1,8 @@
+﻿{
+  "stageId": 1,
+  "width": 7,
+  "height": 7,
+  "enemyNumber": 4,
+  "initialAuxiliaryBomb": 5,
+  "boardSpritePath": "Sprites/Boards/board_7x7"
+}

@@ -3,28 +3,24 @@ using UnityEngine;
 
 public class BombManager : MonoBehaviour
 {
-    public GameObject auxiliaryBomb;
-    public GameManager gameManager;
-    public Transform auxiliaryBombSet;
-    public TMP_Text leftoverAuxiliaryBombText;
+    // Set via Initialize
+    private GameObject auxiliaryBomb;
+    private Transform auxiliaryBombSet;
+    private TMP_Text leftoverAuxiliaryBombText;
 
-    // internal variables
-    private int _width;
-    private int _height;
+    // BoardManager reference for coordinate conversion
+    private BoardManager _boardManager;
     private int _leftoverAuxiliaryBomb;
     private Color _auxiliaryBombColor;
 
-    void Awake()
+    public void Initialize(GameObject auxiliaryBomb, GameManager gameManager, Transform auxiliaryBombSet, TMP_Text leftoverAuxiliaryBombText, BoardManager boardManager)
     {
-        _width = gameManager.width;
-        _height = gameManager.height;
-        _leftoverAuxiliaryBomb = gameManager.initialAuxiliaryBomb;
-        _auxiliaryBombColor = gameManager.auxiliaryBombColor;
-    }
-
-    // show leftover of the auxiliary bombs
-    void Start()
-    {
+        this.auxiliaryBomb = auxiliaryBomb;
+        this.auxiliaryBombSet = auxiliaryBombSet;
+        this.leftoverAuxiliaryBombText = leftoverAuxiliaryBombText;
+        _boardManager = boardManager;
+        _leftoverAuxiliaryBomb = gameManager.GetInitialAuxiliaryBomb();
+        _auxiliaryBombColor = gameManager.GetAuxiliaryBombColor();
         leftoverAuxiliaryBombText.text = $"leftover: {_leftoverAuxiliaryBomb}";
     }
     
@@ -34,8 +30,13 @@ public class BombManager : MonoBehaviour
         if (_leftoverAuxiliaryBomb <= 0)
             return null;
         
-        GameObject bomb = Instantiate(auxiliaryBomb, CalculatePosition(x, y), Quaternion.identity, auxiliaryBombSet);
+        Vector3 worldPos = _boardManager.GridToWorld(x, y);
+        GameObject bomb = Instantiate(auxiliaryBomb, worldPos, Quaternion.identity, auxiliaryBombSet);
         bomb.GetComponent<SpriteRenderer>().color = _auxiliaryBombColor;
+        
+        // Apply scale based on cell size
+        float cellSize = _boardManager.GetCellSize();
+        bomb.transform.localScale = Vector3.one * cellSize;
 
         _leftoverAuxiliaryBomb--;
         leftoverAuxiliaryBombText.text = $"leftover: {_leftoverAuxiliaryBomb}";
@@ -43,11 +44,16 @@ public class BombManager : MonoBehaviour
         return bomb;
     }
     
-    // grid coordinate -> global coordinate
-    private Vector3 CalculatePosition(int x, int y)
+    // get remaining auxiliary bombs count
+    public int GetLeftoverAuxiliaryBomb()
     {
-        float xCoordination = x - (_width - 1) / 2f;
-        float yCoordination = y - (_height - 1) / 2f;
-        return new Vector3(xCoordination, yCoordination, 0);
+        return _leftoverAuxiliaryBomb;
+    }
+    
+    // get planted (active) auxiliary bombs count
+    public int GetPlantedAuxiliaryBombCount()
+    {
+        return auxiliaryBombSet.childCount;
     }
 }
+

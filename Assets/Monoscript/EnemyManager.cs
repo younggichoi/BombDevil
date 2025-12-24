@@ -15,36 +15,55 @@ public enum Direction
 
 public class EnemyManager : MonoBehaviour
 {
-
-    public GameObject enemy;
-    public Transform enemySet;
-    public GameManager gameManager;
+    // Set via Initialize
+    private GameObject enemy;
+    private Transform enemySet;
     
-    // internal variables (get from GameManager)
-    private int _width;
-    private int _height;
+    // BoardManager and GameManager references
+    private BoardManager _boardManager;
+    private GameManager _gameManager;
     private Color _enemyColor;
     
-    void Awake()
+    // Enemy sprite (set via Initialize)
+    private Sprite _enemySprite;
+    
+    public void Initialize(GameObject enemy, Transform enemySet, GameManager gameManager, BoardManager boardManager, Sprite enemySprite)
     {
-        _width = gameManager.width;
-        _height = gameManager.height;
-        _enemyColor = gameManager.enemyColor;
+        this.enemy = enemy;
+        this.enemySet = enemySet;
+        _boardManager = boardManager;
+        _gameManager = gameManager;
+        _enemyColor = gameManager.GetEnemyColor();
+        _enemySprite = enemySprite;
     }
 
     // create enemy API (call from GameManager)
     public GameObject CreateEnemy(int x, int y)
     {
-        GameObject enemyObj = Instantiate(enemy, CalculatePosition(x, y), Quaternion.identity, enemySet);
-        enemyObj.GetComponent<SpriteRenderer>().color = _enemyColor;
+        Vector3 worldPos = _boardManager.GridToWorld(x, y);
+        GameObject enemyObj = Instantiate(enemy, worldPos, Quaternion.identity, enemySet);
+        
+        SpriteRenderer sr = enemyObj.GetComponent<SpriteRenderer>();
+        sr.color = _enemyColor;
+        
+        // Set sprite if provided
+        if (_enemySprite != null)
+        {
+            sr.sprite = _enemySprite;
+        }
+        
+        // Scale sprite to fit exactly one cell
+        float cellSize = _boardManager.GetCellSize();
+        Vector2 spriteSize = sr.sprite.bounds.size;
+        float scaleX = cellSize / spriteSize.x;
+        float scaleY = cellSize / spriteSize.y;
+        float scale = Mathf.Min(scaleX, scaleY);  // Keep aspect ratio, fit within cell
+        enemyObj.transform.localScale = Vector3.one * scale;
+        
+        // Initialize enemy
+        enemyObj.GetComponent<Enemy>().Initialize(_gameManager, _boardManager, _enemySprite);
+        
         return enemyObj;
     }
-    
-    // grid coordinate -> global coordinate
-    private Vector3 CalculatePosition(int x, int y)
-    {
-        float xCoordination = x - (_width - 1) / 2f;
-        float yCoordination = y - (_height - 1) / 2f;
-        return new Vector3(xCoordination, yCoordination, 0);
-    }
 }
+
