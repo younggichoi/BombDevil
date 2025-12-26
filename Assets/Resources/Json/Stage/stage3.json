@@ -6,5 +6,6 @@
     "initialBlueBomb": 3,
     "initialGreenBomb": 2,
     "initialPinkBomb": 2,
+    "remainingTurns": 15,
     "boardSpritePath": "Sprites/Boards/board_12x12"
 }

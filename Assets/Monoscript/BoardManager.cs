@@ -2,17 +2,14 @@ using UnityEngine;
 
 public class BoardManager : MonoBehaviour
 {
-    // Single board sprite (created at runtime)
-    private SpriteRenderer boardSprite;
+    // Grid of tile objects
+    private GameObject[,] _tiles;
     
-    // Board prefab to instantiate
-    private Sprite boardSpritePrefab;
+    // Parent object for tiles
+    private Transform _tileParent;
     
     // fixed board size on screen (units)
     private float fixedBoardSize = 8f;
-    
-    // The grid size the board asset is designed for (7x7)
-    private int assetGridSize = 7;
     
     // internal setting value (get from GameManager)
     private int _width;
@@ -20,83 +17,73 @@ public class BoardManager : MonoBehaviour
     
     // calculated cell size
     private float _cellSize;
+    
+    // Tile colors for checkerboard pattern
+    private Color _lightTileColor = new Color(0.9f, 0.9f, 0.85f);
+    private Color _darkTileColor = new Color(0.7f, 0.75f, 0.65f);
 
     public void Initialize(GameManager gameManager, Sprite boardSpritePrefab)
     {
-        this.boardSpritePrefab = boardSpritePrefab;
         _width = gameManager.GetWidth();
         _height = gameManager.GetHeight();
-        
-        // Set asset grid size to match logical grid (assumes board sprite matches logical grid)
-        assetGridSize = Mathf.Max(_width, _height);
         
         // Calculate cell size based on largest dimension
         _cellSize = fixedBoardSize / Mathf.Max(_width, _height);
         
-        // Create the board object in the scene
-        CreateBoard();
-        
-        // Scale the board sprite to match the grid
-        SetupBoardSprite();
+        // Create the tile grid
+        CreateTileGrid();
     }
     
-    // Create the board GameObject with SpriteRenderer
-    private void CreateBoard()
+    // Create individual tiles for the grid
+    private void CreateTileGrid()
     {
-        if (boardSpritePrefab == null)
+        // Create parent object for tiles
+        GameObject parentObj = new GameObject("BoardTiles");
+        parentObj.transform.position = Vector3.zero;
+        _tileParent = parentObj.transform;
+        
+        _tiles = new GameObject[_width, _height];
+        
+        // Create a simple square sprite for tiles
+        Sprite tileSprite = CreateSquareSprite();
+        
+        for (int x = 0; x < _width; x++)
         {
-            Debug.LogWarning("BoardManager: boardSpritePrefab is not assigned! Cannot create board.");
-            return;
+            for (int y = 0; y < _height; y++)
+            {
+                GameObject tile = new GameObject($"Tile_{x}_{y}");
+                tile.transform.SetParent(_tileParent);
+                
+                // Position the tile
+                tile.transform.position = GridToWorld(x, y);
+                tile.transform.localScale = Vector3.one * _cellSize * 0.95f; // Slight gap between tiles
+                
+                // Add sprite renderer
+                SpriteRenderer sr = tile.AddComponent<SpriteRenderer>();
+                sr.sprite = tileSprite;
+                sr.sortingOrder = -10;
+                
+                // Apply checkerboard pattern
+                bool isLight = (x + y) % 2 == 0;
+                sr.color = isLight ? _lightTileColor : _darkTileColor;
+                
+                _tiles[x, y] = tile;
+            }
         }
         
-        // Create a new GameObject for the board (standalone, not a child)
-        GameObject boardObject = new GameObject("Board");
-        boardObject.transform.position = Vector3.zero;
-        
-        // Add SpriteRenderer component and assign the sprite
-        boardSprite = boardObject.AddComponent<SpriteRenderer>();
-        boardSprite.sprite = boardSpritePrefab;
-        
-        // Set sorting order so board is behind other objects
-        boardSprite.sortingOrder = -10;
-        
-        Debug.Log("BoardManager: Board object created successfully!");
+        Debug.Log($"BoardManager: Created {_width}x{_height} tile grid");
     }
     
-    // Setup single board sprite - scale 8x8 asset to match logical grid
-    private void SetupBoardSprite()
+    // Create a simple square sprite for tiles
+    private Sprite CreateSquareSprite()
     {
-        if (boardSprite == null || boardSprite.sprite == null)
-        {
-            Debug.LogWarning("BoardManager: boardSprite or sprite is not assigned!");
-            return;
-        }
-        
-        // Calculate logical board size in world units
-        float logicalBoardWidth = _width * _cellSize;
-        float logicalBoardHeight = _height * _cellSize;
-        
-        // Get the sprite's original size in world units
-        Vector2 spriteSize = boardSprite.sprite.bounds.size;
-        
-        // Calculate how much of the 8x8 asset we need based on logical grid
-        // For example: if logical grid is 5x5, we need 5/8 of the asset
-        float widthRatio = (float)_width / assetGridSize;
-        float heightRatio = (float)_height / assetGridSize;
-        
-        // Calculate scale to make the visible portion match the logical grid
-        // The asset represents 8x8 cells, we scale it so our logical grid cells align
-        float scaleX = logicalBoardWidth / (spriteSize.x * widthRatio);
-        float scaleY = logicalBoardHeight / (spriteSize.y * heightRatio);
-        
-        boardSprite.transform.localScale = new Vector3(scaleX, scaleY, 1f);
-        
-        // Center the board at origin
-        boardSprite.transform.position = Vector3.zero;
-        
-        Debug.Log($"BoardManager: Logical grid={_width}x{_height}, Asset grid={assetGridSize}x{assetGridSize}");
-        Debug.Log($"BoardManager: cellSize={_cellSize}, boardSize={logicalBoardWidth}x{logicalBoardHeight}");
-        Debug.Log($"BoardManager: Scale={boardSprite.transform.localScale}");
+        Texture2D texture = new Texture2D(32, 32);
+        Color[] colors = new Color[32 * 32];
+        for (int i = 0; i < colors.Length; i++)
+            colors[i] = Color.white;
+        texture.SetPixels(colors);
+        texture.Apply();
+        return Sprite.Create(texture, new Rect(0, 0, 32, 32), new Vector2(0.5f, 0.5f), 32);
     }
     
     // grid coordinate -> world coordinate (public API)

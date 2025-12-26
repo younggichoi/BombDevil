@@ -1,0 +1,6 @@
+{
+    "bombType": "RealBomb",
+    "range": 1,
+    "knockbackDistance": 0,
+    "colorHex": "#FF0000"
+}

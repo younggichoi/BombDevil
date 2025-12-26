@@ -4,6 +4,7 @@ namespace Entity
     {
         BlueBomb,
         GreenBomb,
-        PinkBomb
+        PinkBomb,
+        RealBomb
     }
 }

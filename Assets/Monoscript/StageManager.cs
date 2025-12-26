@@ -11,6 +11,7 @@ public class StageManager : MonoBehaviour
     // Prefabs and sprites (assign in Inspector - common for all stages)
     public GameObject enemyPrefab;
     public GameObject auxiliaryBombPrefab;
+    public GameObject realBombPrefab;
     public Sprite enemySprite;
     
     // StageRoot prefab
@@ -46,7 +47,7 @@ public class StageManager : MonoBehaviour
             enemyColor);
         
         StageRoot stageRoot = currStage.GetComponent<StageRoot>();
-        stageRoot.Install(stageId, commonData, enemyPrefab, auxiliaryBombPrefab, enemySprite);
+        stageRoot.Install(stageId, commonData, enemyPrefab, auxiliaryBombPrefab, realBombPrefab, enemySprite);
         
         // Subscribe to game state changed event
         _currentGameManager = stageRoot.GameManager;

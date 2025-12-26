@@ -13,6 +13,9 @@
         public int initialGreenBomb;
         public int initialPinkBomb;
         
+        // Turn limit for the stage
+        public int remainingTurns;
+        
         public string boardSpritePath;  // Resources path to board sprite (e.g., "Sprites/Boards/board_7x7")
         
         // Get initial bomb count by type

@@ -10,9 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 279032986044127364}
   - component: {fileID: 3266527964381321155}
-  - component: {fileID: 8672440948457471066}
+  - component: {fileID: -6266017630932852849}
   m_Layer: 0
-  m_Name: Circle
+  m_Name: RealBomb
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -81,7 +81,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  m_Color: {r: 1, g: 0, b: 0.9694123, a: 1}
+  m_Color: {r: 1, g: 0.09067254, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -91,7 +91,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &8672440948457471066
+--- !u!114 &-6266017630932852849
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -100,6 +100,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 5218278994332064331}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e8ab5a7a558c9f442b5e2ef516820e0d, type: 3}
+  m_Script: {fileID: 11500000, guid: 2604cf7b179b0d74983080952e94a04b, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AuxiliaryBomb
+  m_EditorClassIdentifier: Assembly-CSharp::RealBomb

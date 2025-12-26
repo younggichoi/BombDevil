@@ -7,17 +7,21 @@ public class BombManager : MonoBehaviour
 {
     // Set via Initialize
     private GameObject auxiliaryBomb;
+    private GameObject realBombPrefab;
     private Transform auxiliaryBombSet;
+    private Transform realBombSet;
     
     // Text UI for each bomb type
     private TMP_Text _blueBombText;
     private TMP_Text _greenBombText;
     private TMP_Text _pinkBombText;
+    private TMP_Text _realBombText;
     
     // Check UI for each bomb type (shows which bomb is selected)
     private GameObject _blueBombChecked;
     private GameObject _greenBombChecked;
     private GameObject _pinkBombChecked;
+    private GameObject _realBombChecked;
     
     // Explode button text
     private TMP_Text _explodeButtonText;
@@ -28,27 +32,39 @@ public class BombManager : MonoBehaviour
     // Leftover bomb counts per type
     private Dictionary<BombType, int> _leftoverBombs;
     
+    // RealBomb count (1 per stage)
+    private int _realBombCount = 1;
+    
     // Bomb data loaded from JSON
     private Dictionary<BombType, BombData> _bombDataDict;
     
     // Current selected bomb type (null = not selected)
     private BombType? _currentBombType = null;
+    
+    // GameManager reference for info messages
+    private GameManager _gameManager;
 
-    public void Initialize(GameObject auxiliaryBomb, GameManager gameManager, Transform auxiliaryBombSet, 
-        TMP_Text blueBombText, TMP_Text greenBombText, TMP_Text pinkBombText,
-        GameObject blueBombChecked, GameObject greenBombChecked, GameObject pinkBombChecked,
+    public void Initialize(GameObject auxiliaryBomb, GameObject realBombPrefab, GameManager gameManager, 
+        Transform auxiliaryBombSet, Transform realBombSet,
+        TMP_Text blueBombText, TMP_Text greenBombText, TMP_Text pinkBombText, TMP_Text realBombText,
+        GameObject blueBombChecked, GameObject greenBombChecked, GameObject pinkBombChecked, GameObject realBombChecked,
         TMP_Text explodeButtonText, BoardManager boardManager)
     {
         this.auxiliaryBomb = auxiliaryBomb;
+        this.realBombPrefab = realBombPrefab;
         this.auxiliaryBombSet = auxiliaryBombSet;
+        this.realBombSet = realBombSet;
         _blueBombText = blueBombText;
         _greenBombText = greenBombText;
         _pinkBombText = pinkBombText;
+        _realBombText = realBombText;
         _blueBombChecked = blueBombChecked;
         _greenBombChecked = greenBombChecked;
         _pinkBombChecked = pinkBombChecked;
+        _realBombChecked = realBombChecked;
         _explodeButtonText = explodeButtonText;
         _boardManager = boardManager;
+        _gameManager = gameManager;
         
         // Set initial explode button text
         if (_explodeButtonText != null)
@@ -61,6 +77,9 @@ public class BombManager : MonoBehaviour
             { BombType.GreenBomb, gameManager.GetInitialBombCount(BombType.GreenBomb) },
             { BombType.PinkBomb, gameManager.GetInitialBombCount(BombType.PinkBomb) }
         };
+        
+        // Initialize RealBomb count (1 per stage)
+        _realBombCount = 1;
         
         // Load all bomb data from JSON
         LoadAllBombData();
@@ -81,6 +100,7 @@ public class BombManager : MonoBehaviour
         LoadBombData("BlueBomb");
         LoadBombData("GreenBomb");
         LoadBombData("PinkBomb");
+        LoadBombData("RealBomb");
     }
     
     // Load single bomb data from JSON
@@ -106,6 +126,7 @@ public class BombManager : MonoBehaviour
         UpdateBombText(BombType.BlueBomb);
         UpdateBombText(BombType.GreenBomb);
         UpdateBombText(BombType.PinkBomb);
+        UpdateRealBombText();
     }
     
     // Update specific bomb text UI
@@ -128,6 +149,13 @@ public class BombManager : MonoBehaviour
                     _pinkBombText.text = $"Pink: {count}";
                 break;
         }
+    }
+    
+    // Update RealBomb text UI
+    private void UpdateRealBombText()
+    {
+        if (_realBombText != null)
+            _realBombText.text = $"Real: {_realBombCount}";
     }
     
     // Get bomb data by type
@@ -157,6 +185,48 @@ public class BombManager : MonoBehaviour
     {
         _currentBombType = bombType;
         UpdateCheckedUI();
+        
+        // Show selection message via GameManager
+        if (_gameManager != null)
+        {
+            string bombName = GetBombDisplayName(bombType);
+            _gameManager.ShowBombSelectedMessage(bombName);
+        }
+    }
+    
+    // Get display name for bomb type
+    private string GetBombDisplayName(BombType bombType)
+    {
+        switch (bombType)
+        {
+            case BombType.BlueBomb: return "Blue";
+            case BombType.GreenBomb: return "Green";
+            case BombType.PinkBomb: return "Pink";
+            case BombType.RealBomb: return "Real";
+            default: return bombType.ToString();
+        }
+    }
+    
+    // Check if selected bomb has any left (and show message if not)
+    public bool CheckBombAvailable(BombType bombType)
+    {
+        bool available = false;
+        
+        if (bombType == BombType.RealBomb)
+        {
+            available = _realBombCount > 0;
+        }
+        else if (_leftoverBombs.TryGetValue(bombType, out int count))
+        {
+            available = count > 0;
+        }
+        
+        if (!available && _gameManager != null)
+        {
+            _gameManager.ShowNoBombLeftMessage(GetBombDisplayName(bombType));
+        }
+        
+        return available;
     }
     
     // Reset explode button text to PASS (called after turn ends)
@@ -173,6 +243,7 @@ public class BombManager : MonoBehaviour
         if (_blueBombChecked != null) _blueBombChecked.SetActive(false);
         if (_greenBombChecked != null) _greenBombChecked.SetActive(false);
         if (_pinkBombChecked != null) _pinkBombChecked.SetActive(false);
+        if (_realBombChecked != null) _realBombChecked.SetActive(false);
         
         // Activate the selected one
         if (_currentBombType.HasValue)
@@ -187,6 +258,9 @@ public class BombManager : MonoBehaviour
                     break;
                 case BombType.PinkBomb:
                     if (_pinkBombChecked != null) _pinkBombChecked.SetActive(true);
+                    break;
+                case BombType.RealBomb:
+                    if (_realBombChecked != null) _realBombChecked.SetActive(true);
                     break;
             }
         }
@@ -263,5 +337,61 @@ public class BombManager : MonoBehaviour
     public int GetPlantedAuxiliaryBombCount()
     {
         return auxiliaryBombSet.childCount;
+    }
+    
+    // Get planted (active) real bombs count
+    public int GetPlantedRealBombCount()
+    {
+        return realBombSet != null ? realBombSet.childCount : 0;
+    }
+    
+    // Check if RealBomb is available
+    public bool IsRealBombAvailable()
+    {
+        return _realBombCount > 0;
+    }
+    
+    // Get RealBomb count
+    public int GetRealBombCount()
+    {
+        return _realBombCount;
+    }
+    
+    // Plant RealBomb at specified position
+    public GameObject PlantRealBomb(int x, int y)
+    {
+        if (_realBombCount <= 0)
+            return null;
+        
+        BombData bombData = GetBombData(BombType.RealBomb);
+        if (bombData == null)
+        {
+            Debug.LogError("RealBomb data not found!");
+            return null;
+        }
+        
+        Vector3 worldPos = _boardManager.GridToWorld(x, y);
+        GameObject bomb = Instantiate(realBombPrefab, worldPos, Quaternion.identity, realBombSet);
+        
+        // Initialize bomb with data
+        RealBomb bombComponent = bomb.GetComponent<RealBomb>();
+        if (bombComponent != null)
+        {
+            bombComponent.Initialize(bombData);
+        }
+        
+        // Apply scale based on cell size
+        float cellSize = _boardManager.GetCellSize();
+        bomb.transform.localScale = Vector3.one * cellSize;
+        
+        // Decrease RealBomb count
+        _realBombCount--;
+        UpdateRealBombText();
+        
+        // Change explode button text to EXPLOSION
+        if (_explodeButtonText != null)
+            _explodeButtonText.text = "EXPLOSION";
+        
+        return bomb;
     }
 }
