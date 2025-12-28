@@ -11,8 +11,8 @@ public class Enemy : MonoBehaviour
     // cell size for scaling movement
     private float _cellSize;
     
-    // direction attribute for this enemy (Up, Down, Left, Right only)
-    private Direction _moveDirection;
+    // direction attribute for this enemy (as Vector2)
+    private Vector2 _moveDirection;
     
     // boundary coordinate (get from BoardManager)
     private float _minX, _maxX, _minY, _maxY;
@@ -40,18 +40,18 @@ public class Enemy : MonoBehaviour
     }
     
     // walk API
-    public void Walk(Direction direction)
+    // directionAndDistance: the vector from current position to target cell (in board units, not normalized)
+    public void Walk(Vector2 directionAndDistance)
     {
-        StartCoroutine(Move(direction, 1, _walkDuration));
+        StartCoroutine(Move(directionAndDistance, _walkDuration));
     }
     
     // set random direction (Up, Down, Left, Right) and apply rotation
     public void SetRandomDirection()
     {
-        Direction[] cardinalDirections = { Direction.Up, Direction.Down, Direction.Left, Direction.Right };
+        Vector2[] cardinalDirections = { Vector2.up, Vector2.down, Vector2.left, Vector2.right };
         int randomIndex = Random.Range(0, cardinalDirections.Length);
         _moveDirection = cardinalDirections[randomIndex];
-        
         // Apply rotation based on direction
         ApplyDirectionRotation();
     }
@@ -61,51 +61,44 @@ public class Enemy : MonoBehaviour
     private void ApplyDirectionRotation()
     {
         float rotationZ = 0f;
-        
-        switch (_moveDirection)
-        {
-            case Direction.Down:
-                rotationZ = 0f;      // Default - facing down
-                break;
-            case Direction.Up:
-                rotationZ = 180f;    // Facing up
-                break;
-            case Direction.Left:
-                rotationZ = -90f;    // Facing left (or 270)
-                break;
-            case Direction.Right:
-                rotationZ = 90f;     // Facing right
-                break;
-        }
-        
+        if (_moveDirection == Vector2.down)
+            rotationZ = 0f;
+        else if (_moveDirection == Vector2.up)
+            rotationZ = 180f;
+        else if (_moveDirection == Vector2.left)
+            rotationZ = -90f;
+        else if (_moveDirection == Vector2.right)
+            rotationZ = 90f;
         transform.rotation = Quaternion.Euler(0f, 0f, rotationZ);
     }
     
     // get current direction
-    public Direction GetMoveDirection()
+    public Vector2 GetMoveDirection()
     {
         return _moveDirection;
     }
     
-    // move one cell in the assigned direction
+    // move in the assigned direction and distance
     public void MoveInDirection()
     {
         Walk(_moveDirection);
     }
     
     // knockback API
-    public void Knockback(Direction direction, int distance)
+    // directionAndDistance: the vector from current position to target cell (in board units, not normalized)
+    public void Knockback(Vector2 directionAndDistance)
     {
-        StartCoroutine(Move(direction, distance, _knockbackDuration));
+        Debug.Log($"Enemy at {transform.position} knocked back by {directionAndDistance}");
+        StartCoroutine(Move(directionAndDistance, _knockbackDuration));
     }
     
     // internal move API
-    private IEnumerator Move(Direction direction, int distance, float duration)
+    // directionAndDistance: the vector from current position to target cell (in board units, not normalized)
+    private IEnumerator Move(Vector2 directionAndDistance, float duration)
     {
         Vector3 start = transform.position;
-        Vector3 target = GetTarget(direction, distance, start);
+        Vector3 target = GetTarget(directionAndDistance, start);
         float time = 0f;
-
         while (time < duration)
         {
             time += Time.deltaTime;
@@ -113,8 +106,7 @@ public class Enemy : MonoBehaviour
             transform.position = LerpWrap(start, target, t, _minX, _maxX, _minY, _maxY);
             yield return null;
         }
-
-        transform.position = GetWrappedTarget(direction, distance, start, _minX, _maxX, _minY, _maxY);
+        transform.position = GetWrappedTarget(directionAndDistance, start, _minX, _maxX, _minY, _maxY);
     }
 
     // It can process boundary condition - wraps position within bounds
@@ -155,57 +147,26 @@ public class Enemy : MonoBehaviour
         return new Vector3(x, y, z);
     }
 
-    // get destination from direction, distance, start point (scaled by cellSize)
-    private Vector3 GetTarget(Direction direction, int distance, Vector3 start)
+    // Vector2 version: directionAndDistance is in board units (not normalized)
+    private static Vector3 GetTarget(Vector2 directionAndDistance, Vector3 start, float cellSize = 1f)
     {
-        float scaledDistance = distance * _cellSize;
-        
-        switch (direction)
-        {
-            case Direction.Up:
-                return start + new Vector3(0, scaledDistance, 0);
-            
-            case Direction.Down:
-                return start - new Vector3(0, scaledDistance, 0);
-            
-            case Direction.Right:
-                return start + new Vector3(scaledDistance, 0, 0);
-            
-            case Direction.Left:
-                return start - new Vector3(scaledDistance, 0, 0);
-            
-            case Direction.UpRight:
-                return start + new Vector3(scaledDistance, scaledDistance, 0);
-            
-            case Direction.UpLeft:
-                return start + new Vector3(-scaledDistance, scaledDistance, 0);
-            
-            case Direction.DownRight:
-                return start + new Vector3(scaledDistance, -scaledDistance, 0);
-            
-            case Direction.DownLeft:
-                return start - new Vector3(scaledDistance, scaledDistance, 0);
-        }
-
-        return new Vector3();
+        Vector2 move = directionAndDistance * cellSize;
+        return start + new Vector3(move.x, move.y, 0);
     }
-    
-    // get destination wrt boundary condition
-    private Vector3 GetWrappedTarget(Direction direction, int distance, Vector3 start,
+
+    private static Vector3 GetWrappedTarget(Vector2 directionAndDistance, Vector3 start,
         float minX = float.NegativeInfinity, float maxX = float.PositiveInfinity,
         float minY = float.NegativeInfinity, float maxY = float.PositiveInfinity,
-        float minZ = float.NegativeInfinity, float maxZ = float.PositiveInfinity)
+        float minZ = float.NegativeInfinity, float maxZ = float.PositiveInfinity,
+        float cellSize = 1f)
     {
-
-        Vector3 result = GetTarget(direction, distance, start);
-        
-        if (result.x < minX || result.x > maxX)
+        Vector3 result = GetTarget(directionAndDistance, start, cellSize);
+        if (result.x < minX || result.x >= maxX)
             result.x = Mod(result.x - minX, maxX - minX) + minX;
-        if (result.y < minY || result.y > maxY)
+        if (result.y < minY || result.y >= maxY)
             result.y = Mod(result.y - minY, maxY - minY) + minY;
-        if (result.z < minZ || result.z > maxZ)
+        if (result.z < minZ || result.z >= maxZ)
             result.z = Mod(result.z - minZ, maxZ - minZ) + minZ;
-
         return result;
     }
 
