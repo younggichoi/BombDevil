@@ -60,7 +60,7 @@ public class EnemyManager : MonoBehaviour
         float scale = Mathf.Min(scaleX, scaleY);  // Keep aspect ratio, fit within cell
         enemyObj.transform.localScale = Vector3.one * scale;
         
-        // Initialize enemy
+        // Initialize enemy with unique id
         Enemy enemyComponent = enemyObj.GetComponent<Enemy>();
         enemyComponent.Initialize(_gameManager, _boardManager, _enemySprite);
         

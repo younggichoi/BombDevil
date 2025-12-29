@@ -5,6 +5,7 @@ namespace Entity
         BlueBomb,
         GreenBomb,
         PinkBomb,
+        SkyblueBomb,
         RealBomb
     }
 }

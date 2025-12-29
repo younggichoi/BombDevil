@@ -15,14 +15,16 @@ public class BombManager : MonoBehaviour
     private TMP_Text _blueBombText;
     private TMP_Text _greenBombText;
     private TMP_Text _pinkBombText;
+    private TMP_Text _skyblueBombText;
     private TMP_Text _realBombText;
     
     // Check UI for each bomb type (shows which bomb is selected)
     private GameObject _blueBombChecked;
     private GameObject _greenBombChecked;
     private GameObject _pinkBombChecked;
+    private GameObject _skyblueBombChecked;
     private GameObject _realBombChecked;
-    
+
     // Explode button text
     private TMP_Text _explodeButtonText;
 
@@ -46,8 +48,8 @@ public class BombManager : MonoBehaviour
 
     public void Initialize(GameObject auxiliaryBomb, GameObject realBombPrefab, GameManager gameManager, 
         Transform auxiliaryBombSet, Transform realBombSet,
-        TMP_Text blueBombText, TMP_Text greenBombText, TMP_Text pinkBombText, TMP_Text realBombText,
-        GameObject blueBombChecked, GameObject greenBombChecked, GameObject pinkBombChecked, GameObject realBombChecked,
+        TMP_Text blueBombText, TMP_Text greenBombText, TMP_Text pinkBombText, TMP_Text skyblueBombText, TMP_Text realBombText,
+        GameObject blueBombChecked, GameObject greenBombChecked, GameObject pinkBombChecked, GameObject skyblueBombChecked, GameObject realBombChecked,
         TMP_Text explodeButtonText, BoardManager boardManager)
     {
         this.auxiliaryBomb = auxiliaryBomb;
@@ -57,15 +59,17 @@ public class BombManager : MonoBehaviour
         _blueBombText = blueBombText;
         _greenBombText = greenBombText;
         _pinkBombText = pinkBombText;
+        _skyblueBombText = skyblueBombText;
         _realBombText = realBombText;
         _blueBombChecked = blueBombChecked;
         _greenBombChecked = greenBombChecked;
         _pinkBombChecked = pinkBombChecked;
+        _skyblueBombChecked = skyblueBombChecked;
         _realBombChecked = realBombChecked;
         _explodeButtonText = explodeButtonText;
         _boardManager = boardManager;
         _gameManager = gameManager;
-        
+
         // Set initial explode button text
         if (_explodeButtonText != null)
             _explodeButtonText.text = "PASS";
@@ -75,7 +79,8 @@ public class BombManager : MonoBehaviour
         {
             { BombType.BlueBomb, gameManager.GetInitialBombCount(BombType.BlueBomb) },
             { BombType.GreenBomb, gameManager.GetInitialBombCount(BombType.GreenBomb) },
-            { BombType.PinkBomb, gameManager.GetInitialBombCount(BombType.PinkBomb) }
+            { BombType.PinkBomb, gameManager.GetInitialBombCount(BombType.PinkBomb) },
+            { BombType.SkyblueBomb, gameManager.GetInitialBombCount(BombType.SkyblueBomb)}
         };
         
         // Initialize RealBomb count (1 per stage)
@@ -100,6 +105,7 @@ public class BombManager : MonoBehaviour
         LoadBombData("BlueBomb");
         LoadBombData("GreenBomb");
         LoadBombData("PinkBomb");
+        LoadBombData("SkyblueBomb");
         LoadBombData("RealBomb");
     }
     
@@ -126,6 +132,7 @@ public class BombManager : MonoBehaviour
         UpdateBombText(BombType.BlueBomb);
         UpdateBombText(BombType.GreenBomb);
         UpdateBombText(BombType.PinkBomb);
+        UpdateBombText(BombType.SkyblueBomb);
         UpdateRealBombText();
     }
     
@@ -193,6 +200,12 @@ public class BombManager : MonoBehaviour
             _gameManager.ShowBombSelectedMessage(bombName);
         }
     }
+
+    public void ClearCurrentBombType()
+    {
+        _currentBombType = null;
+        UpdateCheckedUI();
+    }
     
     // Get display name for bomb type
     private string GetBombDisplayName(BombType bombType)
@@ -202,6 +215,7 @@ public class BombManager : MonoBehaviour
             case BombType.BlueBomb: return "Blue";
             case BombType.GreenBomb: return "Green";
             case BombType.PinkBomb: return "Pink";
+            case BombType.SkyblueBomb: return "Skyblue";
             case BombType.RealBomb: return "Real";
             default: return bombType.ToString();
         }

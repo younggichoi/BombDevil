@@ -3,23 +3,27 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
-
+    private static int _nextId = 1;
+    public int EnemyId { get; private set; }
+    private GameManager _gameManager;
     // motion duration (get from GameManager)
     private float _walkDuration;
     private float _knockbackDuration;
-    
     // cell size for scaling movement
     private float _cellSize;
-    
-    // direction attribute for this enemy (Up, Down, Left, Right only)
-    private Direction _moveDirection;
-    
+    // direction attribute for this enemy (as Vector2Int)
+    private Vector2Int _moveDirection;
     // boundary coordinate (get from BoardManager)
     private float _minX, _maxX, _minY, _maxY;
 
+    // Stun state
+    private bool _isStunned = false;
+    public bool IsStunned => _isStunned;
+
     // initializing internal attribute
-    public void Initialize(GameManager gameManager, BoardManager boardManager, Sprite sprite)
+    public void Initialize(GameManager gameManager, BoardManager boardManager, Sprite sprite, int? forcedId = null)
     {
+        _gameManager = gameManager;
         _walkDuration = gameManager.getWalkDuration();
         _knockbackDuration = gameManager.getKnockbackDuration();
         _cellSize = boardManager.GetCellSize();
@@ -27,7 +31,12 @@ public class Enemy : MonoBehaviour
         _maxX = boardManager.GetMaxX();
         _minY = boardManager.GetMinY();
         _maxY = boardManager.GetMaxY();
-        
+        _isStunned = false;
+        if (forcedId.HasValue) {
+            EnemyId = forcedId.Value;
+        } else {
+            EnemyId = _nextId++;
+        }
         // Set sprite if provided
         if (sprite != null)
         {
@@ -38,74 +47,112 @@ public class Enemy : MonoBehaviour
             }
         }
     }
-    
-    // walk API
-    public void Walk(Direction direction)
+
+    // Set stunned state
+    public void SetStunned(bool stunned)
     {
-        StartCoroutine(Move(direction, 1, _walkDuration));
+        // Once stunned, cannot be unstunned
+        if (stunned)
+            _isStunned = true;
+        // Optionally, add visual feedback for stun here
+        // e.g., change color, play animation, etc.
     }
-    
+
+    // walk API
+    // directionAndDistance: the vector from current position to target cell (in board units, not normalized)
+    public void Walk(Vector2Int directionAndDistance)
+    {
+        if (_isStunned) return;
+        StartCoroutine(Move(directionAndDistance, _walkDuration));
+    }
+
     // set random direction (Up, Down, Left, Right) and apply rotation
     public void SetRandomDirection()
     {
-        Direction[] cardinalDirections = { Direction.Up, Direction.Down, Direction.Left, Direction.Right };
+        if (_isStunned) return;
+        Vector2Int[] cardinalDirections = { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
         int randomIndex = Random.Range(0, cardinalDirections.Length);
         _moveDirection = cardinalDirections[randomIndex];
-        
         // Apply rotation based on direction
         ApplyDirectionRotation();
     }
-    
+
     // Apply rotation based on move direction
     // Default sprite faces Down (0 degrees)
     private void ApplyDirectionRotation()
     {
         float rotationZ = 0f;
-        
-        switch (_moveDirection)
-        {
-            case Direction.Down:
-                rotationZ = 0f;      // Default - facing down
-                break;
-            case Direction.Up:
-                rotationZ = 180f;    // Facing up
-                break;
-            case Direction.Left:
-                rotationZ = -90f;    // Facing left (or 270)
-                break;
-            case Direction.Right:
-                rotationZ = 90f;     // Facing right
-                break;
-        }
-        
+        if (_moveDirection == Vector2Int.down)
+            rotationZ = 0f;
+        else if (_moveDirection == Vector2Int.up)
+            rotationZ = 180f;
+        else if (_moveDirection == Vector2Int.left)
+            rotationZ = -90f;
+        else if (_moveDirection == Vector2Int.right)
+            rotationZ = 90f;
+        else if (_moveDirection == new Vector2Int(1, 1)) // Up-Right
+            rotationZ = 135f;
+        else if (_moveDirection == new Vector2Int(-1, 1)) // Up-Left
+            rotationZ = -135f;
+        else if (_moveDirection == new Vector2Int(-1, -1)) // Down-Left
+            rotationZ = -45f;
+        else if (_moveDirection == new Vector2Int(1, -1)) // Down-Right
+            rotationZ = 45f;
         transform.rotation = Quaternion.Euler(0f, 0f, rotationZ);
     }
-    
+
     // get current direction
-    public Direction GetMoveDirection()
+    public Vector2Int GetMoveDirection()
     {
         return _moveDirection;
     }
-    
-    // move one cell in the assigned direction
+
+    // move in the assigned direction and distance
     public void MoveInDirection()
     {
+        if (_isStunned) return;
         Walk(_moveDirection);
     }
-    
+
     // knockback API
-    public void Knockback(Direction direction, int distance)
+    // directionAndDistance: the vector from current position to target cell (in board units, not normalized)
+    public void Knockback(Vector2Int directionAndDistance)
     {
-        StartCoroutine(Move(direction, distance, _knockbackDuration));
+        Debug.Log($"Enemy at {transform.position} knocked back by {directionAndDistance}");
+        // Stun is permanent; do not remove stun here
+        StartCoroutine(Move(directionAndDistance, _knockbackDuration));
     }
-    
+
+    // set direction towards megaphone and apply rotation
+    public void SetDirectionTowards(Vector3 targetPosition)
+    {
+        if (_isStunned) return;
+
+        Vector3 direction = targetPosition - transform.position;
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+
+        // Snap angle to 8 directions (45-degree increments)
+        angle = Mathf.Round(angle / 45f) * 45f;
+
+        if (angle == 0) _moveDirection = Vector2Int.right;
+        else if (angle == 45) _moveDirection = new Vector2Int(1, 1);
+        else if (angle == 90) _moveDirection = Vector2Int.up;
+        else if (angle == 135) _moveDirection = new Vector2Int(-1, 1);
+        else if (angle == 180 || angle == -180) _moveDirection = Vector2Int.left;
+        else if (angle == -135) _moveDirection = new Vector2Int(-1, -1);
+        else if (angle == -90) _moveDirection = Vector2Int.down;
+        else if (angle == -45) _moveDirection = new Vector2Int(1, -1);
+        
+        ApplyDirectionRotation();
+    }
+
     // internal move API
-    private IEnumerator Move(Direction direction, int distance, float duration)
+    // directionAndDistance: the vector from current position to target cell (in board units, not normalized)
+    private IEnumerator Move(Vector2Int directionAndDistance, float duration)
     {
         Vector3 start = transform.position;
-        Vector3 target = GetTarget(direction, distance, start);
+        Vector3 target = GetTarget(directionAndDistance, start);
         float time = 0f;
-
         while (time < duration)
         {
             time += Time.deltaTime;
@@ -113,8 +160,7 @@ public class Enemy : MonoBehaviour
             transform.position = LerpWrap(start, target, t, _minX, _maxX, _minY, _maxY);
             yield return null;
         }
-
-        transform.position = GetWrappedTarget(direction, distance, start, _minX, _maxX, _minY, _maxY);
+        transform.position = GetWrappedTarget(directionAndDistance, start, _minX, _maxX, _minY, _maxY);
     }
 
     // It can process boundary condition - wraps position within bounds
@@ -127,7 +173,7 @@ public class Enemy : MonoBehaviour
         float x = a.x + (b.x - a.x) * t;
         float y = a.y + (b.y - a.y) * t;
         float z = a.z + (b.z - a.z) * t;
-        
+
         // Wrap x within bounds
         float widthX = maxX - minX;
         if (widthX > 0)
@@ -135,7 +181,7 @@ public class Enemy : MonoBehaviour
             while (x > maxX) x -= widthX;
             while (x < minX) x += widthX;
         }
-        
+
         // Wrap y within bounds
         float widthY = maxY - minY;
         if (widthY > 0)
@@ -143,7 +189,7 @@ public class Enemy : MonoBehaviour
             while (y > maxY) y -= widthY;
             while (y < minY) y += widthY;
         }
-        
+
         // Wrap z within bounds
         float widthZ = maxZ - minZ;
         if (widthZ > 0)
@@ -155,57 +201,26 @@ public class Enemy : MonoBehaviour
         return new Vector3(x, y, z);
     }
 
-    // get destination from direction, distance, start point (scaled by cellSize)
-    private Vector3 GetTarget(Direction direction, int distance, Vector3 start)
+    // Vector2Int version: directionAndDistance is in board units (not normalized)
+    private static Vector3 GetTarget(Vector2Int directionAndDistance, Vector3 start, float cellSize = 1f)
     {
-        float scaledDistance = distance * _cellSize;
-        
-        switch (direction)
-        {
-            case Direction.Up:
-                return start + new Vector3(0, scaledDistance, 0);
-            
-            case Direction.Down:
-                return start - new Vector3(0, scaledDistance, 0);
-            
-            case Direction.Right:
-                return start + new Vector3(scaledDistance, 0, 0);
-            
-            case Direction.Left:
-                return start - new Vector3(scaledDistance, 0, 0);
-            
-            case Direction.UpRight:
-                return start + new Vector3(scaledDistance, scaledDistance, 0);
-            
-            case Direction.UpLeft:
-                return start + new Vector3(-scaledDistance, scaledDistance, 0);
-            
-            case Direction.DownRight:
-                return start + new Vector3(scaledDistance, -scaledDistance, 0);
-            
-            case Direction.DownLeft:
-                return start - new Vector3(scaledDistance, scaledDistance, 0);
-        }
-
-        return new Vector3();
+        Vector2 move = new Vector2(directionAndDistance.x, directionAndDistance.y) * cellSize;
+        return start + new Vector3(move.x, move.y, 0);
     }
-    
-    // get destination wrt boundary condition
-    private Vector3 GetWrappedTarget(Direction direction, int distance, Vector3 start,
+
+    private static Vector3 GetWrappedTarget(Vector2Int directionAndDistance, Vector3 start,
         float minX = float.NegativeInfinity, float maxX = float.PositiveInfinity,
         float minY = float.NegativeInfinity, float maxY = float.PositiveInfinity,
-        float minZ = float.NegativeInfinity, float maxZ = float.PositiveInfinity)
+        float minZ = float.NegativeInfinity, float maxZ = float.PositiveInfinity,
+        float cellSize = 1f)
     {
-
-        Vector3 result = GetTarget(direction, distance, start);
-        
-        if (result.x < minX || result.x > maxX)
+        Vector3 result = GetTarget(directionAndDistance, start, cellSize);
+        if (result.x < minX || result.x >= maxX)
             result.x = Mod(result.x - minX, maxX - minX) + minX;
-        if (result.y < minY || result.y > maxY)
+        if (result.y < minY || result.y >= maxY)
             result.y = Mod(result.y - minY, maxY - minY) + minY;
-        if (result.z < minZ || result.z > maxZ)
+        if (result.z < minZ || result.z >= maxZ)
             result.z = Mod(result.z - minZ, maxZ - minZ) + minZ;
-
         return result;
     }
 
@@ -213,12 +228,12 @@ public class Enemy : MonoBehaviour
     {
         return (x % m + m) % m;
     }
-    
+
     private static float Mod(float x, float m)
     {
         return (x % m + m) % m;
     }
-    
+
     private static int Mod(int x, int m)
     {
         return (x % m + m) % m;
