@@ -64,4 +64,17 @@ public partial class GameManager : MonoBehaviour
             _timeText.text = $"{hours:D2}:{minutes:D2}:{seconds:D2}";
         }
     }
+
+    public void OnResetButtonClick()
+    {
+        StageManager stageManager = FindObjectOfType<StageManager>();
+        if (stageManager != null)
+        {
+            stageManager.RestartStage();
+        }
+        else
+        {
+            Debug.LogError("StageManager not found in the scene!");
+        }
+    }
 }

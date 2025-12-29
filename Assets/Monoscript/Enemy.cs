@@ -90,6 +90,14 @@ public class Enemy : MonoBehaviour
             rotationZ = -90f;
         else if (_moveDirection == Vector2Int.right)
             rotationZ = 90f;
+        else if (_moveDirection == new Vector2Int(1, 1)) // Up-Right
+            rotationZ = 135f;
+        else if (_moveDirection == new Vector2Int(-1, 1)) // Up-Left
+            rotationZ = -135f;
+        else if (_moveDirection == new Vector2Int(-1, -1)) // Down-Left
+            rotationZ = -45f;
+        else if (_moveDirection == new Vector2Int(1, -1)) // Down-Right
+            rotationZ = 45f;
         transform.rotation = Quaternion.Euler(0f, 0f, rotationZ);
     }
 
@@ -113,6 +121,29 @@ public class Enemy : MonoBehaviour
         Debug.Log($"Enemy at {transform.position} knocked back by {directionAndDistance}");
         // Stun is permanent; do not remove stun here
         StartCoroutine(Move(directionAndDistance, _knockbackDuration));
+    }
+
+    // set direction towards megaphone and apply rotation
+    public void SetDirectionTowards(Vector3 targetPosition)
+    {
+        if (_isStunned) return;
+
+        Vector3 direction = targetPosition - transform.position;
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+
+        // Snap angle to 8 directions (45-degree increments)
+        angle = Mathf.Round(angle / 45f) * 45f;
+
+        if (angle == 0) _moveDirection = Vector2Int.right;
+        else if (angle == 45) _moveDirection = new Vector2Int(1, 1);
+        else if (angle == 90) _moveDirection = Vector2Int.up;
+        else if (angle == 135) _moveDirection = new Vector2Int(-1, 1);
+        else if (angle == 180 || angle == -180) _moveDirection = Vector2Int.left;
+        else if (angle == -135) _moveDirection = new Vector2Int(-1, -1);
+        else if (angle == -90) _moveDirection = Vector2Int.down;
+        else if (angle == -45) _moveDirection = new Vector2Int(1, -1);
+        
+        ApplyDirectionRotation();
     }
 
     // internal move API

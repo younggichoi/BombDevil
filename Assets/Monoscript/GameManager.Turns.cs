@@ -165,19 +165,56 @@ public partial class GameManager : MonoBehaviour
                 }
             }
         }
-        // Move all enemies (skip stunned ones, handled in Enemy.cs)
+
+        // If a megaphone is active, immediately set the enemies' direction towards it before they move.
+        if (Megaphone.activeMegaphonePosition.HasValue)
+        {
+            foreach (var (x, y, obj, enemy) in enemies)
+            {
+                enemy.SetDirectionTowards(Megaphone.activeMegaphonePosition.Value);
+            }
+        }
+
+        // Move all enemies based on their current direction.
         foreach (var (x, y, obj, enemy) in enemies)
         {
-            // Only move if not stunned (redundant, but explicit for clarity)
             if (!enemy.IsStunned)
             {
                 Vector2Int dirAndDist = enemy.GetMoveDirection();
                 HandleMoveInBoard(x, y, obj, dirAndDist);
             }
         }
+
         if (enemies.Count > 0)
         {
             yield return new WaitForSeconds(_walkDuration);
+        }
+
+        // After moving, clean up the megaphone if it was used.
+        if (Megaphone.activeMegaphonePosition.HasValue)
+        {
+            // Find and destroy the megaphone GameObject from the board
+            bool megaphoneFoundAndDestroyed = false;
+            for (int x = 0; x < _width && !megaphoneFoundAndDestroyed; x++)
+            {
+                for (int y = 0; y < _height && !megaphoneFoundAndDestroyed; y++)
+                {
+                    var megaphoneObj = _board[x, y].Find(obj => obj.GetComponent<Megaphone>() != null);
+                    if (megaphoneObj != null)
+                    {
+                        _board[x, y].Remove(megaphoneObj);
+                        Destroy(megaphoneObj);
+                        megaphoneFoundAndDestroyed = true;
+                    }
+                }
+            }
+            Megaphone.activeMegaphonePosition = null;
+        }
+
+        // ALWAYS set a new random direction for the next turn.
+        foreach (var (x, y, obj, enemy) in enemies)
+        {
+            enemy.SetRandomDirection();
         }
     }
 }

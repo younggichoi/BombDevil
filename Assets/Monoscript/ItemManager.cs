@@ -16,19 +16,22 @@ public class ItemManager : MonoBehaviour
     // Leftover item counts per type
     private Dictionary<ItemType, int> _leftoverItems;
 
+    // Item button text UI
+    private Dictionary<ItemType, TMP_Text> _itemButtonTexts;
+
     // Item data loaded from JSON
     private Dictionary<ItemType, ItemData> _itemDataDict;
 
     // Current selected item type (null = not selected)
     private ItemType? _currentItemType = null;
 
-    public void Initialize(Dictionary<ItemType, GameObject> itemPrefabs, GameManager gameManager, BoardManager boardManager, Transform itemSet, TMP_Text itemText)
+    public void Initialize(Dictionary<ItemType, GameObject> itemPrefabs, GameManager gameManager, BoardManager boardManager, Transform itemSet, Dictionary<ItemType, TMP_Text> itemButtonTexts)
     {
         _itemPrefabs = itemPrefabs;
         _gameManager = gameManager;
         _boardManager = boardManager;
         _itemSet = itemSet;
-        _itemText = itemText;
+        _itemButtonTexts = itemButtonTexts;
 
         // Initialize leftover items from GameManager
         _leftoverItems = new Dictionary<ItemType, int>();
@@ -41,7 +44,7 @@ public class ItemManager : MonoBehaviour
         LoadAllItemData();
 
         // Update UI
-        UpdateAllItemTexts();
+        UpdateAllItemButtonTexts();
     }
 
     private void LoadAllItemData()
@@ -65,6 +68,22 @@ public class ItemManager : MonoBehaviour
             _itemDataDict[type] = data;
         }
         Debug.Log($"Loaded item data for {itemTypeName}");
+    }
+
+    private void UpdateAllItemButtonTexts()
+    {
+        if (_itemButtonTexts == null) return;
+
+        foreach (var kvp in _itemButtonTexts)
+        {
+            var itemType = kvp.Key;
+            var textComponent = kvp.Value;
+
+            if (textComponent != null && _leftoverItems.TryGetValue(itemType, out int count))
+            {
+                textComponent.text = $"{itemType}: {count}";
+            }
+        }
     }
 
     private void UpdateAllItemTexts()
@@ -159,7 +178,7 @@ public class ItemManager : MonoBehaviour
         }
 
         _leftoverItems[itemType]--;
-        UpdateAllItemTexts();
+        UpdateAllItemButtonTexts();
         Debug.Log($"Placed item {itemType} at ({x}, {y}). Leftover: {_leftoverItems[itemType]}");
         return item;
     }

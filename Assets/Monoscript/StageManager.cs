@@ -1,5 +1,6 @@
 using UnityEngine;
 using Entity;
+using UnityEngine.UI;
 
 public class StageManager : MonoBehaviour
 {
@@ -29,6 +30,17 @@ public class StageManager : MonoBehaviour
     void Start()
     {
         StartGame();
+        
+        // Find the reset button and add a listener
+        Button resetButton = GameObject.Find("ResetButton")?.GetComponent<Button>();
+        if (resetButton != null)
+        {
+            resetButton.onClick.AddListener(RestartStage);
+        }
+        else
+        {
+            Debug.LogWarning("ResetButton not found in the scene!");
+        }
     }
     
     // start game from stage 1

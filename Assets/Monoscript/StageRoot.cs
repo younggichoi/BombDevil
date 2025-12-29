@@ -39,6 +39,8 @@ public class StageRoot : MonoBehaviour
     // Teleporter and Megaphone buttons and texts
     private Button teleporterButton;
     private Button megaphoneButton;
+    private TMP_Text teleporterButtonText;
+    private TMP_Text megaphoneButtonText;
     
     // Explode button and text
     private Button explodeButton;
@@ -67,12 +69,20 @@ public class StageRoot : MonoBehaviour
         ItemPrefabLibrary itemPrefabLibrary = GetComponentInChildren<ItemPrefabLibrary>();
         Dictionary<ItemType, GameObject> itemPrefabs = itemPrefabLibrary != null ? itemPrefabLibrary.GetPrefabDictionary() : new Dictionary<ItemType, GameObject>();
         Transform itemSet = GameObject.Find("ItemSet")?.transform;
-        TMP_Text itemText = GameObject.Find("LeftoverItemText")?.GetComponent<TMP_Text>();
+        
+        teleporterButtonText = GameObject.Find("TeleporterButton")?.GetComponentInChildren<TMP_Text>();
+        megaphoneButtonText = GameObject.Find("MegaphoneButton")?.GetComponentInChildren<TMP_Text>();
+
+        var itemButtonTexts = new Dictionary<ItemType, TMP_Text>
+        {
+            { ItemType.Teleporter, teleporterButtonText },
+            { ItemType.Megaphone, megaphoneButtonText }
+        };
 
         // Initialize itemManager
         if (itemManager != null)
         {
-            itemManager.Initialize(itemPrefabs, gameManager, boardManager, itemSet, itemText);
+            itemManager.Initialize(itemPrefabs, gameManager, boardManager, itemSet, itemButtonTexts);
         }
         
         // Find scene objects by name
@@ -139,11 +149,6 @@ public class StageRoot : MonoBehaviour
             blueBombChecked, greenBombChecked, pinkBombChecked, skyblueBombChecked, realBombChecked,
             explodeButtonText, boardManager);
 
-        // Initialize itemManager (done earlier after finding item prefabs and UI)
-        itemManager.Initialize(itemPrefabLibrary.GetPrefabDictionary(), gameManager, boardManager, 
-            GameObject.Find("ItemSet")?.transform,
-            GameObject.Find("LeftoverItemText")?.GetComponent<TMP_Text>());
-        
         // Connect explode button click event
         if (explodeButton != null)
         {

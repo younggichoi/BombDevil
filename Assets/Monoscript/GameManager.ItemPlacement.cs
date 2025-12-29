@@ -27,6 +27,10 @@ public partial class GameManager : MonoBehaviour
             {
                 _teleporters.Add(new Vector2Int(x, y));
             }
+            if(item != null && currentType == ItemType.Megaphone)
+            {
+                item.AddComponent<Megaphone>();
+            }
         }
     }
 }
