@@ -75,7 +75,7 @@ public partial class GameManager : MonoBehaviour
                     }
                     return;
             }
-        }
+        }*/
 
         // 아이템 배치 처리
         if (itemManager != null && itemManager.HasItemSelected())
