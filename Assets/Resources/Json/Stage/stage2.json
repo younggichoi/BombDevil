@@ -1,7 +1,7 @@
 {
     "stageId": 2,
-    "width": 10,
-    "height": 10,
+    "width": 8,
+    "height": 8,
     "enemyNumber": 6,
     "initial1stBomb": 3,
     "initial2ndBomb": 1,
