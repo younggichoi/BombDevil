@@ -77,6 +77,20 @@ public class StageManager : MonoBehaviour
             if (_currentGameManager != null)
             {
                 _currentGameManager.OnGameStateChanged -= OnGameStateChanged;
+                
+                // Clear the board and bombs from the previous stage
+                BoardManager boardManager = currStage.GetComponentInChildren<BoardManager>();
+                if (boardManager != null)
+                {
+                    boardManager.ClearBoard();
+                }
+
+                BombManager bombManager = currStage.GetComponentInChildren<BombManager>();
+                if (bombManager != null)
+                {
+                    bombManager.ClearBombs();
+                }
+
                 _currentGameManager = null;
             }
             Destroy(currStage);

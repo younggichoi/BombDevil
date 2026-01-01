@@ -151,7 +151,7 @@ public class Enemy : MonoBehaviour
     private IEnumerator Move(Vector2Int directionAndDistance, float duration)
     {
         Vector3 start = transform.position;
-        Vector3 target = GetTarget(directionAndDistance, start);
+        Vector3 target = GetTarget(directionAndDistance, start, _cellSize);
         float time = 0f;
         while (time < duration)
         {
@@ -160,25 +160,26 @@ public class Enemy : MonoBehaviour
             transform.position = LerpWrap(start, target, t, _minX, _maxX, _minY, _maxY);
             yield return null;
         }
-        transform.position = GetWrappedTarget(directionAndDistance, start, _minX, _maxX, _minY, _maxY);
+        Vector3 finalPosition = GetWrappedTarget(directionAndDistance, start, _minX, _maxX, _minY, _maxY, _cellSize);
+        finalPosition.z = start.z;
+        transform.position = finalPosition;
     }
 
     // It can process boundary condition - wraps position within bounds
     private static Vector3 LerpWrap(Vector3 a, Vector3 b, float t,
         float minX = float.NegativeInfinity, float maxX = float.PositiveInfinity,
-        float minY = float.NegativeInfinity, float maxY = float.PositiveInfinity,
-        float minZ = float.NegativeInfinity, float maxZ = float.PositiveInfinity)
+        float minY = float.NegativeInfinity, float maxY = float.PositiveInfinity)
     {
         // Simple linear interpolation
         float x = a.x + (b.x - a.x) * t;
         float y = a.y + (b.y - a.y) * t;
-        float z = a.z + (b.z - a.z) * t;
+        float z = a.z;
 
         // Wrap x within bounds
         float widthX = maxX - minX;
         if (widthX > 0)
         {
-            while (x > maxX) x -= widthX;
+            while (x >= maxX) x -= widthX;
             while (x < minX) x += widthX;
         }
 
@@ -186,16 +187,8 @@ public class Enemy : MonoBehaviour
         float widthY = maxY - minY;
         if (widthY > 0)
         {
-            while (y > maxY) y -= widthY;
+            while (y >= maxY) y -= widthY;
             while (y < minY) y += widthY;
-        }
-
-        // Wrap z within bounds
-        float widthZ = maxZ - minZ;
-        if (widthZ > 0)
-        {
-            while (z > maxZ) z -= widthZ;
-            while (z < minZ) z += widthZ;
         }
 
         return new Vector3(x, y, z);
@@ -211,7 +204,6 @@ public class Enemy : MonoBehaviour
     private static Vector3 GetWrappedTarget(Vector2Int directionAndDistance, Vector3 start,
         float minX = float.NegativeInfinity, float maxX = float.PositiveInfinity,
         float minY = float.NegativeInfinity, float maxY = float.PositiveInfinity,
-        float minZ = float.NegativeInfinity, float maxZ = float.PositiveInfinity,
         float cellSize = 1f)
     {
         Vector3 result = GetTarget(directionAndDistance, start, cellSize);
@@ -219,8 +211,6 @@ public class Enemy : MonoBehaviour
             result.x = Mod(result.x - minX, maxX - minX) + minX;
         if (result.y < minY || result.y >= maxY)
             result.y = Mod(result.y - minY, maxY - minY) + minY;
-        if (result.z < minZ || result.z >= maxZ)
-            result.z = Mod(result.z - minZ, maxZ - minZ) + minZ;
         return result;
     }
 

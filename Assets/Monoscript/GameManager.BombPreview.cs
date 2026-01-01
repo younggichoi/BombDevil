@@ -254,20 +254,27 @@ public partial class GameManager : MonoBehaviour
                     else
                     {
                         // Normal bombs (1st-6th): enemies in range knocked away from bomb
-                        int dx = Mathf.Abs(ex - bombX);
-                        int dy = Mathf.Abs(ey - bombY);
-                        
-                        // Check if in range (simple square range)
-                        if (dx <= range && dy <= range && !(dx == 0 && dy == 0))
+                        int dist_x = GetWrappedDistance(bombX, ex, _width);
+                        int dist_y = GetWrappedDistance(bombY, ey, _height);
+
+                        // Check if in range (with wrapping)
+                        if (Mathf.Abs(dist_x) <= range && Mathf.Abs(dist_y) <= range && !(dist_x == 0 && dist_y == 0))
                         {
-                            Vector2Int dirAndDist = GetDirectionAndDistance(bombX, bombY, ex, ey);
-                            Vector2Int knockback = new Vector2Int(
-                                dirAndDist.x != 0 ? (dirAndDist.x > 0 ? 1 : -1) * knockbackDistance : 0,
-                                dirAndDist.y != 0 ? (dirAndDist.y > 0 ? 1 : -1) * knockbackDistance : 0
+                            // The direction from the bomb to the enemy
+                            Vector2Int dir = new Vector2Int(
+                                dist_x == 0 ? 0 : (dist_x > 0 ? 1 : -1),
+                                dist_y == 0 ? 0 : (dist_y > 0 ? 1 : -1)
                             );
+                            
+                            // Knockback is applied in the same direction
+                            Vector2Int knockback = new Vector2Int(
+                                dir.x * knockbackDistance,
+                                dir.y * knockbackDistance
+                            );
+                            
                             predictedPos = new Vector2Int(
-                                Mod(ex + knockback.x, _width),
-                                Mod(ey + knockback.y, _height)
+                                Mod(ex - knockback.x, _width),
+                                Mod(ey - knockback.y, _height)
                             );
                         }
                     }
@@ -275,6 +282,7 @@ public partial class GameManager : MonoBehaviour
                     // Show prediction indicator if we have a predicted position
                     if (predictedPos.HasValue)
                     {
+                        Debug.Log($"Enemy at ({ex},{ey}) predicted to move to ({predictedPos.Value.x},{predictedPos.Value.y})");
                         Vector3 worldPos = boardManager.GridToWorld(predictedPos.Value.x, predictedPos.Value.y);
                         while (indicatorIndex >= _enemyPredictionIndicators.Count)
                         {
@@ -303,22 +311,24 @@ public partial class GameManager : MonoBehaviour
     private void HidePreview()
     {
         if (_ghostBomb != null)
-            _ghostBomb.SetActive(false);
+            Destroy(_ghostBomb);
         if (_rangeIndicators != null)
         {
             foreach (var indicator in _rangeIndicators)
             {
                 if (indicator != null)
-                    indicator.SetActive(false);
+                    Destroy(indicator);
             }
+            _rangeIndicators.Clear();
         }
         if (_enemyPredictionIndicators != null)
         {
             foreach (var indicator in _enemyPredictionIndicators)
             {
                 if (indicator != null)
-                    indicator.SetActive(false);
+                    Destroy(indicator);
             }
+            _enemyPredictionIndicators.Clear();
         }
     }
 

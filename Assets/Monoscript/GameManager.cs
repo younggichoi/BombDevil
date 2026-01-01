@@ -74,8 +74,24 @@ public partial class GameManager : MonoBehaviour
     private TMP_Text _turnText;
     private float _elapsedTime = 0f;
 
+    public void ClearStage()
+    {
+        if (boardManager != null)
+        {
+            boardManager.ClearBoard();
+        }
+        if (bombManager != null)
+        {
+            bombManager.ClearBombs();
+        }
+        HidePreview();
+        HideItemPreview();
+        HideRemovePreview();
+    }
+
     public void Initialize(EnemyManager enemyManager, BombManager bombManager, ItemManager itemManager, int stageId, StageCommonData commonData)
     {
+        ClearStage();
         SetStageState(stageId);
         SetCommonData(commonData);
         this.enemyManager = enemyManager;

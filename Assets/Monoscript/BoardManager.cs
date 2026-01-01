@@ -22,6 +22,15 @@ public class BoardManager : MonoBehaviour
     private Color _lightTileColor = new Color(0.9f, 0.9f, 0.85f);
     private Color _darkTileColor = new Color(0.7f, 0.75f, 0.65f);
 
+    public void ClearBoard()
+    {
+        if (_tileParent != null)
+        {
+            Destroy(_tileParent.gameObject);
+        }
+        _tiles = null;
+    }
+
     public void Initialize(GameManager gameManager, Sprite boardSpritePrefab)
     {
         _width = gameManager.GetWidth();

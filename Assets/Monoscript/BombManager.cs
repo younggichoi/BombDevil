@@ -52,6 +52,24 @@ public class BombManager : MonoBehaviour
     // GameManager reference for info messages
     private GameManager _gameManager;
 
+    public void ClearBombs()
+    {
+        if (auxiliaryBombSet != null)
+        {
+            foreach (Transform bomb in auxiliaryBombSet)
+            {
+                Destroy(bomb.gameObject);
+            }
+        }
+        if (realBombSet != null)
+        {
+            foreach (Transform bomb in realBombSet)
+            {
+                Destroy(bomb.gameObject);
+            }
+        }
+    }
+
     public void Initialize(GameObject auxiliaryBomb, GameObject realBombPrefab, GameManager gameManager, 
         Transform auxiliaryBombSet, Transform realBombSet,
         TMP_Text _1stBombText, TMP_Text _2ndBombText, TMP_Text _3rdBombText, 

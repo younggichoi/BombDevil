@@ -139,18 +139,24 @@ public class StageRoot : MonoBehaviour
             explodeButton = explodeButtonObj.GetComponent<Button>();
         }
         explodeButtonText = GameObject.Find("ExplodeButtonText")?.GetComponent<TMP_Text>();
-        
+
         // Initialize GameManager first (loads stage data including board sprite path)
         gameManager.Initialize(enemyManager, bombManager, itemManager, stageId, commonData);
         
+        // Set manager references in GameManager before initializing it
+        gameManager.SetBoardManager(boardManager);
+        gameManager.SetBombManager(bombManager);
+        
         // Load board sprite from Resources using path from JSON
-        Sprite boardSprite = LoadSprite(gameManager.GetBoardSpritePath(), "board");
+        Sprite boardSprite = null;
+        string boardSpritePath = gameManager.GetBoardSpritePath();
+        if (boardSpritePath == "Sprites/Boards/board_7x7")
+        {
+            boardSprite = LoadSprite(boardSpritePath, "board");
+        }
         
         // Initialize BoardManager (calculates cellSize, scales board sprite)
         boardManager.Initialize(gameManager, boardSprite);
-        
-        // Set BoardManager reference in GameManager
-        gameManager.SetBoardManager(boardManager);
         
         // Find and set InfoText UI
         TMP_Text infoText = GameObject.Find("InfoText")?.GetComponent<TMP_Text>();
@@ -171,9 +177,6 @@ public class StageRoot : MonoBehaviour
             _1stBombChecked, _2ndBombChecked, _3rdBombChecked, _4thBombChecked, _5thBombChecked, _6thBombChecked,
             skyblueBombChecked, realBombChecked,
             explodeButtonText, boardManager);
-
-        // Set references in GameManager
-        gameManager.SetBombManager(bombManager);
 
         // Connect explode button click event
         if (explodeButton != null)
