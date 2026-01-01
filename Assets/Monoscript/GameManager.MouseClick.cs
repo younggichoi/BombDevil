@@ -7,7 +7,7 @@ public partial class GameManager : MonoBehaviour
     {
         Vector3 screenPos = Input.mousePosition;
 
-        if (screenPos.x >= 1440 && screenPos.x <= 1780)
+        /*if (screenPos.x >= 1440 && screenPos.x <= 1780)
         {
             itemManager.ClearCurrentItemType();
             // Check for bomb selection based on Y coordinate
@@ -34,7 +34,7 @@ public partial class GameManager : MonoBehaviour
                 }
                 return;
             }
-        }
+        }*/
 
         // If an item is selected, handle item placement
         if (itemManager != null && itemManager.HasItemSelected())

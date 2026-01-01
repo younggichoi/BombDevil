@@ -22,6 +22,7 @@ public partial class GameManager : MonoBehaviour
     private int _initialBlueBomb;
     private int _initialGreenBomb;
     private int _initialPinkBomb;
+    private int _initialSkyblueBomb;
     private int _remainingTurns;
     private int _stageId;
     private string _boardSpritePath;
@@ -151,6 +152,7 @@ public partial class GameManager : MonoBehaviour
         _initialBlueBomb = differentData.initialBlueBomb;
         _initialGreenBomb = differentData.initialGreenBomb;
         _initialPinkBomb = differentData.initialPinkBomb;
+        _initialSkyblueBomb = differentData.initialSkyblueBomb;
         _remainingTurns = differentData.remainingTurns;
         _boardSpritePath = differentData.boardSpritePath;
     }
@@ -193,7 +195,7 @@ public partial class GameManager : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.Alpha3))
         {
-            if (bombManager != null) bombManager.SetCurrentBombType(BombType.SkyblueBomb);
+            if (bombManager != null) bombManager.SetCurrentBombType(BombType.PinkBomb);
         }
         if (Input.GetKeyDown(KeyCode.Alpha4))
         {

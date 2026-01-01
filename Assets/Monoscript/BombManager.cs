@@ -155,6 +155,10 @@ public class BombManager : MonoBehaviour
                 if (_pinkBombText != null)
                     _pinkBombText.text = $"Pink: {count}";
                 break;
+            case BombType.SkyblueBomb:
+                if (_skyblueBombText != null)
+                    _skyblueBombText.text = $"Skyblue: {count}";
+                break;
         }
     }
     
@@ -257,6 +261,7 @@ public class BombManager : MonoBehaviour
         if (_blueBombChecked != null) _blueBombChecked.SetActive(false);
         if (_greenBombChecked != null) _greenBombChecked.SetActive(false);
         if (_pinkBombChecked != null) _pinkBombChecked.SetActive(false);
+        if (_skyblueBombChecked != null) _skyblueBombChecked.SetActive(false);
         if (_realBombChecked != null) _realBombChecked.SetActive(false);
         
         // Activate the selected one
@@ -272,6 +277,9 @@ public class BombManager : MonoBehaviour
                     break;
                 case BombType.PinkBomb:
                     if (_pinkBombChecked != null) _pinkBombChecked.SetActive(true);
+                    break;
+                case BombType.SkyblueBomb:
+                    if (_skyblueBombChecked != null) _skyblueBombChecked.SetActive(true);
                     break;
                 case BombType.RealBomb:
                     if (_realBombChecked != null) _realBombChecked.SetActive(true);

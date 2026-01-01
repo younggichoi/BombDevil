@@ -12,6 +12,7 @@
         public int initialBlueBomb;
         public int initialGreenBomb;
         public int initialPinkBomb;
+        public int initialSkyblueBomb;
         
         // Turn limit for the stage
         public int remainingTurns;
@@ -29,6 +30,8 @@
                     return initialGreenBomb;
                 case BombType.PinkBomb:
                     return initialPinkBomb;
+                case BombType.SkyblueBomb:
+                    return initialSkyblueBomb;
                 default:
                     return 0;
             }
@@ -37,7 +40,7 @@
         // Get total initial bomb count
         public int GetTotalInitialBombs()
         {
-            return initialBlueBomb + initialGreenBomb + initialPinkBomb;
+            return initialBlueBomb + initialGreenBomb + initialPinkBomb + initialSkyblueBomb;
         }
     }
 }
