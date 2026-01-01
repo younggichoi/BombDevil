@@ -28,7 +28,7 @@ namespace Entity
             {
                 return type;
             }
-            return BombType.BlueBomb;
+            return BombType.FirstBomb;
         }
     }
 }

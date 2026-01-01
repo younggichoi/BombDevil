@@ -74,7 +74,6 @@ public partial class GameManager : MonoBehaviour
             int y = bombCoordinate.y;
             if (isRealBomb)
             {
-                _realBombs.Remove(bombCoordinate);
                 _realBombUsedThisTurn = true;
                 GameObject bombObj = _board[x, y].Find(obj => obj != null && obj.GetComponent<RealBomb>() != null);
                 if (bombObj == null)
@@ -88,7 +87,6 @@ public partial class GameManager : MonoBehaviour
             }
             else
             {
-                _auxiliaryBombs.Remove(bombCoordinate);
                 GameObject bombObj = _board[x, y].Find(obj => obj != null && obj.GetComponent<AuxiliaryBomb>() != null);
                 if (bombObj == null)
                     continue;
@@ -100,12 +98,15 @@ public partial class GameManager : MonoBehaviour
                 bomb.Explode();
                 switch (bombType)
                 {
-                    case BombType.BlueBomb:
-                    case BombType.GreenBomb:
+                    case BombType.FirstBomb:
+                    case BombType.SecondBomb:
+                    case BombType.ThirdBomb:
+                    case BombType.FourthBomb:
+                    case BombType.FifthBomb:
+                    case BombType.SixthBomb:
                         Debug.Log($"Knockback bomb at ({x}, {y}) with range {range} and knockback distance {knockbackDistance}");
                         NormalBomb(x, y, range, knockbackDistance);
                         break;
-                    case BombType.PinkBomb:
                     case BombType.SkyblueBomb:
                         SkyblueBomb(x, y, range);
                         break;
@@ -209,12 +210,6 @@ public partial class GameManager : MonoBehaviour
                 }
             }
             Megaphone.activeMegaphonePosition = null;
-        }
-
-        // ALWAYS set a new random direction for the next turn.
-        foreach (var (x, y, obj, enemy) in enemies)
-        {
-            enemy.SetRandomDirection();
         }
     }
 }

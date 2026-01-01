@@ -6,41 +6,81 @@ public partial class GameManager : MonoBehaviour
     private void MouseClickProcess()
     {
         Vector3 screenPos = Input.mousePosition;
-
-        /*if (screenPos.x >= 1440 && screenPos.x <= 1780)
+        Vector3 worldPos = Camera.main.ScreenToWorldPoint(screenPos);
+        worldPos.z = 0;  // 2D 게임이므로 z를 0으로 설정
+        
+        // Remove mode - click on bomb to remove it
+        if (_isRemoveMode)
         {
-            itemManager.ClearCurrentItemType();
-            // Check for bomb selection based on Y coordinate
-            if (screenPos.y >= 890 && screenPos.y <= 990)
+            int rx = GlobalToGridX(worldPos.x);
+            int ry = GlobalToGridY(worldPos.y);
+            if (rx >= 0 && rx < _width && ry >= 0 && ry < _height && HasBombAt(rx, ry))
             {
-                bombManager.SetCurrentBombType(BombType.BlueBomb);
+                RemoveBombAt(rx, ry);
                 return;
             }
-            else if (screenPos.y >= 760 && screenPos.y <= 860)
+        }
+        
+        // Raycast로 클릭된 오브젝트 감지
+        RaycastHit2D hit = Physics2D.Raycast(worldPos, Vector2.zero);
+        
+        if (hit.collider != null)
+        {
+            string objectName = hit.collider.gameObject.name;
+            
+            // 폭탄 선택 처리 (스프라이트에 Collider2D 필요)
+            switch (objectName)
             {
-                bombManager.SetCurrentBombType(BombType.GreenBomb);
-                return;
-            }
-            else if (screenPos.y >= 630 && screenPos.y <= 730)
-            {
-                bombManager.SetCurrentBombType(BombType.PinkBomb);
-                return;
-            }
-            else if (screenPos.y >= 500 && screenPos.y <= 600)
-            {
-                if (bombManager.IsRealBombAvailable())
-                {
-                    bombManager.SetCurrentBombType(BombType.RealBomb);
-                }
-                return;
+                case "1stBomb":
+                    ExitRemoveMode();
+                    itemManager.ClearCurrentItemType();
+                    bombManager.SetCurrentBombType(BombType.FirstBomb);
+                    return;
+                case "2ndBomb":
+                    ExitRemoveMode();
+                    itemManager.ClearCurrentItemType();
+                    bombManager.SetCurrentBombType(BombType.SecondBomb);
+                    return;
+                case "3rdBomb":
+                    ExitRemoveMode();
+                    itemManager.ClearCurrentItemType();
+                    bombManager.SetCurrentBombType(BombType.ThirdBomb);
+                    return;
+                case "4thBomb":
+                    ExitRemoveMode();
+                    itemManager.ClearCurrentItemType();
+                    bombManager.SetCurrentBombType(BombType.FourthBomb);
+                    return;
+                case "5thBomb":
+                    ExitRemoveMode();
+                    itemManager.ClearCurrentItemType();
+                    bombManager.SetCurrentBombType(BombType.FifthBomb);
+                    return;
+                case "6thBomb":
+                    ExitRemoveMode();
+                    itemManager.ClearCurrentItemType();
+                    bombManager.SetCurrentBombType(BombType.SixthBomb);
+                    return;
+                case "SkyblueBomb":
+                    ExitRemoveMode();
+                    itemManager.ClearCurrentItemType();
+                    bombManager.SetCurrentBombType(BombType.SkyblueBomb);
+                    return;
+                case "RealBomb":
+                    ExitRemoveMode();
+                    itemManager.ClearCurrentItemType();
+                    if (bombManager.IsRealBombAvailable())
+                    {
+                        bombManager.SetCurrentBombType(BombType.RealBomb);
+                    }
+                    return;
             }
         }*/
 
-        // If an item is selected, handle item placement
+        // 아이템 배치 처리
         if (itemManager != null && itemManager.HasItemSelected())
         {
             bombManager.ClearCurrentBombType();
-            Vector3 worldPos = Camera.main.ScreenToWorldPoint(screenPos);
             int x = GlobalToGridX(worldPos.x);
             int y = GlobalToGridY(worldPos.y);
             if (x >= 0 && x < _width && y >= 0 && y < _height && _board[x, y].Count == 0)
@@ -49,23 +89,22 @@ public partial class GameManager : MonoBehaviour
             }
             return;
         }
-        // Otherwise, handle bomb selection/placement as before
         
+        // 폭탄 배치 처리
         if (!bombManager.HasBombSelected())
         {
-            Vector3 worldPosCheck = Camera.main.ScreenToWorldPoint(screenPos);
-            int testX = GlobalToGridX(worldPosCheck.x);
-            int testY = GlobalToGridY(worldPosCheck.y);
+            int testX = GlobalToGridX(worldPos.x);
+            int testY = GlobalToGridY(worldPos.y);
             if (testX >= 0 && testX < _width && testY >= 0 && testY < _height)
             {
                 ShowTempMessage("No bomb has been selected!", 1f, "Player's turn");
             }
             return;
         }
-        Vector3 bombWorldPos = Camera.main.ScreenToWorldPoint(screenPos);
-        int bx = GlobalToGridX(bombWorldPos.x);
-        int by = GlobalToGridY(bombWorldPos.y);
-        if (bx >= 0 && bx < _width && by >= 0 && by < _height && _board[bx, by].Count == 0)
+        
+        int bx = GlobalToGridX(worldPos.x);
+        int by = GlobalToGridY(worldPos.y);
+        if (bx >= 0 && bx < _width && by >= 0 && by < _height && !HasBombAt(bx, by))
         {
             BombType? currentType = bombManager.GetCurrentBombType();
             if (currentType == BombType.RealBomb)

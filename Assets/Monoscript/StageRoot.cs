@@ -23,22 +23,30 @@ public class StageRoot : MonoBehaviour
     private Transform enemySet;
     private Transform auxiliaryBombSet;
     private Transform realBombSet;
-    private TMP_Text blueBombText;
-    private TMP_Text greenBombText;
-    private TMP_Text pinkBombText;
+    private TMP_Text _1stBombText;
+    private TMP_Text _2ndBombText;
+    private TMP_Text _3rdBombText;
+    private TMP_Text _4thBombText;
+    private TMP_Text _5thBombText;
+    private TMP_Text _6thBombText;
     private TMP_Text skyblueBombText;
     private TMP_Text realBombText;
     
     // Check UI objects (found by name)
-    private GameObject blueBombChecked;
-    private GameObject greenBombChecked;
-    private GameObject pinkBombChecked;
+    private GameObject _1stBombChecked;
+    private GameObject _2ndBombChecked;
+    private GameObject _3rdBombChecked;
+    private GameObject _4thBombChecked;
+    private GameObject _5thBombChecked;
+    private GameObject _6thBombChecked;
     private GameObject skyblueBombChecked;
     private GameObject realBombChecked;
 
     // Teleporter and Megaphone buttons and texts
     private Button teleporterButton;
     private Button megaphoneButton;
+    private Button removeButton;
+    private Button resetButton;
     private TMP_Text teleporterButtonText;
     private TMP_Text megaphoneButtonText;
     
@@ -72,6 +80,7 @@ public class StageRoot : MonoBehaviour
         
         teleporterButtonText = GameObject.Find("TeleporterButton")?.GetComponentInChildren<TMP_Text>();
         megaphoneButtonText = GameObject.Find("MegaphoneButton")?.GetComponentInChildren<TMP_Text>();
+        
 
         var itemButtonTexts = new Dictionary<ItemType, TMP_Text>
         {
@@ -89,26 +98,38 @@ public class StageRoot : MonoBehaviour
         enemySet = GameObject.Find("EnemySet")?.transform;
         auxiliaryBombSet = GameObject.Find("AuxiliaryBombSet")?.transform;
         realBombSet = GameObject.Find("RealBombSet")?.transform;
-        blueBombText = GameObject.Find("LeftoverBlueBomb")?.GetComponent<TMP_Text>();
-        greenBombText = GameObject.Find("LeftoverGreenBomb")?.GetComponent<TMP_Text>();
-        pinkBombText = GameObject.Find("LeftoverPinkBomb")?.GetComponent<TMP_Text>();
+        _1stBombText = GameObject.Find("Leftover1stBomb")?.GetComponent<TMP_Text>();
+        _2ndBombText = GameObject.Find("Leftover2ndBomb")?.GetComponent<TMP_Text>();
+        _3rdBombText = GameObject.Find("Leftover3rdBomb")?.GetComponent<TMP_Text>();
+        _4thBombText = GameObject.Find("Leftover4thBomb")?.GetComponent<TMP_Text>();
+        _5thBombText = GameObject.Find("Leftover5thBomb")?.GetComponent<TMP_Text>();
+        _6thBombText = GameObject.Find("Leftover6thBomb")?.GetComponent<TMP_Text>();
         skyblueBombText = GameObject.Find("LeftoverSkyblueBomb")?.GetComponent<TMP_Text>();
         realBombText = GameObject.Find("LeftoverRealBomb")?.GetComponent<TMP_Text>();
         
         // Find check UI objects by name (must be active in scene to be found)
-        blueBombChecked = GameObject.Find("BlueBombChecked");
-        greenBombChecked = GameObject.Find("GreenBombChecked");
-        pinkBombChecked = GameObject.Find("PinkBombChecked");
+        _1stBombChecked = GameObject.Find("1stBombChecked");
+        _2ndBombChecked = GameObject.Find("2ndBombChecked");
+        _3rdBombChecked = GameObject.Find("3rdBombChecked");
+        _4thBombChecked = GameObject.Find("4thBombChecked");
+        _5thBombChecked = GameObject.Find("5thBombChecked");
+        _6thBombChecked = GameObject.Find("6thBombChecked");
         skyblueBombChecked = GameObject.Find("SkyblueBombChecked");
         realBombChecked = GameObject.Find("RealBombChecked");
 
         teleporterButton = GameObject.Find("TeleporterButton")?.GetComponent<Button>();
         megaphoneButton = GameObject.Find("MegaphoneButton")?.GetComponent<Button>();
+        removeButton = GameObject.Find("RemoveButton")?.GetComponent<Button>();
+        resetButton = GameObject.Find("ResetButton")?.GetComponent<Button>();
         
         // Deactivate all check UIs at game start
-        if (blueBombChecked != null) blueBombChecked.SetActive(false);
-        if (greenBombChecked != null) greenBombChecked.SetActive(false);
-        if (pinkBombChecked != null) pinkBombChecked.SetActive(false);
+        if (_1stBombChecked != null) _1stBombChecked.SetActive(false);
+        if (_2ndBombChecked != null) _2ndBombChecked.SetActive(false);
+        if (_3rdBombChecked != null) _3rdBombChecked.SetActive(false);
+        if (_4thBombChecked != null) _4thBombChecked.SetActive(false);
+        if (_5thBombChecked != null) _5thBombChecked.SetActive(false);
+        if (_6thBombChecked != null) _6thBombChecked.SetActive(false);
+        if (skyblueBombChecked != null) skyblueBombChecked.SetActive(false);
         if (realBombChecked != null) realBombChecked.SetActive(false);
         
         // Find explode button and text
@@ -145,9 +166,14 @@ public class StageRoot : MonoBehaviour
         enemyManager.Initialize(enemyPrefab, enemySet, gameManager, boardManager, enemySprite);
         bombManager.Initialize(auxiliaryBombPrefab, realBombPrefab, gameManager, 
             auxiliaryBombSet, realBombSet,
-            blueBombText, greenBombText, pinkBombText, skyblueBombText, realBombText,
-            blueBombChecked, greenBombChecked, pinkBombChecked, skyblueBombChecked, realBombChecked,
+            _1stBombText, _2ndBombText, _3rdBombText, _4thBombText, _5thBombText, _6thBombText,
+            skyblueBombText, realBombText,
+            _1stBombChecked, _2ndBombChecked, _3rdBombChecked, _4thBombChecked, _5thBombChecked, _6thBombChecked,
+            skyblueBombChecked, realBombChecked,
             explodeButtonText, boardManager);
+
+        // Set references in GameManager
+        gameManager.SetBombManager(bombManager);
 
         // Connect explode button click event
         if (explodeButton != null)
@@ -170,6 +196,22 @@ public class StageRoot : MonoBehaviour
             megaphoneButton.onClick.AddListener(() => 
                 gameManager.OnItemButtonClicked(ItemType.Megaphone));
             Debug.Log("Megaphone button listener added.");
+        }
+        
+        if (removeButton != null)
+        {
+            removeButton.onClick.RemoveAllListeners();
+            removeButton.onClick.AddListener(() =>
+                gameManager.OnRemoveButtonClick());
+            Debug.Log("Remove button listener added.");
+        }
+
+        if (resetButton != null)
+        {
+            resetButton.onClick.RemoveAllListeners();
+            resetButton.onClick.AddListener(() =>
+                gameManager.OnResetButtonClick());
+            Debug.Log("Reset button listener added.");
         }
         
         // Create enemies for this stage

@@ -20,7 +20,7 @@ public partial class GameManager : MonoBehaviour
         Vector3 worldPos = Camera.main.ScreenToWorldPoint(screenPos);
         int x = GlobalToGridX(worldPos.x);
         int y = GlobalToGridY(worldPos.y);
-        if (x >= 0 && x < _width && y >= 0 && y < _height && _board[x, y].Count == 0)
+        if (x >= 0 && x < _width && y >= 0 && y < _height && !HasBombAt(x, y))
         {
             Vector2Int currentCell = new Vector2Int(x, y);
             if (currentCell != _lastHoveredCell)
@@ -68,8 +68,20 @@ public partial class GameManager : MonoBehaviour
             ghostSr.color = bombColor;
         }
         _ghostBomb.SetActive(true);
-        int range = bombData.range;
-        ShowRangeIndicators(x, y, range);
+        
+        // SkyblueBomb shows cross-shaped range, others show square range
+        if (bombType.Value == BombType.SkyblueBomb)
+        {
+            ShowCrossRangeIndicators(x, y);
+        }
+        else
+        {
+            int range = bombData.range;
+            ShowRangeIndicators(x, y, range);
+        }
+        
+        // Show predicted enemy positions after knockback
+        ShowEnemyPredictions(x, y, bombType.Value, bombData);
     }
 
     private void ShowRangeIndicators(int centerX, int centerY, int range)
@@ -113,6 +125,180 @@ public partial class GameManager : MonoBehaviour
             }
         }
     }
+    
+    // Show cross-shaped range indicators for SkyblueBomb
+    private void ShowCrossRangeIndicators(int centerX, int centerY)
+    {
+        if (_rangeIndicators == null)
+            _rangeIndicators = new List<GameObject>();
+        foreach (var indicator in _rangeIndicators)
+        {
+            if (indicator != null)
+                indicator.SetActive(false);
+        }
+        float cellSize = boardManager.GetCellSize();
+        int indicatorIndex = 0;
+        
+        // Horizontal line (same Y as bomb, all X)
+        for (int dx = 0; dx < _width; dx++)
+        {
+            if (dx == centerX) continue;  // Skip bomb position
+            
+            Vector3 worldPos = boardManager.GridToWorld(dx, centerY);
+            while (indicatorIndex >= _rangeIndicators.Count)
+            {
+                GameObject indicator = new GameObject($"RangeIndicator_{_rangeIndicators.Count}");
+                SpriteRenderer sr = indicator.AddComponent<SpriteRenderer>();
+                sr.sprite = CreateSquareSprite();
+                sr.sortingOrder = 4;
+                _rangeIndicators.Add(indicator);
+            }
+            GameObject rangeObj = _rangeIndicators[indicatorIndex];
+            rangeObj.transform.position = worldPos;
+            rangeObj.transform.localScale = Vector3.one * cellSize;
+            SpriteRenderer rangeSr = rangeObj.GetComponent<SpriteRenderer>();
+            if (rangeSr != null)
+            {
+                rangeSr.color = new Color(0.3f, 0.8f, 1f, 0.4f);  // Skyblue color
+            }
+            rangeObj.SetActive(true);
+            indicatorIndex++;
+        }
+        
+        // Vertical line (same X as bomb, all Y)
+        for (int dy = 0; dy < _height; dy++)
+        {
+            if (dy == centerY) continue;  // Skip bomb position
+            
+            Vector3 worldPos = boardManager.GridToWorld(centerX, dy);
+            while (indicatorIndex >= _rangeIndicators.Count)
+            {
+                GameObject indicator = new GameObject($"RangeIndicator_{_rangeIndicators.Count}");
+                SpriteRenderer sr = indicator.AddComponent<SpriteRenderer>();
+                sr.sprite = CreateSquareSprite();
+                sr.sortingOrder = 4;
+                _rangeIndicators.Add(indicator);
+            }
+            GameObject rangeObj = _rangeIndicators[indicatorIndex];
+            rangeObj.transform.position = worldPos;
+            rangeObj.transform.localScale = Vector3.one * cellSize;
+            SpriteRenderer rangeSr = rangeObj.GetComponent<SpriteRenderer>();
+            if (rangeSr != null)
+            {
+                rangeSr.color = new Color(0.3f, 0.8f, 1f, 0.4f);  // Skyblue color
+            }
+            rangeObj.SetActive(true);
+            indicatorIndex++;
+        }
+    }
+    
+    // Show predicted enemy positions after knockback
+    private void ShowEnemyPredictions(int bombX, int bombY, BombType bombType, BombData bombData)
+    {
+        if (_enemyPredictionIndicators == null)
+            _enemyPredictionIndicators = new List<GameObject>();
+        foreach (var indicator in _enemyPredictionIndicators)
+        {
+            if (indicator != null)
+                indicator.SetActive(false);
+        }
+        
+        // RealBomb kills enemies, no knockback prediction needed
+        if (bombType == BombType.RealBomb) return;
+        
+        float cellSize = boardManager.GetCellSize();
+        int indicatorIndex = 0;
+        int range = bombData.range;
+        int knockbackDistance = bombData.knockbackDistance;
+        
+        // Find all enemies and calculate their predicted positions
+        for (int ex = 0; ex < _width; ex++)
+        {
+            for (int ey = 0; ey < _height; ey++)
+            {
+                foreach (var obj in _board[ex, ey])
+                {
+                    if (obj == null) continue;
+                    Enemy enemy = obj.GetComponent<Enemy>();
+                    if (enemy == null) continue;
+                    
+                    Vector2Int? predictedPos = null;
+                    
+                    if (bombType == BombType.SkyblueBomb)
+                    {
+                        // SkyblueBomb: enemies OFF axes move away from nearest axis
+                        int dx = GetWrappedDistance(ex, bombX, _width);
+                        int dy = GetWrappedDistance(ey, bombY, _height);
+                        
+                        // Skip if on axis
+                        if (dx == 0 || dy == 0) continue;
+                        
+                        Vector2Int knockbackDir;
+                        if (Mathf.Abs(dx) < Mathf.Abs(dy))
+                        {
+                            knockbackDir = new Vector2Int(dx > 0 ? 1 : -1, 0);
+                        }
+                        else if (Mathf.Abs(dx) > Mathf.Abs(dy))
+                        {
+                            knockbackDir = new Vector2Int(0, dy > 0 ? 1 : -1);
+                        }
+                        else
+                        {
+                            knockbackDir = new Vector2Int(dx > 0 ? 1 : -1, dy > 0 ? 1 : -1);
+                        }
+                        predictedPos = new Vector2Int(
+                            Mod(ex + knockbackDir.x, _width),
+                            Mod(ey + knockbackDir.y, _height)
+                        );
+                    }
+                    else
+                    {
+                        // Normal bombs (1st-6th): enemies in range knocked away from bomb
+                        int dx = Mathf.Abs(ex - bombX);
+                        int dy = Mathf.Abs(ey - bombY);
+                        
+                        // Check if in range (simple square range)
+                        if (dx <= range && dy <= range && !(dx == 0 && dy == 0))
+                        {
+                            Vector2Int dirAndDist = GetDirectionAndDistance(bombX, bombY, ex, ey);
+                            Vector2Int knockback = new Vector2Int(
+                                dirAndDist.x != 0 ? (dirAndDist.x > 0 ? 1 : -1) * knockbackDistance : 0,
+                                dirAndDist.y != 0 ? (dirAndDist.y > 0 ? 1 : -1) * knockbackDistance : 0
+                            );
+                            predictedPos = new Vector2Int(
+                                Mod(ex + knockback.x, _width),
+                                Mod(ey + knockback.y, _height)
+                            );
+                        }
+                    }
+                    
+                    // Show prediction indicator if we have a predicted position
+                    if (predictedPos.HasValue)
+                    {
+                        Vector3 worldPos = boardManager.GridToWorld(predictedPos.Value.x, predictedPos.Value.y);
+                        while (indicatorIndex >= _enemyPredictionIndicators.Count)
+                        {
+                            GameObject indicator = new GameObject($"EnemyPrediction_{_enemyPredictionIndicators.Count}");
+                            SpriteRenderer sr = indicator.AddComponent<SpriteRenderer>();
+                            sr.sprite = CreateSquareSprite();
+                            sr.sortingOrder = 6;  // Above range indicators
+                            _enemyPredictionIndicators.Add(indicator);
+                        }
+                        GameObject predObj = _enemyPredictionIndicators[indicatorIndex];
+                        predObj.transform.position = worldPos;
+                        predObj.transform.localScale = Vector3.one * cellSize * 0.6f;  // Smaller than cell
+                        SpriteRenderer predSr = predObj.GetComponent<SpriteRenderer>();
+                        if (predSr != null)
+                        {
+                            predSr.color = new Color(0.2f, 1f, 0.2f, 0.6f);  // Green for predicted
+                        }
+                        predObj.SetActive(true);
+                        indicatorIndex++;
+                    }
+                }
+            }
+        }
+    }
 
     private void HidePreview()
     {
@@ -121,6 +307,14 @@ public partial class GameManager : MonoBehaviour
         if (_rangeIndicators != null)
         {
             foreach (var indicator in _rangeIndicators)
+            {
+                if (indicator != null)
+                    indicator.SetActive(false);
+            }
+        }
+        if (_enemyPredictionIndicators != null)
+        {
+            foreach (var indicator in _enemyPredictionIndicators)
             {
                 if (indicator != null)
                     indicator.SetActive(false);
@@ -138,4 +332,94 @@ public partial class GameManager : MonoBehaviour
         texture.Apply();
         return Sprite.Create(texture, new Rect(0, 0, 32, 32), new Vector2(0.5f, 0.5f), 32);
     }
+    
+    // Remove mode preview - shows X marker on bombs
+    private void UpdateRemovePreview()
+    {
+        if (_isTurnInProgress)
+        {
+            HideRemovePreview();
+            return;
+        }
+        
+        Vector3 screenPos = Input.mousePosition;
+        Vector3 worldPos = Camera.main.ScreenToWorldPoint(screenPos);
+        int x = GlobalToGridX(worldPos.x);
+        int y = GlobalToGridY(worldPos.y);
+        
+        // Show X marker if hovering over a bomb
+        if (x >= 0 && x < _width && y >= 0 && y < _height && HasBombAt(x, y))
+        {
+            ShowRemoveIndicator(x, y);
+        }
+        else
+        {
+            HideRemovePreview();
+        }
+    }
+    
+    private void ShowRemoveIndicator(int x, int y)
+    {
+        float cellSize = boardManager.GetCellSize();
+        Vector3 worldPos = boardManager.GridToWorld(x, y);
+        
+        if (_removeIndicator == null)
+        {
+            _removeIndicator = new GameObject("RemoveIndicator");
+            SpriteRenderer sr = _removeIndicator.AddComponent<SpriteRenderer>();
+            sr.sprite = CreateXSprite();
+            sr.sortingOrder = 10;  // On top of everything
+        }
+        
+        _removeIndicator.transform.position = worldPos;
+        _removeIndicator.transform.localScale = Vector3.one * cellSize * 0.8f;
+        
+        SpriteRenderer xSr = _removeIndicator.GetComponent<SpriteRenderer>();
+        if (xSr != null)
+        {
+            xSr.color = new Color(1f, 0.2f, 0.2f, 0.9f);  // Red X
+        }
+        _removeIndicator.SetActive(true);
+    }
+    
+    private void HideRemovePreview()
+    {
+        if (_removeIndicator != null)
+            _removeIndicator.SetActive(false);
+    }
+    
+    // Create X-shaped sprite for remove indicator
+    private Sprite CreateXSprite()
+    {
+        int size = 32;
+        Texture2D texture = new Texture2D(size, size);
+        Color[] colors = new Color[size * size];
+        
+        // Initialize with transparent
+        for (int i = 0; i < colors.Length; i++)
+            colors[i] = Color.clear;
+        
+        // Draw X shape (two diagonal lines)
+        int thickness = 4;
+        for (int i = 0; i < size; i++)
+        {
+            for (int t = -thickness/2; t <= thickness/2; t++)
+            {
+                // Main diagonal (\)
+                int idx1 = i * size + (i + t);
+                if (i + t >= 0 && i + t < size && idx1 >= 0 && idx1 < colors.Length)
+                    colors[idx1] = Color.white;
+                
+                // Anti-diagonal (/)
+                int idx2 = i * size + (size - 1 - i + t);
+                if (size - 1 - i + t >= 0 && size - 1 - i + t < size && idx2 >= 0 && idx2 < colors.Length)
+                    colors[idx2] = Color.white;
+            }
+        }
+        
+        texture.SetPixels(colors);
+        texture.Apply();
+        return Sprite.Create(texture, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), size);
+    }
 }
+

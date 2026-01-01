@@ -2,9 +2,12 @@ namespace Entity
 {
     public enum BombType
     {
-        BlueBomb,
-        GreenBomb,
-        PinkBomb,
+        FirstBomb,
+        SecondBomb,
+        ThirdBomb,
+        FourthBomb,
+        FifthBomb,
+        SixthBomb,
         SkyblueBomb,
         RealBomb
     }

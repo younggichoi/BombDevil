@@ -12,16 +12,22 @@ public class BombManager : MonoBehaviour
     private Transform realBombSet;
     
     // Text UI for each bomb type
-    private TMP_Text _blueBombText;
-    private TMP_Text _greenBombText;
-    private TMP_Text _pinkBombText;
+    private TMP_Text _1stBombText;
+    private TMP_Text _2ndBombText;
+    private TMP_Text _3rdBombText;
+    private TMP_Text _4thBombText;
+    private TMP_Text _5thBombText;
+    private TMP_Text _6thBombText;
     private TMP_Text _skyblueBombText;
     private TMP_Text _realBombText;
     
     // Check UI for each bomb type (shows which bomb is selected)
-    private GameObject _blueBombChecked;
-    private GameObject _greenBombChecked;
-    private GameObject _pinkBombChecked;
+    private GameObject _1stBombChecked;
+    private GameObject _2ndBombChecked;
+    private GameObject _3rdBombChecked;
+    private GameObject _4thBombChecked;
+    private GameObject _5thBombChecked;
+    private GameObject _6thBombChecked;
     private GameObject _skyblueBombChecked;
     private GameObject _realBombChecked;
 
@@ -48,22 +54,32 @@ public class BombManager : MonoBehaviour
 
     public void Initialize(GameObject auxiliaryBomb, GameObject realBombPrefab, GameManager gameManager, 
         Transform auxiliaryBombSet, Transform realBombSet,
-        TMP_Text blueBombText, TMP_Text greenBombText, TMP_Text pinkBombText, TMP_Text skyblueBombText, TMP_Text realBombText,
-        GameObject blueBombChecked, GameObject greenBombChecked, GameObject pinkBombChecked, GameObject skyblueBombChecked, GameObject realBombChecked,
+        TMP_Text _1stBombText, TMP_Text _2ndBombText, TMP_Text _3rdBombText, 
+        TMP_Text _4thBombText, TMP_Text _5thBombText, TMP_Text _6thBombText,
+        TMP_Text skyblueBombText, TMP_Text realBombText,
+        GameObject _1stBombChecked, GameObject _2ndBombChecked, GameObject _3rdBombChecked,
+        GameObject _4thBombChecked, GameObject _5thBombChecked, GameObject _6thBombChecked,
+        GameObject skyblueBombChecked, GameObject realBombChecked,
         TMP_Text explodeButtonText, BoardManager boardManager)
     {
         this.auxiliaryBomb = auxiliaryBomb;
         this.realBombPrefab = realBombPrefab;
         this.auxiliaryBombSet = auxiliaryBombSet;
         this.realBombSet = realBombSet;
-        _blueBombText = blueBombText;
-        _greenBombText = greenBombText;
-        _pinkBombText = pinkBombText;
+        this._1stBombText = _1stBombText;
+        this._2ndBombText = _2ndBombText;
+        this._3rdBombText = _3rdBombText;
+        this._4thBombText = _4thBombText;
+        this._5thBombText = _5thBombText;
+        this._6thBombText = _6thBombText;
         _skyblueBombText = skyblueBombText;
         _realBombText = realBombText;
-        _blueBombChecked = blueBombChecked;
-        _greenBombChecked = greenBombChecked;
-        _pinkBombChecked = pinkBombChecked;
+        this._1stBombChecked = _1stBombChecked;
+        this._2ndBombChecked = _2ndBombChecked;
+        this._3rdBombChecked = _3rdBombChecked;
+        this._4thBombChecked = _4thBombChecked;
+        this._5thBombChecked = _5thBombChecked;
+        this._6thBombChecked = _6thBombChecked;
         _skyblueBombChecked = skyblueBombChecked;
         _realBombChecked = realBombChecked;
         _explodeButtonText = explodeButtonText;
@@ -77,10 +93,13 @@ public class BombManager : MonoBehaviour
         // Initialize leftover bombs from GameManager
         _leftoverBombs = new Dictionary<BombType, int>
         {
-            { BombType.BlueBomb, gameManager.GetInitialBombCount(BombType.BlueBomb) },
-            { BombType.GreenBomb, gameManager.GetInitialBombCount(BombType.GreenBomb) },
-            { BombType.PinkBomb, gameManager.GetInitialBombCount(BombType.PinkBomb) },
-            { BombType.SkyblueBomb, gameManager.GetInitialBombCount(BombType.SkyblueBomb)}
+            { BombType.FirstBomb, gameManager.GetInitialBombCount(BombType.FirstBomb) },
+            { BombType.SecondBomb, gameManager.GetInitialBombCount(BombType.SecondBomb) },
+            { BombType.ThirdBomb, gameManager.GetInitialBombCount(BombType.ThirdBomb) },
+            { BombType.FourthBomb, gameManager.GetInitialBombCount(BombType.FourthBomb) },
+            { BombType.FifthBomb, gameManager.GetInitialBombCount(BombType.FifthBomb) },
+            { BombType.SixthBomb, gameManager.GetInitialBombCount(BombType.SixthBomb) },
+            { BombType.SkyblueBomb, gameManager.GetInitialBombCount(BombType.SkyblueBomb) }
         };
         
         // Initialize RealBomb count (1 per stage)
@@ -102,9 +121,12 @@ public class BombManager : MonoBehaviour
         _bombDataDict = new Dictionary<BombType, BombData>();
         
         // Load each bomb type
-        LoadBombData("BlueBomb");
-        LoadBombData("GreenBomb");
-        LoadBombData("PinkBomb");
+        LoadBombData("1stBomb");
+        LoadBombData("2ndBomb");
+        LoadBombData("3rdBomb");
+        LoadBombData("4thBomb");
+        LoadBombData("5thBomb");
+        LoadBombData("6thBomb");
         LoadBombData("SkyblueBomb");
         LoadBombData("RealBomb");
     }
@@ -129,9 +151,12 @@ public class BombManager : MonoBehaviour
     // Update all bomb text UIs
     private void UpdateAllBombTexts()
     {
-        UpdateBombText(BombType.BlueBomb);
-        UpdateBombText(BombType.GreenBomb);
-        UpdateBombText(BombType.PinkBomb);
+        UpdateBombText(BombType.FirstBomb);
+        UpdateBombText(BombType.SecondBomb);
+        UpdateBombText(BombType.ThirdBomb);
+        UpdateBombText(BombType.FourthBomb);
+        UpdateBombText(BombType.FifthBomb);
+        UpdateBombText(BombType.SixthBomb);
         UpdateBombText(BombType.SkyblueBomb);
         UpdateRealBombText();
     }
@@ -139,21 +164,38 @@ public class BombManager : MonoBehaviour
     // Update specific bomb text UI
     private void UpdateBombText(BombType bombType)
     {
-        int count = _leftoverBombs[bombType];
+        if (!_leftoverBombs.TryGetValue(bombType, out int count))
+            return;
         
         switch (bombType)
         {
-            case BombType.BlueBomb:
-                if (_blueBombText != null)
-                    _blueBombText.text = $"Blue: {count}";
+            case BombType.FirstBomb:
+                if (_1stBombText != null)
+                    _1stBombText.text = $"1st: {count}";
                 break;
-            case BombType.GreenBomb:
-                if (_greenBombText != null)
-                    _greenBombText.text = $"Green: {count}";
+            case BombType.SecondBomb:
+                if (_2ndBombText != null)
+                    _2ndBombText.text = $"2nd: {count}";
                 break;
-            case BombType.PinkBomb:
-                if (_pinkBombText != null)
-                    _pinkBombText.text = $"Pink: {count}";
+            case BombType.ThirdBomb:
+                if (_3rdBombText != null)
+                    _3rdBombText.text = $"3rd: {count}";
+                break;
+            case BombType.FourthBomb:
+                if (_4thBombText != null)
+                    _4thBombText.text = $"4th: {count}";
+                break;
+            case BombType.FifthBomb:
+                if (_5thBombText != null)
+                    _5thBombText.text = $"5th: {count}";
+                break;
+            case BombType.SixthBomb:
+                if (_6thBombText != null)
+                    _6thBombText.text = $"6th: {count}";
+                break;
+            case BombType.SkyblueBomb:
+                if (_skyblueBombText != null)
+                    _skyblueBombText.text = $"Sky: {count}";
                 break;
             case BombType.SkyblueBomb:
                 if (_skyblueBombText != null)
@@ -211,14 +253,34 @@ public class BombManager : MonoBehaviour
         UpdateCheckedUI();
     }
     
+    // Restore a bomb to inventory (used when removing placed bombs)
+    public void RestoreBomb(BombType bombType)
+    {
+        if (_leftoverBombs.ContainsKey(bombType))
+        {
+            _leftoverBombs[bombType]++;
+            UpdateBombText(bombType);
+        }
+    }
+    
+    // Restore RealBomb to inventory
+    public void RestoreRealBomb()
+    {
+        _realBombCount++;
+        UpdateRealBombText();
+    }
+    
     // Get display name for bomb type
     private string GetBombDisplayName(BombType bombType)
     {
         switch (bombType)
         {
-            case BombType.BlueBomb: return "Blue";
-            case BombType.GreenBomb: return "Green";
-            case BombType.PinkBomb: return "Pink";
+            case BombType.FirstBomb: return "1st";
+            case BombType.SecondBomb: return "2nd";
+            case BombType.ThirdBomb: return "3rd";
+            case BombType.FourthBomb: return "4th";
+            case BombType.FifthBomb: return "5th";
+            case BombType.SixthBomb: return "6th";
             case BombType.SkyblueBomb: return "Skyblue";
             case BombType.RealBomb: return "Real";
             default: return bombType.ToString();
@@ -258,9 +320,12 @@ public class BombManager : MonoBehaviour
     private void UpdateCheckedUI()
     {
         // Deactivate all check UIs first
-        if (_blueBombChecked != null) _blueBombChecked.SetActive(false);
-        if (_greenBombChecked != null) _greenBombChecked.SetActive(false);
-        if (_pinkBombChecked != null) _pinkBombChecked.SetActive(false);
+        if (_1stBombChecked != null) _1stBombChecked.SetActive(false);
+        if (_2ndBombChecked != null) _2ndBombChecked.SetActive(false);
+        if (_3rdBombChecked != null) _3rdBombChecked.SetActive(false);
+        if (_4thBombChecked != null) _4thBombChecked.SetActive(false);
+        if (_5thBombChecked != null) _5thBombChecked.SetActive(false);
+        if (_6thBombChecked != null) _6thBombChecked.SetActive(false);
         if (_skyblueBombChecked != null) _skyblueBombChecked.SetActive(false);
         if (_realBombChecked != null) _realBombChecked.SetActive(false);
         
@@ -269,14 +334,26 @@ public class BombManager : MonoBehaviour
         {
             switch (_currentBombType.Value)
             {
-                case BombType.BlueBomb:
-                    if (_blueBombChecked != null) _blueBombChecked.SetActive(true);
+                case BombType.FirstBomb:
+                    if (_1stBombChecked != null) _1stBombChecked.SetActive(true);
                     break;
-                case BombType.GreenBomb:
-                    if (_greenBombChecked != null) _greenBombChecked.SetActive(true);
+                case BombType.SecondBomb:
+                    if (_2ndBombChecked != null) _2ndBombChecked.SetActive(true);
                     break;
-                case BombType.PinkBomb:
-                    if (_pinkBombChecked != null) _pinkBombChecked.SetActive(true);
+                case BombType.ThirdBomb:
+                    if (_3rdBombChecked != null) _3rdBombChecked.SetActive(true);
+                    break;
+                case BombType.FourthBomb:
+                    if (_4thBombChecked != null) _4thBombChecked.SetActive(true);
+                    break;
+                case BombType.FifthBomb:
+                    if (_5thBombChecked != null) _5thBombChecked.SetActive(true);
+                    break;
+                case BombType.SixthBomb:
+                    if (_6thBombChecked != null) _6thBombChecked.SetActive(true);
+                    break;
+                case BombType.SkyblueBomb:
+                    if (_skyblueBombChecked != null) _skyblueBombChecked.SetActive(true);
                     break;
                 case BombType.SkyblueBomb:
                     if (_skyblueBombChecked != null) _skyblueBombChecked.SetActive(true);

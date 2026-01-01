@@ -1,0 +1,6 @@
+{
+    "bombType": "FourthBomb",
+    "range": 1,
+    "knockbackDistance": 4,
+    "colorHex": "#6BCB77"
+}

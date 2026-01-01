@@ -67,7 +67,7 @@ public partial class GameManager : MonoBehaviour
 
     public void OnResetButtonClick()
     {
-        StageManager stageManager = FindObjectOfType<StageManager>();
+        StageManager stageManager = FindFirstObjectByType<StageManager>();
         if (stageManager != null)
         {
             stageManager.RestartStage();
@@ -76,5 +76,25 @@ public partial class GameManager : MonoBehaviour
         {
             Debug.LogError("StageManager not found in the scene!");
         }
+    }
+    
+    // Enter remove mode - clear selections and allow removing placed bombs
+    public void OnRemoveButtonClick()
+    {
+        // Clear current selections
+        bombManager.ClearCurrentBombType();
+        itemManager.ClearCurrentItemType();
+        
+        // Enter remove mode
+        _isRemoveMode = true;
+        ShowTempMessage("Remove mode - Click a bomb to remove it", 1f, "Remove mode");
+    }
+    
+    // Exit remove mode (called when any other mode is selected)
+    private void ExitRemoveMode()
+    {
+        _isRemoveMode = false;
+        if (_removeIndicator != null)
+            _removeIndicator.SetActive(false);
     }
 }

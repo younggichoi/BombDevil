@@ -9,9 +9,12 @@
         public int enemyNumber;
         
         // Initial bomb counts per type
-        public int initialBlueBomb;
-        public int initialGreenBomb;
-        public int initialPinkBomb;
+        public int initial1stBomb;
+        public int initial2ndBomb;
+        public int initial3rdBomb;
+        public int initial4thBomb;
+        public int initial5thBomb;
+        public int initial6thBomb;
         public int initialSkyblueBomb;
         
         // Turn limit for the stage
@@ -24,12 +27,18 @@
         {
             switch (bombType)
             {
-                case BombType.BlueBomb:
-                    return initialBlueBomb;
-                case BombType.GreenBomb:
-                    return initialGreenBomb;
-                case BombType.PinkBomb:
-                    return initialPinkBomb;
+                case BombType.FirstBomb:
+                    return initial1stBomb;
+                case BombType.SecondBomb:
+                    return initial2ndBomb;
+                case BombType.ThirdBomb:
+                    return initial3rdBomb;
+                case BombType.FourthBomb:
+                    return initial4thBomb;
+                case BombType.FifthBomb:
+                    return initial5thBomb;
+                case BombType.SixthBomb:
+                    return initial6thBomb;
                 case BombType.SkyblueBomb:
                     return initialSkyblueBomb;
                 default:
@@ -40,7 +49,8 @@
         // Get total initial bomb count
         public int GetTotalInitialBombs()
         {
-            return initialBlueBomb + initialGreenBomb + initialPinkBomb + initialSkyblueBomb;
+            return initial1stBomb + initial2ndBomb + initial3rdBomb + 
+                   initial4thBomb + initial5thBomb + initial6thBomb + initialSkyblueBomb;
         }
     }
 }

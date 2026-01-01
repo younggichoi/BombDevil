@@ -1,0 +1,6 @@
+{
+    "bombType": "FirstBomb",
+    "range": 1,
+    "knockbackDistance": 1,
+    "colorHex": "#FF6B6B"
+}

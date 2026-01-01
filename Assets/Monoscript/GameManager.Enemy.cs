@@ -120,54 +120,76 @@ public partial class GameManager : MonoBehaviour
         }
     }
 
-    /*private void PinkBomb(int x, int y, int range)
+    // SkyblueBomb: Creates cross-shaped axes through bomb center
+    // Enemies NOT on the axes move 1 cell AWAY from the nearest axis
+    private void SkyblueBomb(int bombX, int bombY, int range)
     {
-        List<(int targetX, int targetY, GameObject obj)> target = FindEnemiesInRange(x, y, range);
-        foreach (var (targetX, targetY, obj) in target)
+        // First, collect all enemies and their knockback directions
+        List<(int ex, int ey, GameObject obj, Vector2Int knockbackDir)> enemiesToMove = 
+            new List<(int, int, GameObject, Vector2Int)>();
+        
+        for (int ex = 0; ex < _width; ex++)
         {
-            Enemy enemy = obj.GetComponent<Enemy>();
-            if (enemy != null)
+            for (int ey = 0; ey < _height; ey++)
             {
-                Vector2Int dirAndDist = GetDirectionAndDistance(x, y, targetX, targetY);
-                Debug.Log($"PinkBomb knocking back enemy at ({targetX}, {targetY}) by {dirAndDist}");
-                enemy.Knockback(dirAndDist);
-                ReflectMoveInBoard(targetX, targetY, obj, dirAndDist); // 1 step in that direction for board update
-            }
-        }
-    }*/
-
-    private void SkyblueBomb(int x, int y, int range)
-    {
-        List<(int targetX, int targetY, GameObject obj)> target = FindEnemiesInRange(x, y, range);
-        foreach (var (targetX, targetY, obj) in target)
-        {
-            Enemy enemy = obj.GetComponent<Enemy>();
-            if (enemy != null)
-            {
-                Vector2Int dirAndDist = GetDirectionAndDistance(x, y, targetX, targetY);
-                Vector2Int knockbackDir;
-                if(dirAndDist.x == 0 || dirAndDist.y == 0)
+                foreach (var obj in _board[ex, ey])
                 {
-                    return; // If straight line, do not knockback
-                }
-                else
-                {
-                    if(Mathf.Abs(dirAndDist.x) < Mathf.Abs(dirAndDist.y))
+                    if (obj == null) continue;
+                    Enemy enemy = obj.GetComponent<Enemy>();
+                    if (enemy == null) continue;
+                    
+                    // Calculate distance to axes (with wrapping)
+                    int dx = GetWrappedDistance(ex, bombX, _width);  // Distance to vertical axis
+                    int dy = GetWrappedDistance(ey, bombY, _height); // Distance to horizontal axis
+                    
+                    // Skip if enemy is on either axis
+                    if (dx == 0 || dy == 0) continue;
+                    
+                    Vector2Int knockbackDir;
+                    
+                    // Move away from the NEAREST axis
+                    if (Mathf.Abs(dx) < Mathf.Abs(dy))
                     {
-                        knockbackDir = new Vector2Int(dirAndDist.x > 0 ? 1 : -1, 0);
+                        // Closer to vertical axis (bombX) → move away horizontally
+                        knockbackDir = new Vector2Int(dx > 0 ? 1 : -1, 0);
                     }
-                    else if(Mathf.Abs(dirAndDist.x) > Mathf.Abs(dirAndDist.y))
+                    else if (Mathf.Abs(dx) > Mathf.Abs(dy))
                     {
-                        knockbackDir = new Vector2Int(0, dirAndDist.y > 0 ? 1 : -1);
+                        // Closer to horizontal axis (bombY) → move away vertically
+                        knockbackDir = new Vector2Int(0, dy > 0 ? 1 : -1);
                     }
                     else
                     {
-                        knockbackDir = new Vector2Int(dirAndDist.x > 0 ? 1 : -1, dirAndDist.y > 0 ? 1 : -1);
+                        // Equal distance → move diagonally away from both axes
+                        knockbackDir = new Vector2Int(dx > 0 ? 1 : -1, dy > 0 ? 1 : -1);
                     }
-                    HandleMoveInBoard(targetX, targetY, obj, knockbackDir); // 1 step in that direction for board update
+                    
+                    Debug.Log($"SkyblueBomb: Enemy at ({ex}, {ey}), dx={dx}, dy={dy}, knockback={knockbackDir}");
+                    enemiesToMove.Add((ex, ey, obj, knockbackDir));
                 }
             }
         }
+        
+        // Then, process all knockbacks (separate loop to avoid collection modification during iteration)
+        foreach (var (ex, ey, obj, knockbackDir) in enemiesToMove)
+        {
+            HandleMoveInBoard(ex, ey, obj, knockbackDir);
+        }
+    }
+    
+    // Helper: Calculate shortest distance considering board wrapping
+    private int GetWrappedDistance(int from, int to, int size)
+    {
+        int direct = from - to;
+        if (Mathf.Abs(direct) > size / 2)
+        {
+            // Wrap is shorter
+            if (direct > 0)
+                direct -= size;
+            else
+                direct += size;
+        }
+        return direct;
     }
 
     private void KillEnemiesInRange(int x, int y, int range)

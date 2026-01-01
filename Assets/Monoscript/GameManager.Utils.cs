@@ -17,12 +17,20 @@ public partial class GameManager : MonoBehaviour
     {
         switch (bombType)
         {
-            case BombType.BlueBomb:
-                return _initialBlueBomb;
-            case BombType.GreenBomb:
-                return _initialGreenBomb;
-            case BombType.PinkBomb:
-                return _initialPinkBomb;
+            case BombType.FirstBomb:
+                return _initial1stBomb;
+            case BombType.SecondBomb:
+                return _initial2ndBomb;
+            case BombType.ThirdBomb:
+                return _initial3rdBomb;
+            case BombType.FourthBomb:
+                return _initial4thBomb;
+            case BombType.FifthBomb:
+                return _initial5thBomb;
+            case BombType.SixthBomb:
+                return _initial6thBomb;
+            case BombType.SkyblueBomb:
+                return _initialSkyblueBomb;
             default:
                 return 0;
         }
@@ -48,6 +56,19 @@ public partial class GameManager : MonoBehaviour
     private static float Mod(float x, int m) => (x % m + m) % m;
     private static float Mod(float x, float m) => (x % m + m) % m;
     private static int Mod(int x, int m) => (x % m + m) % m;
+    
+    // Check if a bomb exists at the given cell (ignores enemies)
+    private bool HasBombAt(int x, int y)
+    {
+        if (x < 0 || x >= _width || y < 0 || y >= _height) return false;
+        foreach (var obj in _board[x, y])
+        {
+            if (obj == null) continue;
+            if (obj.GetComponent<AuxiliaryBomb>() != null) return true;
+            if (obj.GetComponent<RealBomb>() != null) return true;
+        }
+        return false;
+    }
 
 
     // Vector2 version: directionAndDistance is in board units (not normalized)

@@ -1,0 +1,6 @@
+{
+    "bombType": "ThirdBomb",
+    "range": 1,
+    "knockbackDistance": 3,
+    "colorHex": "#FFD93D"
+}

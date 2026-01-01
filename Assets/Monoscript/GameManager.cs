@@ -19,19 +19,18 @@ public partial class GameManager : MonoBehaviour
     private int _width;
     private int _height;
     private int _enemyNumber;
-    private int _initialBlueBomb;
-    private int _initialGreenBomb;
-    private int _initialPinkBomb;
+    private int _initial1stBomb;
+    private int _initial2ndBomb;
+    private int _initial3rdBomb;
+    private int _initial4thBomb;
+    private int _initial5thBomb;
+    private int _initial6thBomb;
     private int _initialSkyblueBomb;
     private int _remainingTurns;
     private int _stageId;
     private string _boardSpritePath;
     // scoping board situation - List to allow multiple objects per cell
     private List<GameObject>[,] _board;
-    // tracking auxiliary bomb order
-    private List<Vector2Int> _auxiliaryBombs;
-    // tracking real bomb order
-    private List<Vector2Int> _realBombs;
     // combined bomb order (tracks both auxiliary and real bombs in placement order)
     private List<(Vector2Int coord, bool isRealBomb)> _allBombs;
     // tracking wall order
@@ -63,8 +62,12 @@ public partial class GameManager : MonoBehaviour
     // Bomb preview system
     private GameObject _ghostBomb;
     private List<GameObject> _rangeIndicators;
+    private List<GameObject> _enemyPredictionIndicators;  // Shows predicted enemy positions
     private Vector2Int _lastHoveredCell = new Vector2Int(-1, -1);
     private Sprite _defaultBombSprite;
+    // Remove mode
+    private bool _isRemoveMode = false;
+    private GameObject _removeIndicator;  // X marker for remove mode
     // Stage stats UI
     private TMP_Text _stageText;
     private TMP_Text _timeText;
@@ -86,8 +89,6 @@ public partial class GameManager : MonoBehaviour
                 _board[x, y] = new List<GameObject>();
             }
         }
-        _auxiliaryBombs = new List<Vector2Int>();
-        _realBombs = new List<Vector2Int>();
         _allBombs = new List<(Vector2Int, bool)>();
         _walls = new List<Vector2Int>();
         // --- Item system initialization ---
@@ -108,6 +109,11 @@ public partial class GameManager : MonoBehaviour
     public void SetBoardManager(BoardManager boardManager)
     {
         this.boardManager = boardManager;
+    }
+
+    public void SetBombManager(BombManager bombManager)
+    {
+        this.bombManager = bombManager;
     }
 
     public void SetStageStatsUI(TMP_Text stageText, TMP_Text timeText, TMP_Text turnText)
@@ -149,9 +155,12 @@ public partial class GameManager : MonoBehaviour
         _width = differentData.width;
         _height = differentData.height;
         _enemyNumber = differentData.enemyNumber;
-        _initialBlueBomb = differentData.initialBlueBomb;
-        _initialGreenBomb = differentData.initialGreenBomb;
-        _initialPinkBomb = differentData.initialPinkBomb;
+        _initial1stBomb = differentData.initial1stBomb;
+        _initial2ndBomb = differentData.initial2ndBomb;
+        _initial3rdBomb = differentData.initial3rdBomb;
+        _initial4thBomb = differentData.initial4thBomb;
+        _initial5thBomb = differentData.initial5thBomb;
+        _initial6thBomb = differentData.initial6thBomb;
         _initialSkyblueBomb = differentData.initialSkyblueBomb;
         _remainingTurns = differentData.remainingTurns;
         _boardSpritePath = differentData.boardSpritePath;
@@ -164,21 +173,30 @@ public partial class GameManager : MonoBehaviour
         _elapsedTime += Time.deltaTime;
         UpdateTimeText();
 
-        // Show item preview if item is selected, otherwise bomb preview, otherwise hide both
+        // Show item preview if item is selected, otherwise bomb preview, otherwise remove preview, otherwise hide all
         if (itemManager != null && itemManager.HasItemSelected())
         {
+            ExitRemoveMode();
             UpdateItemPreview();
             HidePreview(); // Hide bomb preview if item is selected
         }
         else if (bombManager != null && bombManager.HasBombSelected())
         {
+            ExitRemoveMode();
             UpdateBombPreview();
             HideItemPreview(); // Hide item preview if bomb is selected
+        }
+        else if (_isRemoveMode)
+        {
+            HideItemPreview();
+            HidePreview();
+            UpdateRemovePreview();
         }
         else
         {
             HideItemPreview();
             HidePreview();
+            HideRemovePreview();
         }
 
         if (Input.GetMouseButtonDown(0))
@@ -187,17 +205,33 @@ public partial class GameManager : MonoBehaviour
         // --- Bomb Selection Input ---
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            if (bombManager != null) bombManager.SetCurrentBombType(BombType.BlueBomb);
+            if (bombManager != null) bombManager.SetCurrentBombType(BombType.FirstBomb);
         }
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            if (bombManager != null) bombManager.SetCurrentBombType(BombType.GreenBomb);
+            if (bombManager != null) bombManager.SetCurrentBombType(BombType.SecondBomb);
         }
         if (Input.GetKeyDown(KeyCode.Alpha3))
         {
-            if (bombManager != null) bombManager.SetCurrentBombType(BombType.PinkBomb);
+            if (bombManager != null) bombManager.SetCurrentBombType(BombType.ThirdBomb);
         }
         if (Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            if (bombManager != null) bombManager.SetCurrentBombType(BombType.FourthBomb);
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha5))
+        {
+            if (bombManager != null) bombManager.SetCurrentBombType(BombType.FifthBomb);
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha6))
+        {
+            if (bombManager != null) bombManager.SetCurrentBombType(BombType.SixthBomb);
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha7))
+        {
+            if (bombManager != null) bombManager.SetCurrentBombType(BombType.SkyblueBomb);
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha8))
         {
             if (bombManager != null) bombManager.SetCurrentBombType(BombType.RealBomb);
         }
