@@ -97,4 +97,9 @@ public partial class GameManager : MonoBehaviour
         if (_removeIndicator != null)
             _removeIndicator.SetActive(false);
     }
+
+    public void OnExitButtonClick()
+    {
+        UnityEngine.SceneManagement.SceneManager.LoadScene("StartScene");
+    }
 }

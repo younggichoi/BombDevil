@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using TMPro;
 using UnityEngine;
 using Entity;
@@ -152,14 +153,15 @@ public class BombManager : MonoBehaviour
     // Load single bomb data from JSON
     private void LoadBombData(string bombTypeName)
     {
-        TextAsset jsonFile = Resources.Load<TextAsset>($"Json/Bomb/{bombTypeName}");
-        if (jsonFile == null)
+        string path = Path.Combine(Application.streamingAssetsPath, $"Json/Bomb/{bombTypeName}.json");
+        if (!File.Exists(path))
         {
-            Debug.LogError($"Failed to load {bombTypeName}.json from Resources/Json/Bomb/");
+            Debug.LogError($"Failed to load {bombTypeName}.json from {path}");
             return;
         }
         
-        BombData bombData = JsonUtility.FromJson<BombData>(jsonFile.text);
+        string json = File.ReadAllText(path);
+        BombData bombData = JsonUtility.FromJson<BombData>(json);
         BombType bombType = bombData.GetBombType();
         _bombDataDict[bombType] = bombData;
         
