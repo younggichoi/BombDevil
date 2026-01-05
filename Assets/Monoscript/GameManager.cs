@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using Entity;
 using TMPro;
@@ -160,13 +161,14 @@ public partial class GameManager : MonoBehaviour
 
     private void SetStageState(int stageId)
     {
-        TextAsset jsonFile = Resources.Load<TextAsset>("Json/Stage/stage" + stageId);
-        if (jsonFile == null)
+        string path = Path.Combine(Application.streamingAssetsPath, "Json/Stage/stage" + stageId + ".json");
+        if (!File.Exists(path))
         {
-            Debug.LogError($"Failed to load stage{stageId}.json from Resources/Json/Stage/");
+            Debug.LogError($"Failed to load stage{stageId}.json from {path}");
             return;
         }
-        StageDifferentData differentData = JsonUtility.FromJson<StageDifferentData>(jsonFile.text);
+        string json = File.ReadAllText(path);
+        StageDifferentData differentData = JsonUtility.FromJson<StageDifferentData>(json);
         _stageId = stageId;
         _width = differentData.width;
         _height = differentData.height;

@@ -47,6 +47,7 @@ public class StageRoot : MonoBehaviour
     private Button megaphoneButton;
     private Button removeButton;
     private Button resetButton;
+    private Button exitButton;
     private TMP_Text teleporterButtonText;
     private TMP_Text megaphoneButtonText;
     
@@ -121,6 +122,7 @@ public class StageRoot : MonoBehaviour
         megaphoneButton = GameObject.Find("MegaphoneButton")?.GetComponent<Button>();
         removeButton = GameObject.Find("RemoveButton")?.GetComponent<Button>();
         resetButton = GameObject.Find("ResetButton")?.GetComponent<Button>();
+        exitButton = GameObject.Find("ExitButton")?.GetComponent<Button>();
         
         // Deactivate all check UIs at game start
         if (_1stBombChecked != null) _1stBombChecked.SetActive(false);
@@ -215,6 +217,13 @@ public class StageRoot : MonoBehaviour
             resetButton.onClick.AddListener(() =>
                 gameManager.OnResetButtonClick());
             Debug.Log("Reset button listener added.");
+        }
+
+        if (exitButton != null)
+        {
+            exitButton.onClick.RemoveAllListeners();
+            exitButton.onClick.AddListener(() => gameManager.OnExitButtonClick());
+            Debug.Log("Exit button listener added.");
         }
         
         // Create enemies for this stage

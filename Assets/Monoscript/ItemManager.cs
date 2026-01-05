@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using TMPro;
 using UnityEngine;
 using Entity;
@@ -58,11 +59,15 @@ public class ItemManager : MonoBehaviour
 
     private void LoadItemData(string itemTypeName)
     {
-        TextAsset jsonFile = Resources.Load<TextAsset>($"Json/Item/{itemTypeName}");
-        Debug.Log($"File content: {jsonFile.text}");
-        if (jsonFile == null)
+        string path = Path.Combine(Application.streamingAssetsPath, $"Json/Item/{itemTypeName}.json");
+        if (!File.Exists(path))
+        {
+            Debug.LogError($"Failed to load {itemTypeName}.json from {path}");
             return;
-        ItemData data = JsonUtility.FromJson<ItemData>(jsonFile.text);
+        }
+        string json = File.ReadAllText(path);
+        Debug.Log($"File content: {json}");
+        ItemData data = JsonUtility.FromJson<ItemData>(json);
         if (System.Enum.TryParse(itemTypeName, out ItemType type))
         {
             _itemDataDict[type] = data;
