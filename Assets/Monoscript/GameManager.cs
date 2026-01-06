@@ -223,34 +223,50 @@ public partial class GameManager : MonoBehaviour
         // --- Bomb Selection Input ---
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
+            ExitRemoveMode();
+            itemManager.ClearCurrentItemType();
             if (bombManager != null) bombManager.SetCurrentBombType(BombType.FirstBomb);
         }
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {
+            ExitRemoveMode();
+            itemManager.ClearCurrentItemType();
             if (bombManager != null) bombManager.SetCurrentBombType(BombType.SecondBomb);
         }
         if (Input.GetKeyDown(KeyCode.Alpha3))
         {
+            ExitRemoveMode();
+            itemManager.ClearCurrentItemType();
             if (bombManager != null) bombManager.SetCurrentBombType(BombType.ThirdBomb);
         }
         if (Input.GetKeyDown(KeyCode.Alpha4))
         {
+            ExitRemoveMode();
+            itemManager.ClearCurrentItemType();
             if (bombManager != null) bombManager.SetCurrentBombType(BombType.FourthBomb);
         }
         if (Input.GetKeyDown(KeyCode.Alpha5))
         {
+            ExitRemoveMode();
+            itemManager.ClearCurrentItemType();
             if (bombManager != null) bombManager.SetCurrentBombType(BombType.FifthBomb);
         }
         if (Input.GetKeyDown(KeyCode.Alpha6))
         {
+            ExitRemoveMode();
+            itemManager.ClearCurrentItemType();
             if (bombManager != null) bombManager.SetCurrentBombType(BombType.SixthBomb);
         }
         if (Input.GetKeyDown(KeyCode.Alpha7))
         {
+            ExitRemoveMode();
+            itemManager.ClearCurrentItemType();
             if (bombManager != null) bombManager.SetCurrentBombType(BombType.SkyblueBomb);
         }
         if (Input.GetKeyDown(KeyCode.Alpha8))
         {
+            ExitRemoveMode();
+            itemManager.ClearCurrentItemType();
             if (bombManager != null) bombManager.SetCurrentBombType(BombType.RealBomb);
         }
         

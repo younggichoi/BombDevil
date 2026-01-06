@@ -55,6 +55,8 @@ public class BombManager : MonoBehaviour
 
     public void ClearBombs()
     {
+        _currentBombType = null;
+        UpdateCheckedUI();
         if (auxiliaryBombSet != null)
         {
             foreach (Transform bomb in auxiliaryBombSet)
@@ -92,16 +94,16 @@ public class BombManager : MonoBehaviour
         this._4thBombText = _4thBombText;
         this._5thBombText = _5thBombText;
         this._6thBombText = _6thBombText;
-        _skyblueBombText = skyblueBombText;
-        _realBombText = realBombText;
+        this._skyblueBombText = skyblueBombText;
+        this._realBombText = realBombText;
         this._1stBombChecked = _1stBombChecked;
         this._2ndBombChecked = _2ndBombChecked;
         this._3rdBombChecked = _3rdBombChecked;
         this._4thBombChecked = _4thBombChecked;
         this._5thBombChecked = _5thBombChecked;
         this._6thBombChecked = _6thBombChecked;
-        _skyblueBombChecked = skyblueBombChecked;
-        _realBombChecked = realBombChecked;
+        this._skyblueBombChecked = skyblueBombChecked;
+        this._realBombChecked = realBombChecked;
         _explodeButtonText = explodeButtonText;
         _boardManager = boardManager;
         _gameManager = gameManager;
@@ -336,14 +338,14 @@ public class BombManager : MonoBehaviour
     private void UpdateCheckedUI()
     {
         // Deactivate all check UIs first
-        if (_1stBombChecked != null) _1stBombChecked.SetActive(false);
-        if (_2ndBombChecked != null) _2ndBombChecked.SetActive(false);
-        if (_3rdBombChecked != null) _3rdBombChecked.SetActive(false);
-        if (_4thBombChecked != null) _4thBombChecked.SetActive(false);
-        if (_5thBombChecked != null) _5thBombChecked.SetActive(false);
-        if (_6thBombChecked != null) _6thBombChecked.SetActive(false);
-        if (_skyblueBombChecked != null) _skyblueBombChecked.SetActive(false);
-        if (_realBombChecked != null) _realBombChecked.SetActive(false);
+        _1stBombChecked.SetActive(false);
+        _2ndBombChecked.SetActive(false);
+        _3rdBombChecked.SetActive(false);
+        _4thBombChecked.SetActive(false);
+        _5thBombChecked.SetActive(false);
+        _6thBombChecked.SetActive(false);
+        _skyblueBombChecked.SetActive(false);
+        _realBombChecked.SetActive(false);
         
         // Activate the selected one
         if (_currentBombType.HasValue)
