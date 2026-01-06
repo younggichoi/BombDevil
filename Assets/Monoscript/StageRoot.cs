@@ -192,7 +192,6 @@ public class StageRoot : MonoBehaviour
             teleporterButton.onClick.RemoveAllListeners();
             teleporterButton.onClick.AddListener(() => 
                 gameManager.OnItemButtonClicked(ItemType.Teleporter));
-            Debug.Log("Teleporter button listener added.");
         }
 
         if (megaphoneButton != null)
@@ -200,7 +199,6 @@ public class StageRoot : MonoBehaviour
             megaphoneButton.onClick.RemoveAllListeners();
             megaphoneButton.onClick.AddListener(() => 
                 gameManager.OnItemButtonClicked(ItemType.Megaphone));
-            Debug.Log("Megaphone button listener added.");
         }
         
         if (removeButton != null)
@@ -208,7 +206,6 @@ public class StageRoot : MonoBehaviour
             removeButton.onClick.RemoveAllListeners();
             removeButton.onClick.AddListener(() =>
                 gameManager.OnRemoveButtonClick());
-            Debug.Log("Remove button listener added.");
         }
 
         if (resetButton != null)
@@ -216,14 +213,12 @@ public class StageRoot : MonoBehaviour
             resetButton.onClick.RemoveAllListeners();
             resetButton.onClick.AddListener(() =>
                 gameManager.OnResetButtonClick());
-            Debug.Log("Reset button listener added.");
         }
 
         if (exitButton != null)
         {
             exitButton.onClick.RemoveAllListeners();
             exitButton.onClick.AddListener(() => gameManager.OnExitButtonClick());
-            Debug.Log("Exit button listener added.");
         }
         
         // Create enemies for this stage

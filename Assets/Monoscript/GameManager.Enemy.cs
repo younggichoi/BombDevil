@@ -73,7 +73,6 @@ public partial class GameManager : MonoBehaviour
                         if (obj != null && obj.GetComponent<Enemy>() != null)
                         {
                             target.Add((targetX, targetY, obj));
-                            Debug.Log($"Found enemy at ({targetX}, {targetY}) in range {r} of ({x}, {y})");
                         }
                     }
                 }

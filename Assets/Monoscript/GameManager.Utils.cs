@@ -39,7 +39,6 @@ public partial class GameManager : MonoBehaviour
     public int GetInitialItemCount(ItemType itemType)
     {
         //TODO: Remove hardcoding later
-        Debug.Log($"Getting initial count for item type: {itemType}");
         switch (itemType)
         {
             case ItemType.Megaphone:

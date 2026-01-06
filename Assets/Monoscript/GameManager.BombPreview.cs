@@ -282,7 +282,6 @@ public partial class GameManager : MonoBehaviour
                     // Show prediction indicator if we have a predicted position
                     if (predictedPos.HasValue)
                     {
-                        Debug.Log($"Enemy at ({ex},{ey}) predicted to move to ({predictedPos.Value.x},{predictedPos.Value.y})");
                         Vector3 worldPos = boardManager.GridToWorld(predictedPos.Value.x, predictedPos.Value.y);
                         while (indicatorIndex >= _enemyPredictionIndicators.Count)
                         {

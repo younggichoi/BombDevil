@@ -66,6 +66,7 @@ public class BombManager : MonoBehaviour
         {
             foreach (Transform bomb in realBombSet)
             {
+                Debug.Log("Destroying real bomb");
                 Destroy(bomb.gameObject);
             }
         }
@@ -165,7 +166,6 @@ public class BombManager : MonoBehaviour
         BombType bombType = bombData.GetBombType();
         _bombDataDict[bombType] = bombData;
         
-        Debug.Log($"Loaded bomb data: {bombTypeName} (range: {bombData.range}, knockback: {bombData.knockbackDistance})");
     }
     
     // Update all bomb text UIs

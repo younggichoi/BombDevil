@@ -91,6 +91,13 @@ public class StageManager : MonoBehaviour
                     bombManager.ClearBombs();
                 }
 
+                ItemManager itemManager = currStage.GetComponentInChildren<ItemManager>();
+                if (itemManager != null)
+                {
+                    itemManager.ClearItems();
+                    itemManager.ResetItems();
+                }
+
                 _currentGameManager = null;
             }
             Destroy(currStage);

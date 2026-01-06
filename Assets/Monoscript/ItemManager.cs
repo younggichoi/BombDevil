@@ -66,13 +66,11 @@ public class ItemManager : MonoBehaviour
             return;
         }
         string json = File.ReadAllText(path);
-        Debug.Log($"File content: {json}");
         ItemData data = JsonUtility.FromJson<ItemData>(json);
         if (System.Enum.TryParse(itemTypeName, out ItemType type))
         {
             _itemDataDict[type] = data;
         }
-        Debug.Log($"Loaded item data for {itemTypeName}");
     }
 
     private void UpdateAllItemButtonTexts()
@@ -201,5 +199,27 @@ public class ItemManager : MonoBehaviour
         foreach (var count in _leftoverItems.Values)
             total += count;
         return total;
+    }
+
+    public void ClearItems()
+    {
+        if (_itemSet != null)
+        {
+            foreach (Transform child in _itemSet)
+            {
+                Destroy(child.gameObject);
+            }
+        }
+    }
+
+    public void ResetItems()
+    {
+        // Initialize leftover items from GameManager
+        _leftoverItems = new Dictionary<ItemType, int>();
+        foreach (var itemType in _itemPrefabs.Keys)
+        {
+            _leftoverItems[itemType] = _gameManager.GetInitialItemCount(itemType);
+        }
+        UpdateAllItemButtonTexts();
     }
 }
