@@ -29,7 +29,7 @@ public static class JsonDataUtility
         string json = JsonUtility.ToJson(data, true);
 
         // Define the file path, using stageId for a unique name
-        string filePath = Path.Combine(directoryPath, $"stage_{data.stageId}.json");
+        string filePath = Path.Combine(directoryPath, $"stage{data.stageId}.json");
 
         // Write the JSON string to the file
         File.WriteAllText(filePath, json);
@@ -49,7 +49,7 @@ public static class JsonDataUtility
     /// <returns>The loaded StageDifferentData, or null if not found.</returns>
     public static StageDifferentData LoadStageData(int stageId)
     {
-        string filePath = Path.Combine(Application.streamingAssetsPath, "Json", "Stage", $"stage_{stageId}.json");
+        string filePath = Path.Combine(Application.streamingAssetsPath, "Json", "Stage", $"stage{stageId}.json");
         if (File.Exists(filePath))
         {
             string json = File.ReadAllText(filePath);

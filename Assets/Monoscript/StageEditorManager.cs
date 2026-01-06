@@ -37,7 +37,7 @@ public class StageEditorManager : MonoBehaviour
         
         StageDropdown.onValueChanged.AddListener(delegate { OnValueChanged(); });
         SaveButton.onClick.AddListener(OnSaveButtonClicked);
-        ExitButton.onClick.AddListener(() => { UnityEngine.SceneManagement.SceneManager.LoadScene("StartScreen"); });
+        ExitButton.onClick.AddListener(() => { UnityEngine.SceneManagement.SceneManager.LoadScene("StartScene"); });
         
         LoadStageDataAndUpdateUI(_stageId);
     }
