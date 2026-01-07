@@ -9,15 +9,18 @@ public partial class GameManager : MonoBehaviour
         Vector3 worldPos = Camera.main.ScreenToWorldPoint(screenPos);
         worldPos.z = 0;  // 2D 게임이므로 z를 0으로 설정
         
-        // Remove mode - click on bomb to remove it
+        // Remove mode - click on bomb or item to remove it
         if (_isRemoveMode)
         {
             int rx = GlobalToGridX(worldPos.x);
             int ry = GlobalToGridY(worldPos.y);
-            if (rx >= 0 && rx < _width && ry >= 0 && ry < _height && HasBombAt(rx, ry))
+            if (rx >= 0 && rx < _width && ry >= 0 && ry < _height)
             {
-                RemoveBombAt(rx, ry);
-                return;
+                if (HasBombAt(rx, ry) || HasItemAt(rx, ry))
+                {
+                    RemoveObjectAt(rx, ry);
+                    return;
+                }
             }
         }
         
@@ -114,6 +117,33 @@ public partial class GameManager : MonoBehaviour
             else
             {
                 CreateAuxiliaryBomb(bx, by);
+            }
+        }
+    }
+
+    private void MouseRightClickProcess()
+    {
+        Vector3 screenPos = Input.mousePosition;
+        Vector3 worldPos = Camera.main.ScreenToWorldPoint(screenPos);
+        worldPos.z = 0;
+
+        RaycastHit2D hit = Physics2D.Raycast(worldPos, Vector2.zero);
+        if (hit.collider != null)
+        {
+            GameObject obj = hit.collider.gameObject;
+            if (obj.GetComponent<AuxiliaryBomb>() != null || 
+                obj.GetComponent<RealBomb>() != null || 
+                obj.GetComponent<Item>() != null)
+            {
+                // Use object position instead of mouse position to ensure we target the correct grid cell
+                // even if the click is slightly off-center or on a large collider.
+                int x = GlobalToGridX(obj.transform.position.x);
+                int y = GlobalToGridY(obj.transform.position.y);
+
+                if (x >= 0 && x < _width && y >= 0 && y < _height)
+                {
+                    RemoveObjectAt(x, y);
+                }
             }
         }
     }

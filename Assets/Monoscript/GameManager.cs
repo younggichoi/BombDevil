@@ -231,6 +231,9 @@ public partial class GameManager : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
             MouseClickProcess();
+
+        if (Input.GetMouseButtonDown(1))
+            MouseRightClickProcess();
         
         // --- Bomb Selection Input ---
         if (Input.GetKeyDown(KeyCode.Alpha1))

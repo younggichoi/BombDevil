@@ -69,6 +69,17 @@ public partial class GameManager : MonoBehaviour
         return false;
     }
 
+    private bool HasItemAt(int x, int y)
+    {
+        if (x < 0 || x >= _width || y < 0 || y >= _height) return false;
+        foreach (var obj in _board[x, y])
+        {
+            if (obj == null) continue;
+            if (obj.GetComponent<Item>() != null) return true;
+        }
+        return false;
+    }
+
 
     // Vector2 version: directionAndDistance is in board units (not normalized)
     private static Vector3 GetTarget(Vector2 directionAndDistance, Vector3 start, float cellSize = 1f)
