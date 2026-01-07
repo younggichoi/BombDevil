@@ -180,10 +180,23 @@ public class ItemManager : MonoBehaviour
                 sr.sprite = sprite;
         }
 
+        // Add Item component to identify it later
+        Item itemComponent = item.AddComponent<Item>();
+        itemComponent.Type = itemType;
+
         _leftoverItems[itemType]--;
         UpdateAllItemButtonTexts();
         Debug.Log($"Placed item {itemType} at ({x}, {y}). Leftover: {_leftoverItems[itemType]}");
         return item;
+    }
+
+    public void RestoreItem(ItemType itemType)
+    {
+        if (_leftoverItems.ContainsKey(itemType))
+        {
+            _leftoverItems[itemType]++;
+            UpdateAllItemButtonTexts();
+        }
     }
 
     public int GetLeftoverItem(ItemType itemType)

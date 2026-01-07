@@ -45,59 +45,80 @@ public partial class GameManager : MonoBehaviour
         return Mathf.FloorToInt(y / cellSize + _height / 2f);
     }
     
-    // Remove a bomb at the specified position and restore to inventory
-    private void RemoveBombAt(int x, int y)
+    // Remove a bomb or item at the specified position and restore to inventory
+    private void RemoveObjectAt(int x, int y)
     {
-        GameObject bombToRemove = null;
-        bool isRealBomb = false;
-        BombType? bombType = null;
+        GameObject objectToRemove = null;
         
-        // Find the bomb in this cell
+        // Check for bombs first
         foreach (var obj in _board[x, y])
         {
             if (obj == null) continue;
             
-            AuxiliaryBomb auxBomb = obj.GetComponent<AuxiliaryBomb>();
-            if (auxBomb != null)
+            if (obj.GetComponent<AuxiliaryBomb>() != null || obj.GetComponent<RealBomb>() != null)
             {
-                bombToRemove = obj;
-                bombType = auxBomb.GetBombType();
-                isRealBomb = false;
-                break;
-            }
-            
-            RealBomb realBomb = obj.GetComponent<RealBomb>();
-            if (realBomb != null)
-            {
-                bombToRemove = obj;
-                isRealBomb = true;
+                objectToRemove = obj;
                 break;
             }
         }
+
+        // If no bomb, check for items
+        if (objectToRemove == null)
+        {
+            foreach (var obj in _board[x, y])
+            {
+                if (obj == null) continue;
+                if (obj.GetComponent<Item>() != null)
+                {
+                    objectToRemove = obj;
+                    break;
+                }
+            }
+        }
         
-        if (bombToRemove != null)
+        if (objectToRemove != null)
         {
             // Remove from board
-            _board[x, y].Remove(bombToRemove);
-            
-            // Remove from _allBombs list
+            _board[x, y].Remove(objectToRemove);
             Vector2Int pos = new Vector2Int(x, y);
-            _allBombs.RemoveAll(b => b.coord == pos);
-            
-            // Restore to inventory
-            if (isRealBomb)
+
+            AuxiliaryBomb auxBomb = objectToRemove.GetComponent<AuxiliaryBomb>();
+            RealBomb realBomb = objectToRemove.GetComponent<RealBomb>();
+            Item item = objectToRemove.GetComponent<Item>();
+
+            if (auxBomb != null)
             {
+                // Remove from _allBombs list
+                _allBombs.RemoveAll(b => b.coord == pos);
+                // Restore to inventory
+                bombManager.RestoreBomb(auxBomb.GetBombType());
+                ShowTempMessage("Bomb removed!", 0.5f, "Remove mode");
+            }
+            else if (realBomb != null)
+            {
+                // Remove from _allBombs list
+                _allBombs.RemoveAll(b => b.coord == pos);
+                // Restore to inventory
                 bombManager.RestoreRealBomb();
+                ShowTempMessage("Bomb removed!", 0.5f, "Remove mode");
             }
-            else if (bombType.HasValue)
+            else if (item != null)
             {
-                bombManager.RestoreBomb(bombType.Value);
+                // Remove from item lists
+                _placedItems.Remove(pos);
+                _allItems.RemoveAll(i => i.coord == pos && i.itemType == item.Type);
+                if (item.Type == ItemType.Teleporter)
+                {
+                    _teleporters.Remove(pos);
+                }
+
+                // Restore to inventory
+                itemManager.RestoreItem(item.Type);
+                ShowTempMessage("Item removed!", 0.5f, "Remove mode");
             }
             
-            // Destroy the bomb object
-            Destroy(bombToRemove);
-            
-            ShowTempMessage("Bomb removed!", 0.5f, "Remove mode");
+            // Destroy the object
+            Destroy(objectToRemove);
         }
     }
 }
