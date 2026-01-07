@@ -85,6 +85,15 @@ public partial class GameManager : MonoBehaviour
         {
             bombManager.ClearBombs();
         }
+        if (enemyManager != null)
+        {
+            enemyManager.ClearEnemies();
+        }
+        if (itemManager != null)
+        {
+            itemManager.ClearItems();
+            itemManager.ResetItems();
+        }
         HidePreview();
         HideItemPreview();
         HideRemovePreview();
@@ -92,6 +101,9 @@ public partial class GameManager : MonoBehaviour
 
     public void Initialize(EnemyManager enemyManager, BombManager bombManager, ItemManager itemManager, int stageId, StageCommonData commonData)
     {
+        StopAllCoroutines();
+        _isTurnInProgress = false;
+        
         ClearStage();
         SetStageState(stageId);
         SetCommonData(commonData);
@@ -269,7 +281,5 @@ public partial class GameManager : MonoBehaviour
             itemManager.ClearCurrentItemType();
             if (bombManager != null) bombManager.SetCurrentBombType(BombType.RealBomb);
         }
-        
-        CheckGameState();
     }
 }

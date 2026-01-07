@@ -53,8 +53,19 @@ public class StageManager : MonoBehaviour
     // init new stage
     public void StageInitialize(int stageId)
     {
-        StageDestroy();
-        currStage = Instantiate(stageRootPrefab);
+        // Don't destroy the stage root, just prepare it
+        if (currStage == null)
+        {
+            currStage = Instantiate(stageRootPrefab);
+        }
+        else
+        {
+             if (_currentGameManager != null)
+            {
+                _currentGameManager.OnGameStateChanged -= OnGameStateChanged;
+            }
+        }
+
         StageCommonData commonData = new StageCommonData(walkDuration, knockbackDuration,
             enemyColor);
         
@@ -77,30 +88,9 @@ public class StageManager : MonoBehaviour
             if (_currentGameManager != null)
             {
                 _currentGameManager.OnGameStateChanged -= OnGameStateChanged;
-                
-                // Clear the board and bombs from the previous stage
-                BoardManager boardManager = currStage.GetComponentInChildren<BoardManager>();
-                if (boardManager != null)
-                {
-                    boardManager.ClearBoard();
-                }
-
-                BombManager bombManager = currStage.GetComponentInChildren<BombManager>();
-                if (bombManager != null)
-                {
-                    bombManager.ClearBombs();
-                }
-
-                ItemManager itemManager = currStage.GetComponentInChildren<ItemManager>();
-                if (itemManager != null)
-                {
-                    itemManager.ClearItems();
-                    itemManager.ResetItems();
-                }
-
-                _currentGameManager = null;
             }
-            Destroy(currStage);
+            // Note: We no longer Destroy(currStage) here to reuse it.
+            // Resources are cleared via stageRoot.Install -> GameManager.Initialize -> ClearStage
         }
     }
     

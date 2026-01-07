@@ -37,6 +37,17 @@ public class EnemyManager : MonoBehaviour
         _enemySprite = enemySprite;
     }
 
+    public void ClearEnemies()
+    {
+        if (enemySet != null)
+        {
+            foreach (Transform child in enemySet)
+            {
+                Destroy(child.gameObject);
+            }
+        }
+    }
+
     // create enemy API (call from GameManager)
     public GameObject CreateEnemy(int x, int y)
     {

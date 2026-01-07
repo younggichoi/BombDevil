@@ -54,6 +54,16 @@ public class StageRoot : MonoBehaviour
     // Explode button and text
     private Button explodeButton;
     private TMP_Text explodeButtonText;
+
+    // Cached references for optimization
+    private bool _isInitialized = false;
+    private Transform itemSet;
+    private Dictionary<ItemType, GameObject> itemPrefabs;
+    private Dictionary<ItemType, TMP_Text> itemButtonTexts;
+    private TMP_Text infoText;
+    private TMP_Text stageText;
+    private TMP_Text timeText;
+    private TMP_Text turnText;
     
     // Public accessor for GameManager (used by StageManager)
     public GameManager GameManager => gameManager;
@@ -62,69 +72,132 @@ public class StageRoot : MonoBehaviour
     public void Install(int stageId, StageCommonData commonData, 
         GameObject enemyPrefab, GameObject auxiliaryBombPrefab, GameObject realBombPrefab, Sprite enemySprite)
     {
-        // Store prefabs and sprites
-        this.enemyPrefab = enemyPrefab;
-        this.auxiliaryBombPrefab = auxiliaryBombPrefab;
-        this.realBombPrefab = realBombPrefab;
-        this.enemySprite = enemySprite;
-        
-        // Find managers in children
-        gameManager = GetComponentInChildren<GameManager>();
-        enemyManager = GetComponentInChildren<EnemyManager>();
-        bombManager = GetComponentInChildren<BombManager>();
-        boardManager = GetComponentInChildren<BoardManager>();
-        itemManager = GetComponentInChildren<ItemManager>();
-        // Find item prefabs and UI (example: assumes ItemPrefabLibrary is attached to StageRoot or child)
-        ItemPrefabLibrary itemPrefabLibrary = GetComponentInChildren<ItemPrefabLibrary>();
-        Dictionary<ItemType, GameObject> itemPrefabs = itemPrefabLibrary != null ? itemPrefabLibrary.GetPrefabDictionary() : new Dictionary<ItemType, GameObject>();
-        Transform itemSet = GameObject.Find("ItemSet")?.transform;
-        
-        teleporterButtonText = GameObject.Find("TeleporterButton")?.GetComponentInChildren<TMP_Text>();
-        megaphoneButtonText = GameObject.Find("MegaphoneButton")?.GetComponentInChildren<TMP_Text>();
-        
-
-        var itemButtonTexts = new Dictionary<ItemType, TMP_Text>
+        // 1. One-time Init (Find objects, cache references, set listeners)
+        if (!_isInitialized)
         {
-            { ItemType.Teleporter, teleporterButtonText },
-            { ItemType.Megaphone, megaphoneButtonText }
-        };
+            // Store prefabs and sprites (assuming they are common for all stages as per StageManager)
+            this.enemyPrefab = enemyPrefab;
+            this.auxiliaryBombPrefab = auxiliaryBombPrefab;
+            this.realBombPrefab = realBombPrefab;
+            this.enemySprite = enemySprite;
+            
+            // Find managers in children
+            gameManager = GetComponentInChildren<GameManager>();
+            enemyManager = GetComponentInChildren<EnemyManager>();
+            bombManager = GetComponentInChildren<BombManager>();
+            boardManager = GetComponentInChildren<BoardManager>();
+            itemManager = GetComponentInChildren<ItemManager>();
+            
+            // Find item prefabs and UI
+            ItemPrefabLibrary itemPrefabLibrary = GetComponentInChildren<ItemPrefabLibrary>();
+            itemPrefabs = itemPrefabLibrary != null ? itemPrefabLibrary.GetPrefabDictionary() : new Dictionary<ItemType, GameObject>();
+            itemSet = GameObject.Find("ItemSet")?.transform;
+            
+            teleporterButtonText = GameObject.Find("TeleporterButton")?.GetComponentInChildren<TMP_Text>();
+            megaphoneButtonText = GameObject.Find("MegaphoneButton")?.GetComponentInChildren<TMP_Text>();
+            
+            itemButtonTexts = new Dictionary<ItemType, TMP_Text>
+            {
+                { ItemType.Teleporter, teleporterButtonText },
+                { ItemType.Megaphone, megaphoneButtonText }
+            };
+            
+            // Find scene objects by name
+            enemySet = GameObject.Find("EnemySet")?.transform;
+            auxiliaryBombSet = GameObject.Find("AuxiliaryBombSet")?.transform;
+            realBombSet = GameObject.Find("RealBombSet")?.transform;
+            _1stBombText = GameObject.Find("Leftover1stBomb")?.GetComponent<TMP_Text>();
+            _2ndBombText = GameObject.Find("Leftover2ndBomb")?.GetComponent<TMP_Text>();
+            _3rdBombText = GameObject.Find("Leftover3rdBomb")?.GetComponent<TMP_Text>();
+            _4thBombText = GameObject.Find("Leftover4thBomb")?.GetComponent<TMP_Text>();
+            _5thBombText = GameObject.Find("Leftover5thBomb")?.GetComponent<TMP_Text>();
+            _6thBombText = GameObject.Find("Leftover6thBomb")?.GetComponent<TMP_Text>();
+            skyblueBombText = GameObject.Find("LeftoverSkyblueBomb")?.GetComponent<TMP_Text>();
+            realBombText = GameObject.Find("LeftoverRealBomb")?.GetComponent<TMP_Text>();
+            
+            // Find check UI objects by name
+            _1stBombChecked = GameObject.Find("1stBombChecked");
+            _2ndBombChecked = GameObject.Find("2ndBombChecked");
+            _3rdBombChecked = GameObject.Find("3rdBombChecked");
+            _4thBombChecked = GameObject.Find("4thBombChecked");
+            _5thBombChecked = GameObject.Find("5thBombChecked");
+            _6thBombChecked = GameObject.Find("6thBombChecked");
+            skyblueBombChecked = GameObject.Find("SkyblueBombChecked");
+            realBombChecked = GameObject.Find("RealBombChecked");
+    
+            teleporterButton = GameObject.Find("TeleporterButton")?.GetComponent<Button>();
+            megaphoneButton = GameObject.Find("MegaphoneButton")?.GetComponent<Button>();
+            removeButton = GameObject.Find("RemoveButton")?.GetComponent<Button>();
+            resetButton = GameObject.Find("ResetButton")?.GetComponent<Button>();
+            exitButton = GameObject.Find("ExitButton")?.GetComponent<Button>();
+            
+            // Find explode button and text
+            GameObject explodeButtonObj = GameObject.Find("ExplodeButton");
+            if (explodeButtonObj != null)
+            {
+                explodeButton = explodeButtonObj.GetComponent<Button>();
+            }
+            explodeButtonText = GameObject.Find("ExplodeButtonText")?.GetComponent<TMP_Text>();
+            
+            // Find UI for GameManager
+            infoText = GameObject.Find("InfoText")?.GetComponent<TMP_Text>();
+            stageText = GameObject.Find("StageText")?.GetComponent<TMP_Text>();
+            timeText = GameObject.Find("TimeText")?.GetComponent<TMP_Text>();
+            turnText = GameObject.Find("TurnText")?.GetComponent<TMP_Text>();
+
+            // Connect Listeners (Once)
+            if (explodeButton != null)
+            {
+                explodeButton.onClick.RemoveAllListeners();
+                explodeButton.onClick.AddListener(gameManager.OnExplodeButtonClick);
+            }
+    
+            if (teleporterButton != null)
+            {
+                teleporterButton.onClick.RemoveAllListeners();
+                teleporterButton.onClick.AddListener(() => 
+                    gameManager.OnItemButtonClicked(ItemType.Teleporter));
+            }
+    
+            if (megaphoneButton != null)
+            {
+                megaphoneButton.onClick.RemoveAllListeners();
+                megaphoneButton.onClick.AddListener(() => 
+                    gameManager.OnItemButtonClicked(ItemType.Megaphone));
+            }
+            
+            if (removeButton != null)
+            {
+                removeButton.onClick.RemoveAllListeners();
+                removeButton.onClick.AddListener(() =>
+                    gameManager.OnRemoveButtonClick());
+            }
+    
+            if (resetButton != null)
+            {
+                resetButton.onClick.RemoveAllListeners();
+                resetButton.onClick.AddListener(() =>
+                    gameManager.OnResetButtonClick());
+            }
+    
+            if (exitButton != null)
+            {
+                exitButton.onClick.RemoveAllListeners();
+                exitButton.onClick.AddListener(() => gameManager.OnExitButtonClick());
+            }
+
+            _isInitialized = true;
+        }
+
+        // 2. Per-Stage Logic (Reset dynamic state)
 
         // Initialize itemManager
         if (itemManager != null)
         {
             itemManager.Initialize(itemPrefabs, gameManager, boardManager, itemSet, itemButtonTexts);
         }
-        
-        // Find scene objects by name
-        enemySet = GameObject.Find("EnemySet")?.transform;
-        auxiliaryBombSet = GameObject.Find("AuxiliaryBombSet")?.transform;
-        realBombSet = GameObject.Find("RealBombSet")?.transform;
-        _1stBombText = GameObject.Find("Leftover1stBomb")?.GetComponent<TMP_Text>();
-        _2ndBombText = GameObject.Find("Leftover2ndBomb")?.GetComponent<TMP_Text>();
-        _3rdBombText = GameObject.Find("Leftover3rdBomb")?.GetComponent<TMP_Text>();
-        _4thBombText = GameObject.Find("Leftover4thBomb")?.GetComponent<TMP_Text>();
-        _5thBombText = GameObject.Find("Leftover5thBomb")?.GetComponent<TMP_Text>();
-        _6thBombText = GameObject.Find("Leftover6thBomb")?.GetComponent<TMP_Text>();
-        skyblueBombText = GameObject.Find("LeftoverSkyblueBomb")?.GetComponent<TMP_Text>();
-        realBombText = GameObject.Find("LeftoverRealBomb")?.GetComponent<TMP_Text>();
-        
-        // Find check UI objects by name (must be active in scene to be found)
-        _1stBombChecked = GameObject.Find("1stBombChecked");
-        _2ndBombChecked = GameObject.Find("2ndBombChecked");
-        _3rdBombChecked = GameObject.Find("3rdBombChecked");
-        _4thBombChecked = GameObject.Find("4thBombChecked");
-        _5thBombChecked = GameObject.Find("5thBombChecked");
-        _6thBombChecked = GameObject.Find("6thBombChecked");
-        skyblueBombChecked = GameObject.Find("SkyblueBombChecked");
-        realBombChecked = GameObject.Find("RealBombChecked");
 
-        teleporterButton = GameObject.Find("TeleporterButton")?.GetComponent<Button>();
-        megaphoneButton = GameObject.Find("MegaphoneButton")?.GetComponent<Button>();
-        removeButton = GameObject.Find("RemoveButton")?.GetComponent<Button>();
-        resetButton = GameObject.Find("ResetButton")?.GetComponent<Button>();
-        exitButton = GameObject.Find("ExitButton")?.GetComponent<Button>();
-        
-        // Deactivate all check UIs at game start
+        // Deactivate all check UIs
         if (_1stBombChecked != null) _1stBombChecked.SetActive(false);
         if (_2ndBombChecked != null) _2ndBombChecked.SetActive(false);
         if (_3rdBombChecked != null) _3rdBombChecked.SetActive(false);
@@ -133,21 +206,15 @@ public class StageRoot : MonoBehaviour
         if (_6thBombChecked != null) _6thBombChecked.SetActive(false);
         if (skyblueBombChecked != null) skyblueBombChecked.SetActive(false);
         if (realBombChecked != null) realBombChecked.SetActive(false);
-        
-        // Find explode button and text
-        GameObject explodeButtonObj = GameObject.Find("ExplodeButton");
-        if (explodeButtonObj != null)
-        {
-            explodeButton = explodeButtonObj.GetComponent<Button>();
-        }
-        explodeButtonText = GameObject.Find("ExplodeButtonText")?.GetComponent<TMP_Text>();
 
         // Initialize GameManager first (loads stage data including board sprite path)
         gameManager.Initialize(enemyManager, bombManager, itemManager, stageId, commonData);
         
-        // Set manager references in GameManager before initializing it
+        // Set manager references and UI in GameManager
         gameManager.SetBoardManager(boardManager);
         gameManager.SetBombManager(bombManager);
+        gameManager.SetInfoText(infoText);
+        gameManager.SetStageStatsUI(stageText, timeText, turnText);
         
         // Load board sprite from Resources using path from JSON
         Sprite boardSprite = null;
@@ -160,19 +227,9 @@ public class StageRoot : MonoBehaviour
         // Initialize BoardManager (calculates cellSize, scales board sprite)
         boardManager.Initialize(gameManager, boardSprite);
         
-        // Find and set InfoText UI
-        TMP_Text infoText = GameObject.Find("InfoText")?.GetComponent<TMP_Text>();
-        gameManager.SetInfoText(infoText);
-        
-        // Find and set Stage Stats UI
-        TMP_Text stageText = GameObject.Find("StageText")?.GetComponent<TMP_Text>();
-        TMP_Text timeText = GameObject.Find("TimeText")?.GetComponent<TMP_Text>();
-        TMP_Text turnText = GameObject.Find("TurnText")?.GetComponent<TMP_Text>();
-        gameManager.SetStageStatsUI(stageText, timeText, turnText);
-        
         // Initialize other managers with BoardManager reference and sprites
-        enemyManager.Initialize(enemyPrefab, enemySet, gameManager, boardManager, enemySprite);
-        bombManager.Initialize(auxiliaryBombPrefab, realBombPrefab, gameManager, 
+        enemyManager.Initialize(this.enemyPrefab, enemySet, gameManager, boardManager, this.enemySprite);
+        bombManager.Initialize(this.auxiliaryBombPrefab, this.realBombPrefab, gameManager, 
             auxiliaryBombSet, realBombSet,
             _1stBombText, _2ndBombText, _3rdBombText, _4thBombText, _5thBombText, _6thBombText,
             skyblueBombText, realBombText,
@@ -180,47 +237,6 @@ public class StageRoot : MonoBehaviour
             skyblueBombChecked, realBombChecked,
             explodeButtonText, boardManager);
 
-        // Connect explode button click event
-        if (explodeButton != null)
-        {
-            explodeButton.onClick.RemoveAllListeners();
-            explodeButton.onClick.AddListener(gameManager.OnExplodeButtonClick);
-        }
-
-        if (teleporterButton != null)
-        {
-            teleporterButton.onClick.RemoveAllListeners();
-            teleporterButton.onClick.AddListener(() => 
-                gameManager.OnItemButtonClicked(ItemType.Teleporter));
-        }
-
-        if (megaphoneButton != null)
-        {
-            megaphoneButton.onClick.RemoveAllListeners();
-            megaphoneButton.onClick.AddListener(() => 
-                gameManager.OnItemButtonClicked(ItemType.Megaphone));
-        }
-        
-        if (removeButton != null)
-        {
-            removeButton.onClick.RemoveAllListeners();
-            removeButton.onClick.AddListener(() =>
-                gameManager.OnRemoveButtonClick());
-        }
-
-        if (resetButton != null)
-        {
-            resetButton.onClick.RemoveAllListeners();
-            resetButton.onClick.AddListener(() =>
-                gameManager.OnResetButtonClick());
-        }
-
-        if (exitButton != null)
-        {
-            exitButton.onClick.RemoveAllListeners();
-            exitButton.onClick.AddListener(() => gameManager.OnExitButtonClick());
-        }
-        
         // Create enemies for this stage
         gameManager.CreateEnemy();
     }
