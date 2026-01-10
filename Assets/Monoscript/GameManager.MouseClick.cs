@@ -107,7 +107,7 @@ public partial class GameManager : MonoBehaviour
         
         int bx = GlobalToGridX(worldPos.x);
         int by = GlobalToGridY(worldPos.y);
-        if (bx >= 0 && bx < _width && by >= 0 && by < _height && !HasBombAt(bx, by))
+        if (bx >= 0 && bx < _width && by >= 0 && by < _height)
         {
             BombType? currentType = bombManager.GetCurrentBombType();
             if (currentType == BombType.RealBomb)
