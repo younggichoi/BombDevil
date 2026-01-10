@@ -2,7 +2,7 @@
     "stageId": 1,
     "width": 7,
     "height": 7,
-    "enemyNumber": 5,
+    "enemyNumber": 10,
     "remainingTurns": 20,
     "boardSpritePath": "Sprites/Boards/board_7x7"
 }

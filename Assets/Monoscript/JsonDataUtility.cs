@@ -123,4 +123,28 @@ public static class JsonDataUtility
         Debug.LogWarning($"Stage editor file not found: {filePath}. Creating a new default data object.");
         return new StageEditorData { stageId = stageId };
     }
+
+    public static void ResetSaveData(int fileNo)
+    {
+        string initFilePath = Path.Combine(Application.streamingAssetsPath, "Json", "Run", "init.json");
+        string saveFilePath = Path.Combine(Application.streamingAssetsPath, "Json", "Save", $"file{fileNo}.json");
+
+        if (File.Exists(initFilePath))
+        {
+            string json = File.ReadAllText(initFilePath);
+            
+            string directoryPath = Path.GetDirectoryName(saveFilePath);
+            if (!Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
+            
+            File.WriteAllText(saveFilePath, json);
+            Debug.Log($"Save data file {fileNo} has been reset from init.json.");
+        }
+        else
+        {
+            Debug.LogError($"Initial data file not found: {initFilePath}");
+        }
+    }
 }

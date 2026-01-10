@@ -53,6 +53,11 @@ public class StageManager : MonoBehaviour
     // init new stage
     public void StageInitialize(int stageId)
     {
+        if (stageId == 1)
+        {
+            JsonDataUtility.ResetSaveData(1);
+        }
+
         // Don't destroy the stage root, just prepare it
         if (currStage == null)
         {
@@ -115,15 +120,15 @@ public class StageManager : MonoBehaviour
     {
         SaveData saveData = new SaveData
         {
-            left1stBomb = _currentGameManager.GetInitialBombCount(BombType.FirstBomb),
-            left2ndBomb = _currentGameManager.GetInitialBombCount(BombType.SecondBomb),
-            left3rdBomb = _currentGameManager.GetInitialBombCount(BombType.ThirdBomb),
-            left4thBomb = _currentGameManager.GetInitialBombCount(BombType.FourthBomb),
-            left5thBomb = _currentGameManager.GetInitialBombCount(BombType.FifthBomb),
-            left6thBomb = _currentGameManager.GetInitialBombCount(BombType.SixthBomb),
-            leftSkyblueBomb = _currentGameManager.GetInitialBombCount(BombType.SkyblueBomb),
-            leftTeleporter = _currentGameManager.GetInitialItemCount(ItemType.Teleporter),
-            leftMegaphone = _currentGameManager.GetInitialItemCount(ItemType.Megaphone)
+            left1stBomb = _currentGameManager.GetRemainingBombCount(BombType.FirstBomb),
+            left2ndBomb = _currentGameManager.GetRemainingBombCount(BombType.SecondBomb),
+            left3rdBomb = _currentGameManager.GetRemainingBombCount(BombType.ThirdBomb),
+            left4thBomb = _currentGameManager.GetRemainingBombCount(BombType.FourthBomb),
+            left5thBomb = _currentGameManager.GetRemainingBombCount(BombType.FifthBomb),
+            left6thBomb = _currentGameManager.GetRemainingBombCount(BombType.SixthBomb),
+            leftSkyblueBomb = _currentGameManager.GetRemainingBombCount(BombType.SkyblueBomb),
+            leftTeleporter = _currentGameManager.GetRemainingItemCount(ItemType.Teleporter),
+            leftMegaphone = _currentGameManager.GetRemainingItemCount(ItemType.Megaphone)
         };
         JsonDataUtility.SaveGameData(saveData, 1); // Hardcoded to file1.json
     }

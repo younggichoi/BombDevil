@@ -50,6 +50,17 @@ public partial class GameManager : MonoBehaviour
                 return 0;
         }
     }
+
+    public int GetRemainingBombCount(BombType bombType)
+    {
+        return bombManager.GetLeftoverBomb(bombType);
+    }
+
+    public int GetRemainingItemCount(ItemType itemType)
+    {
+        return itemManager.GetLeftoverItem(itemType);
+    }
+    
     public string GetBoardSpritePath() => _boardSpritePath;
     public GameState GetCurrentState() => _currentState;
 
