@@ -38,13 +38,14 @@ public partial class GameManager : MonoBehaviour
 
     public int GetInitialItemCount(ItemType itemType)
     {
-        //TODO: Remove hardcoding later
         switch (itemType)
         {
-            case ItemType.Megaphone:
-                return 2;
             case ItemType.Teleporter:
-                return 2;
+                Debug.Log($"Initial Teleporter Count: {_initialTeleporter}");
+                return _initialTeleporter;
+            case ItemType.Megaphone:
+                Debug.Log($"Initial Megaphone Count: {_initialMegaphone}");
+                return _initialMegaphone;
             default:
                 return 0;
         }

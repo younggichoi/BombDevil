@@ -66,7 +66,7 @@ public class StageManager : MonoBehaviour
             }
         }
 
-        StageCommonData commonData = new StageCommonData(walkDuration, knockbackDuration,
+        IngameCommonData commonData = new IngameCommonData(walkDuration, knockbackDuration,
             enemyColor);
         
         StageRoot stageRoot = currStage.GetComponent<StageRoot>();
@@ -101,6 +101,7 @@ public class StageManager : MonoBehaviour
         {
             case GameState.Win:
                 Debug.Log($"Stage {_currentStageId} cleared!");
+                SaveGameProgress();
                 NextStage();
                 break;
             case GameState.Lose:
@@ -108,6 +109,23 @@ public class StageManager : MonoBehaviour
                 RestartStage();
                 break;
         }
+    }
+
+    private void SaveGameProgress()
+    {
+        SaveData saveData = new SaveData
+        {
+            left1stBomb = _currentGameManager.GetInitialBombCount(BombType.FirstBomb),
+            left2ndBomb = _currentGameManager.GetInitialBombCount(BombType.SecondBomb),
+            left3rdBomb = _currentGameManager.GetInitialBombCount(BombType.ThirdBomb),
+            left4thBomb = _currentGameManager.GetInitialBombCount(BombType.FourthBomb),
+            left5thBomb = _currentGameManager.GetInitialBombCount(BombType.FifthBomb),
+            left6thBomb = _currentGameManager.GetInitialBombCount(BombType.SixthBomb),
+            leftSkyblueBomb = _currentGameManager.GetInitialBombCount(BombType.SkyblueBomb),
+            leftTeleporter = _currentGameManager.GetInitialItemCount(ItemType.Teleporter),
+            leftMegaphone = _currentGameManager.GetInitialItemCount(ItemType.Megaphone)
+        };
+        JsonDataUtility.SaveGameData(saveData, 1); // Hardcoded to file1.json
     }
     
     // move to next stage

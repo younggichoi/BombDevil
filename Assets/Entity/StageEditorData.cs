@@ -1,13 +1,8 @@
 ﻿namespace Entity
 {
     [System.Serializable]
-    public class StageDifferentData
+    public class StageEditorData : StageData
     {
-        public int stageId;
-        public int width;
-        public int height;
-        public int enemyNumber;
-        
         // Initial bomb counts per type
         public int initial1stBomb;
         public int initial2ndBomb;
@@ -16,12 +11,7 @@
         public int initial5thBomb;
         public int initial6thBomb;
         public int initialSkyblueBomb;
-        
-        // Turn limit for the stage
-        public int remainingTurns;
-        
-        public string boardSpritePath;  // Resources path to board sprite (e.g., "Sprites/Boards/board_7x7")
-        
+
         // Get initial bomb count by type
         public int GetInitialBombCount(BombType bombType)
         {

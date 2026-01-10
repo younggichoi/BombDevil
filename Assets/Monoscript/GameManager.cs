@@ -27,6 +27,8 @@ public partial class GameManager : MonoBehaviour
     private int _initial5thBomb;
     private int _initial6thBomb;
     private int _initialSkyblueBomb;
+    private int _initialTeleporter;
+    private int _initialMegaphone;
     private int _remainingTurns;
     private int _stageId;
     private string _boardSpritePath;
@@ -92,14 +94,13 @@ public partial class GameManager : MonoBehaviour
         if (itemManager != null)
         {
             itemManager.ClearItems();
-            itemManager.ResetItems();
         }
         HidePreview();
         HideItemPreview();
         HideRemovePreview();
     }
 
-    public void Initialize(EnemyManager enemyManager, BombManager bombManager, ItemManager itemManager, int stageId, StageCommonData commonData)
+    public void Initialize(EnemyManager enemyManager, BombManager bombManager, ItemManager itemManager, int stageId, IngameCommonData commonData)
     {
         StopAllCoroutines();
         _isTurnInProgress = false;
@@ -110,6 +111,7 @@ public partial class GameManager : MonoBehaviour
         this.enemyManager = enemyManager;
         this.bombManager = bombManager;
         this.itemManager = itemManager;
+        itemManager.ResetItems();
         _board = new List<GameObject>[_width, _height];
         for (int x = 0; x < _width; x++)
         {
@@ -164,7 +166,7 @@ public partial class GameManager : MonoBehaviour
         _defaultBombSprite = sprite;
     }
 
-    private void SetCommonData(StageCommonData commonData)
+    private void SetCommonData(IngameCommonData commonData)
     {
         _walkDuration = commonData.walkDuration;
         _knockbackDuration = commonData.knockbackDuration;
@@ -173,27 +175,40 @@ public partial class GameManager : MonoBehaviour
 
     private void SetStageState(int stageId)
     {
-        string path = Path.Combine(Application.streamingAssetsPath, "Json/Stage/stage" + stageId + ".json");
+                                                                string path = Path.Combine(Application.streamingAssetsPath, "Json/Stage/stage" + stageId + ".json");
         if (!File.Exists(path))
         {
             Debug.LogError($"Failed to load stage{stageId}.json from {path}");
             return;
         }
         string json = File.ReadAllText(path);
-        StageDifferentData differentData = JsonUtility.FromJson<StageDifferentData>(json);
+        StageData editorData = JsonUtility.FromJson<StageData>(json);
         _stageId = stageId;
-        _width = differentData.width;
-        _height = differentData.height;
-        _enemyNumber = differentData.enemyNumber;
-        _initial1stBomb = differentData.initial1stBomb;
-        _initial2ndBomb = differentData.initial2ndBomb;
-        _initial3rdBomb = differentData.initial3rdBomb;
-        _initial4thBomb = differentData.initial4thBomb;
-        _initial5thBomb = differentData.initial5thBomb;
-        _initial6thBomb = differentData.initial6thBomb;
-        _initialSkyblueBomb = differentData.initialSkyblueBomb;
-        _remainingTurns = differentData.remainingTurns;
-        _boardSpritePath = differentData.boardSpritePath;
+        _width = editorData.width;
+        _height = editorData.height;
+        _enemyNumber = editorData.enemyNumber;
+        _remainingTurns = editorData.remainingTurns;
+        _boardSpritePath = editorData.boardSpritePath;
+
+        path = Path.Combine(Application.streamingAssetsPath, "Json/Save/file" + 1 + ".json");
+        //TODO: remove hardcoding on file number
+        if (!File.Exists(path))
+        {
+            Debug.LogError($"Failed to load save file from {path}");
+            return;
+        }
+        json = File.ReadAllText(path);
+        SaveData saveData = JsonUtility.FromJson<SaveData>(json);
+        _initial1stBomb = saveData.left1stBomb;
+        _initial2ndBomb = saveData.left2ndBomb;
+        _initial3rdBomb = saveData.left3rdBomb;
+        _initial4thBomb = saveData.left4thBomb;
+        _initial5thBomb = saveData.left5thBomb;
+        _initial6thBomb = saveData.left6thBomb;
+        _initialSkyblueBomb = saveData.leftSkyblueBomb;
+        _initialTeleporter = saveData.leftTeleporter;
+        _initialMegaphone = saveData.leftMegaphone;
+        Debug.Log($"initial teleporter count: {_initialTeleporter}, initial megaphone count: {_initialMegaphone}");
     }
 
     void Update()
