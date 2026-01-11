@@ -57,7 +57,7 @@ public class StageEditorManager : MonoBehaviour
 
     void LoadStageDataAndUpdateUI(int stageId)
     {
-        var stageData = JsonDataUtility.LoadStageData(stageId);
+        var stageData = JsonDataUtility.LoadStageEditorData(stageId);
         if (stageData != null)
         {
             WidthInput.text = stageData.width.ToString();
@@ -76,7 +76,7 @@ public class StageEditorManager : MonoBehaviour
 
     void OnSaveButtonClicked()
     {
-        StageDifferentData stageData = new StageDifferentData
+        StageEditorData stageData = new StageEditorData
         {
             stageId = _stageId,
             width = int.Parse(WidthInput.text),
@@ -92,6 +92,6 @@ public class StageEditorManager : MonoBehaviour
             remainingTurns = int.Parse(RemainingTurnsInput.text),
             boardSpritePath = "Sprites/Boards/board_7x7" // Set a default or get from input
         };
-        JsonDataUtility.SaveStageData(stageData);
+        JsonDataUtility.SaveStageEditorData(stageData);
     }
 }

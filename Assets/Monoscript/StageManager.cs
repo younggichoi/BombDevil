@@ -13,6 +13,7 @@ public class StageManager : MonoBehaviour
     public GameObject enemyPrefab;
     public GameObject auxiliaryBombPrefab;
     public GameObject realBombPrefab;
+    public GameObject wallPrefab;
     public Sprite enemySprite;
     
     // StageRoot prefab
@@ -53,6 +54,11 @@ public class StageManager : MonoBehaviour
     // init new stage
     public void StageInitialize(int stageId)
     {
+        if (stageId == 1)
+        {
+            JsonDataUtility.ResetSaveData(1);
+        }
+
         // Don't destroy the stage root, just prepare it
         if (currStage == null)
         {
@@ -66,7 +72,7 @@ public class StageManager : MonoBehaviour
             }
         }
 
-        StageCommonData commonData = new StageCommonData(walkDuration, knockbackDuration,
+        IngameCommonData commonData = new IngameCommonData(walkDuration, knockbackDuration,
             enemyColor);
         
         StageRoot stageRoot = currStage.GetComponent<StageRoot>();
@@ -101,6 +107,7 @@ public class StageManager : MonoBehaviour
         {
             case GameState.Win:
                 Debug.Log($"Stage {_currentStageId} cleared!");
+                SaveGameProgress();
                 NextStage();
                 break;
             case GameState.Lose:
@@ -108,6 +115,23 @@ public class StageManager : MonoBehaviour
                 RestartStage();
                 break;
         }
+    }
+
+    private void SaveGameProgress()
+    {
+        SaveData saveData = new SaveData
+        {
+            left1stBomb = _currentGameManager.GetRemainingBombCount(BombType.FirstBomb),
+            left2ndBomb = _currentGameManager.GetRemainingBombCount(BombType.SecondBomb),
+            left3rdBomb = _currentGameManager.GetRemainingBombCount(BombType.ThirdBomb),
+            left4thBomb = _currentGameManager.GetRemainingBombCount(BombType.FourthBomb),
+            left5thBomb = _currentGameManager.GetRemainingBombCount(BombType.FifthBomb),
+            left6thBomb = _currentGameManager.GetRemainingBombCount(BombType.SixthBomb),
+            leftSkyblueBomb = _currentGameManager.GetRemainingBombCount(BombType.SkyblueBomb),
+            leftTeleporter = _currentGameManager.GetRemainingItemCount(ItemType.Teleporter),
+            leftMegaphone = _currentGameManager.GetRemainingItemCount(ItemType.Megaphone)
+        };
+        JsonDataUtility.SaveGameData(saveData, 1); // Hardcoded to file1.json
     }
     
     // move to next stage

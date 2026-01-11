@@ -2,13 +2,13 @@
 
 namespace Entity
 {
-    public class StageCommonData
+    public class IngameCommonData
     {
         public float walkDuration;
         public float knockbackDuration;
         public Color enemyColor;
 
-        public StageCommonData(float walkDuration, float knockbackDuration, Color enemyColor)
+        public IngameCommonData(float walkDuration, float knockbackDuration, Color enemyColor)
         {
             this.walkDuration = walkDuration;
             this.knockbackDuration = knockbackDuration;

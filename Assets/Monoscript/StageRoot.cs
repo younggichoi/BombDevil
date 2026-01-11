@@ -69,7 +69,7 @@ public class StageRoot : MonoBehaviour
     public GameManager GameManager => gameManager;
     
 
-    public void Install(int stageId, StageCommonData commonData, 
+    public void Install(int stageId, IngameCommonData commonData, 
         GameObject enemyPrefab, GameObject auxiliaryBombPrefab, GameObject realBombPrefab, Sprite enemySprite)
     {
         // 1. One-time Init (Find objects, cache references, set listeners)

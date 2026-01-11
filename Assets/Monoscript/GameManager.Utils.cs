@@ -38,17 +38,29 @@ public partial class GameManager : MonoBehaviour
 
     public int GetInitialItemCount(ItemType itemType)
     {
-        //TODO: Remove hardcoding later
         switch (itemType)
         {
-            case ItemType.Megaphone:
-                return 2;
             case ItemType.Teleporter:
-                return 2;
+                Debug.Log($"Initial Teleporter Count: {_initialTeleporter}");
+                return _initialTeleporter;
+            case ItemType.Megaphone:
+                Debug.Log($"Initial Megaphone Count: {_initialMegaphone}");
+                return _initialMegaphone;
             default:
                 return 0;
         }
     }
+
+    public int GetRemainingBombCount(BombType bombType)
+    {
+        return bombManager.GetLeftoverBomb(bombType);
+    }
+
+    public int GetRemainingItemCount(ItemType itemType)
+    {
+        return itemManager.GetLeftoverItem(itemType);
+    }
+    
     public string GetBoardSpritePath() => _boardSpritePath;
     public GameState GetCurrentState() => _currentState;
 
@@ -79,7 +91,6 @@ public partial class GameManager : MonoBehaviour
         }
         return false;
     }
-
 
     // Vector2 version: directionAndDistance is in board units (not normalized)
     private static Vector3 GetTarget(Vector2 directionAndDistance, Vector3 start, float cellSize = 1f)

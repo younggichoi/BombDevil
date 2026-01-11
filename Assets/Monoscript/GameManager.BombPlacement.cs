@@ -6,9 +6,6 @@ public partial class GameManager : MonoBehaviour
 
     private void CreateAuxiliaryBomb(int x, int y)
     {
-        // Check if a bomb already exists at this position (enemies are fine)
-        if (HasBombAt(x, y))
-            return;
         BombType? currentType = bombManager.GetCurrentBombType();
         if (currentType.HasValue && !bombManager.CheckBombAvailable(currentType.Value))
             return;
@@ -22,9 +19,6 @@ public partial class GameManager : MonoBehaviour
 
     private void CreateRealBomb(int x, int y)
     {
-        // Check if a bomb already exists at this position (enemies are fine)
-        if (HasBombAt(x, y))
-            return;
         GameObject bomb = bombManager.PlantRealBomb(x, y);
         if (bomb != null)
         {
@@ -48,33 +42,10 @@ public partial class GameManager : MonoBehaviour
     // Remove a bomb or item at the specified position and restore to inventory
     private void RemoveObjectAt(int x, int y)
     {
-        GameObject objectToRemove = null;
-        
-        // Check for bombs first
-        foreach (var obj in _board[x, y])
-        {
-            if (obj == null) continue;
-            
-            if (obj.GetComponent<AuxiliaryBomb>() != null || obj.GetComponent<RealBomb>() != null)
-            {
-                objectToRemove = obj;
-                break;
-            }
-        }
+        if (_board[x, y].Count == 0) return;
 
-        // If no bomb, check for items
-        if (objectToRemove == null)
-        {
-            foreach (var obj in _board[x, y])
-            {
-                if (obj == null) continue;
-                if (obj.GetComponent<Item>() != null)
-                {
-                    objectToRemove = obj;
-                    break;
-                }
-            }
-        }
+        // Find the last placed object in the cell to remove
+        GameObject objectToRemove = _board[x, y][_board[x, y].Count - 1];
         
         if (objectToRemove != null)
         {
@@ -88,16 +59,30 @@ public partial class GameManager : MonoBehaviour
 
             if (auxBomb != null)
             {
-                // Remove from _allBombs list
-                _allBombs.RemoveAll(b => b.coord == pos);
+                // Find and remove the specific bomb from _allBombs list
+                for (int i = _allBombs.Count - 1; i >= 0; i--)
+                {
+                    if (_allBombs[i].coord == pos && !_allBombs[i].isRealBomb)
+                    {
+                        _allBombs.RemoveAt(i);
+                        break;
+                    }
+                }
                 // Restore to inventory
                 bombManager.RestoreBomb(auxBomb.GetBombType());
                 ShowTempMessage("Bomb removed!", 0.5f, "Remove mode");
             }
             else if (realBomb != null)
             {
-                // Remove from _allBombs list
-                _allBombs.RemoveAll(b => b.coord == pos);
+                // Find and remove the specific bomb from _allBombs list
+                for (int i = _allBombs.Count - 1; i >= 0; i--)
+                {
+                    if (_allBombs[i].coord == pos && _allBombs[i].isRealBomb)
+                    {
+                        _allBombs.RemoveAt(i);
+                        break;
+                    }
+                }
                 // Restore to inventory
                 bombManager.RestoreRealBomb();
                 ShowTempMessage("Bomb removed!", 0.5f, "Remove mode");
