@@ -92,7 +92,6 @@ public partial class GameManager : MonoBehaviour
         return false;
     }
 
-
     // Vector2 version: directionAndDistance is in board units (not normalized)
     private static Vector3 GetTarget(Vector2 directionAndDistance, Vector3 start, float cellSize = 1f)
     {

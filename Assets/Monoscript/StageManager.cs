@@ -13,6 +13,7 @@ public class StageManager : MonoBehaviour
     public GameObject enemyPrefab;
     public GameObject auxiliaryBombPrefab;
     public GameObject realBombPrefab;
+    public GameObject wallPrefab;
     public Sprite enemySprite;
     
     // StageRoot prefab

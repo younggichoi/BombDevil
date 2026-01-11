@@ -4202,6 +4202,7 @@ MonoBehaviour:
   enemyPrefab: {fileID: 6082614481895556300, guid: 4428f5c9eaabe44469e4dce74068ae9c, type: 3}
   auxiliaryBombPrefab: {fileID: 5218278994332064331, guid: 19a801301c4f4fc46b8d0ee44db8b0d3, type: 3}
   realBombPrefab: {fileID: 5218278994332064331, guid: da6fc7fcbe11d8d4285dcabc5669fa26, type: 3}
+  wallPrefab: {fileID: 6925386482829750701, guid: 34b9a7973aa991b449b50bd102dcbf9d, type: 3}
   enemySprite: {fileID: 7506324398293790609, guid: 97546b61a06719241a0084cbe862720f, type: 3}
   stageRootPrefab: {fileID: 384149538340230175, guid: 0c32e14cbdd79784db67ea4a78a6d013, type: 3}
   _currentStageId: 1
