@@ -49,9 +49,6 @@ public class BombManager : MonoBehaviour
     
     // Current selected bomb type (null = not selected)
     private BombType? _currentBombType = null;
-    
-    // GameManager reference for info messages
-    private GameManager _gameManager;
 
     public void ClearBombs()
     {
@@ -74,7 +71,7 @@ public class BombManager : MonoBehaviour
         }
     }
 
-    public void Initialize(GameObject auxiliaryBomb, GameObject realBombPrefab, GameManager gameManager, 
+    public void Initialize(GameObject auxiliaryBomb, GameObject realBombPrefab, 
         Transform auxiliaryBombSet, Transform realBombSet,
         TMP_Text _1stBombText, TMP_Text _2ndBombText, TMP_Text _3rdBombText, 
         TMP_Text _4thBombText, TMP_Text _5thBombText, TMP_Text _6thBombText,
@@ -82,7 +79,7 @@ public class BombManager : MonoBehaviour
         GameObject _1stBombChecked, GameObject _2ndBombChecked, GameObject _3rdBombChecked,
         GameObject _4thBombChecked, GameObject _5thBombChecked, GameObject _6thBombChecked,
         GameObject skyblueBombChecked, GameObject realBombChecked,
-        TMP_Text explodeButtonText, BoardManager boardManager)
+        TMP_Text explodeButtonText)
     {
         this.auxiliaryBomb = auxiliaryBomb;
         this.realBombPrefab = realBombPrefab;
@@ -105,13 +102,13 @@ public class BombManager : MonoBehaviour
         this._skyblueBombChecked = skyblueBombChecked;
         this._realBombChecked = realBombChecked;
         _explodeButtonText = explodeButtonText;
-        _boardManager = boardManager;
-        _gameManager = gameManager;
+        _boardManager = GameService.Get<BoardManager>();
 
         // Set initial explode button text
         if (_explodeButtonText != null)
             _explodeButtonText.text = "PASS";
         
+        var gameManager = GameService.Get<GameManager>();
         // Initialize leftover bombs from GameManager
         _leftoverBombs = new Dictionary<BombType, int>
         {
@@ -257,11 +254,12 @@ public class BombManager : MonoBehaviour
         _currentBombType = bombType;
         UpdateCheckedUI();
         
+        var gameManager = GameService.Get<GameManager>();
         // Show selection message via GameManager
-        if (_gameManager != null)
+        if (gameManager != null)
         {
             string bombName = GetBombDisplayName(bombType);
-            _gameManager.ShowBombSelectedMessage(bombName);
+            gameManager.ShowBombSelectedMessage(bombName);
         }
     }
 
@@ -319,9 +317,10 @@ public class BombManager : MonoBehaviour
             available = count > 0;
         }
         
-        if (!available && _gameManager != null)
+        var gameManager = GameService.Get<GameManager>();
+        if (!available && gameManager != null)
         {
-            _gameManager.ShowNoBombLeftMessage(GetBombDisplayName(bombType));
+            gameManager.ShowNoBombLeftMessage(GetBombDisplayName(bombType));
         }
         
         return available;
@@ -338,14 +337,14 @@ public class BombManager : MonoBehaviour
     private void UpdateCheckedUI()
     {
         // Deactivate all check UIs first
-        _1stBombChecked.SetActive(false);
-        _2ndBombChecked.SetActive(false);
-        _3rdBombChecked.SetActive(false);
-        _4thBombChecked.SetActive(false);
-        _5thBombChecked.SetActive(false);
-        _6thBombChecked.SetActive(false);
-        _skyblueBombChecked.SetActive(false);
-        _realBombChecked.SetActive(false);
+        if (_1stBombChecked != null) _1stBombChecked.SetActive(false);
+        if (_2ndBombChecked != null) _2ndBombChecked.SetActive(false);
+        if (_3rdBombChecked != null) _3rdBombChecked.SetActive(false);
+        if (_4thBombChecked != null) _4thBombChecked.SetActive(false);
+        if (_5thBombChecked != null) _5thBombChecked.SetActive(false);
+        if (_6thBombChecked != null) _6thBombChecked.SetActive(false);
+        if (_skyblueBombChecked != null) _skyblueBombChecked.SetActive(false);
+        if (_realBombChecked != null) _realBombChecked.SetActive(false);
         
         // Activate the selected one
         if (_currentBombType.HasValue)

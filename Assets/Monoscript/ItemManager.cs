@@ -10,7 +10,6 @@ public class ItemManager : MonoBehaviour
     private Dictionary<ItemType, GameObject> _itemPrefabs;
     private Transform _itemSet;
     private TMP_Text _itemText;
-    private GameManager _gameManager;
 
     private BoardManager _boardManager;
 
@@ -26,14 +25,23 @@ public class ItemManager : MonoBehaviour
     // Current selected item type (null = not selected)
     private ItemType? _currentItemType = null;
 
-    public void Initialize(Dictionary<ItemType, GameObject> itemPrefabs, GameManager gameManager, BoardManager boardManager, Transform itemSet, Dictionary<ItemType, TMP_Text> itemButtonTexts)
+    private void Awake()
+    {
+        GameService.Register(this);
+        if (_itemPrefabs == null)
+        {
+            _itemPrefabs = new Dictionary<ItemType, GameObject>();
+        }
+    }
+
+    public void Initialize(Dictionary<ItemType, GameObject> itemPrefabs, Transform itemSet, Dictionary<ItemType, TMP_Text> itemButtonTexts)
     {
         _itemPrefabs = itemPrefabs;
-        _gameManager = gameManager;
-        _boardManager = boardManager;
+        _boardManager = GameService.Get<BoardManager>();
         _itemSet = itemSet;
         _itemButtonTexts = itemButtonTexts;
 
+        var gameManager = GameService.Get<GameManager>();
         // Initialize leftover items from GameManager
         _leftoverItems = new Dictionary<ItemType, int>();
         foreach (var itemType in _itemPrefabs.Keys)
@@ -122,9 +130,10 @@ public class ItemManager : MonoBehaviour
     public void SetCurrentItemType(ItemType itemType)
     {
         _currentItemType = itemType;
-        if (_gameManager != null)
+        var gameManager = GameService.Get<GameManager>();
+        if (gameManager != null)
         {
-            _gameManager.ShowItemSelectedMessage(itemType.ToString());
+            gameManager.ShowItemSelectedMessage(itemType.ToString());
         }
     }
 
@@ -136,9 +145,11 @@ public class ItemManager : MonoBehaviour
     public bool CheckItemAvailable(ItemType itemType)
     {
         bool available = _leftoverItems.TryGetValue(itemType, out int count) && count > 0;
-        if (!available && _gameManager != null)
+        var gameManager = GameService.Get<GameManager>();
+        if (!available && gameManager != null)
         {
-            _gameManager.ShowNoItemLeftMessage(itemType.ToString());
+            
+            gameManager.ShowNoItemLeftMessage(itemType.ToString());
         }
         return available;
     }
@@ -227,11 +238,21 @@ public class ItemManager : MonoBehaviour
 
     public void ResetItems()
     {
+        Debug.Log("ItemManager.ResetItems called");
+        var gameManager = GameService.Get<GameManager>();
+        if (gameManager == null) {
+            Debug.LogError("GameManager is null in ItemManager.ResetItems");
+            return;
+        }
         // Initialize leftover items from GameManager
         _leftoverItems = new Dictionary<ItemType, int>();
+        if (_itemPrefabs == null) {
+            Debug.LogError("_itemPrefabs is null in ItemManager.ResetItems");
+            return;
+        }
         foreach (var itemType in _itemPrefabs.Keys)
         {
-            _leftoverItems[itemType] = _gameManager.GetInitialItemCount(itemType);
+            _leftoverItems[itemType] = gameManager.GetInitialItemCount(itemType);
         }
         UpdateAllItemButtonTexts();
     }

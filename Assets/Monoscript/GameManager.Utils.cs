@@ -53,12 +53,12 @@ public partial class GameManager : MonoBehaviour
 
     public int GetRemainingBombCount(BombType bombType)
     {
-        return bombManager.GetLeftoverBomb(bombType);
+        return BombManager.GetLeftoverBomb(bombType);
     }
 
     public int GetRemainingItemCount(ItemType itemType)
     {
-        return itemManager.GetLeftoverItem(itemType);
+        return ItemManager.GetLeftoverItem(itemType);
     }
     
     public string GetBoardSpritePath() => _boardSpritePath;

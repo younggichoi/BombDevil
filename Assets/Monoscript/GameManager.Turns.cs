@@ -56,7 +56,7 @@ public partial class GameManager : MonoBehaviour
 #endif
             yield break;
         }
-        bombManager.ResetExplodeButtonText();
+        BombManager.ResetExplodeButtonText();
         SetInfoMessage("Player's turn");
         CheckGameState();
         _isTurnInProgress = false;

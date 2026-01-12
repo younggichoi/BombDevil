@@ -31,8 +31,11 @@ public class BoardManager : MonoBehaviour
         _tiles = null;
     }
 
-    public void Initialize(GameManager gameManager, Sprite boardSpritePrefab)
+    public void Initialize(Sprite boardSpritePrefab)
     {
+        var gameManager = GameService.Get<GameManager>();
+        if (gameManager == null) return;
+
         _width = gameManager.GetWidth();
         _height = gameManager.GetHeight();
         
@@ -46,6 +49,7 @@ public class BoardManager : MonoBehaviour
     // Create individual tiles for the grid
     private void CreateTileGrid()
     {
+        Debug.Log("BoardManager: Creating tile grid");
         // Create parent object for tiles
         GameObject parentObj = new GameObject("BoardTiles");
         parentObj.transform.position = Vector3.zero;
@@ -86,6 +90,7 @@ public class BoardManager : MonoBehaviour
     // Create a simple square sprite for tiles
     private Sprite CreateSquareSprite()
     {
+        Debug.Log("BoardManager: Creating square sprite for tiles");
         Texture2D texture = new Texture2D(32, 32);
         Color[] colors = new Color[32 * 32];
         for (int i = 0; i < colors.Length; i++)
@@ -101,6 +106,18 @@ public class BoardManager : MonoBehaviour
         float xCoordination = (x - (_width - 1) / 2f) * _cellSize;
         float yCoordination = (y - (_height - 1) / 2f) * _cellSize;
         return new Vector3(xCoordination, yCoordination, 0);
+    }
+
+    public Vector2Int WorldToGrid(Vector3 worldPosition)
+    {
+        int x = Mathf.RoundToInt((worldPosition.x / _cellSize) + (_width - 1) / 2f);
+        int y = Mathf.RoundToInt((worldPosition.y / _cellSize) + (_height - 1) / 2f);
+        return new Vector2Int(x, y);
+    }
+
+    public bool IsWithinBounds(int x, int y)
+    {
+        return x >= 0 && x < _width && y >= 0 && y < _height;
     }
     
     // get cell size (for scaling objects)

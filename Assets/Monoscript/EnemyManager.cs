@@ -21,18 +21,17 @@ public class EnemyManager : MonoBehaviour
     
     // BoardManager and GameManager references
     private BoardManager _boardManager;
-    private GameManager _gameManager;
     private Color _enemyColor;
     
-    // Enemy sprite (set via Initialize)
+    private GameObject _enemyPrefab;
     private Sprite _enemySprite;
-    
-    public void Initialize(GameObject enemy, Transform enemySet, GameManager gameManager, BoardManager boardManager, Sprite enemySprite)
+
+    public void Initialize(GameObject enemy, Transform enemySet, Sprite enemySprite)
     {
         this.enemy = enemy;
         this.enemySet = enemySet;
-        _boardManager = boardManager;
-        _gameManager = gameManager;
+        _boardManager = GameService.Get<BoardManager>();
+        var gameManager = GameService.Get<GameManager>();
         _enemyColor = gameManager.GetEnemyColor();
         _enemySprite = enemySprite;
     }
@@ -73,12 +72,22 @@ public class EnemyManager : MonoBehaviour
         
         // Initialize enemy with unique id
         Enemy enemyComponent = enemyObj.GetComponent<Enemy>();
-        enemyComponent.Initialize(_gameManager, _boardManager, _enemySprite);
+        enemyComponent.Initialize(_enemySprite);
         
         // Set random direction for this enemy (Up, Down, Left, Right)
         enemyComponent.SetRandomDirection();
         
         return enemyObj;
+    }
+
+    public void SetEnemyPrefab(GameObject enemyPrefab)
+    {
+        _enemyPrefab = enemyPrefab;
+    }
+
+    public void SetEnemySprite(Sprite enemySprite)
+    {
+        _enemySprite = enemySprite;
     }
 }
 

@@ -11,7 +11,7 @@ public partial class GameManager : MonoBehaviour
             HidePreview();
             return;
         }
-        if (!bombManager.HasBombSelected())
+        if (!BombManager.HasBombSelected())
         {
             HidePreview();
             return;
@@ -38,12 +38,12 @@ public partial class GameManager : MonoBehaviour
 
     private void ShowPreview(int x, int y)
     {
-        BombType? bombType = bombManager.GetCurrentBombType();
+        BombType? bombType = BombManager.GetCurrentBombType();
         if (!bombType.HasValue) return;
-        BombData bombData = bombManager.GetBombData(bombType.Value);
+        BombData bombData = BombManager.GetBombData(bombType.Value);
         if (bombData == null) return;
-        float cellSize = boardManager.GetCellSize();
-        Vector3 worldPos = boardManager.GridToWorld(x, y);
+        float cellSize = BoardManager.GetCellSize();
+        Vector3 worldPos = BoardManager.GridToWorld(x, y);
         if (_ghostBomb == null)
         {
             _ghostBomb = new GameObject("GhostBomb");
@@ -93,7 +93,7 @@ public partial class GameManager : MonoBehaviour
             if (indicator != null)
                 indicator.SetActive(false);
         }
-        float cellSize = boardManager.GetCellSize();
+        float cellSize = BoardManager.GetCellSize();
         int indicatorIndex = 0;
         for (int dx = -range; dx <= range; dx++)
         {
@@ -103,7 +103,7 @@ public partial class GameManager : MonoBehaviour
                     continue;
                 int targetX = Mod(centerX + dx, _width);
                 int targetY = Mod(centerY + dy, _height);
-                Vector3 worldPos = boardManager.GridToWorld(targetX, targetY);
+                Vector3 worldPos = BoardManager.GridToWorld(targetX, targetY);
                 while (indicatorIndex >= _rangeIndicators.Count)
                 {
                     GameObject indicator = new GameObject($"RangeIndicator_{_rangeIndicators.Count}");
@@ -136,7 +136,7 @@ public partial class GameManager : MonoBehaviour
             if (indicator != null)
                 indicator.SetActive(false);
         }
-        float cellSize = boardManager.GetCellSize();
+        float cellSize = BoardManager.GetCellSize();
         int indicatorIndex = 0;
         
         // Horizontal line (same Y as bomb, all X)
@@ -144,7 +144,7 @@ public partial class GameManager : MonoBehaviour
         {
             if (dx == centerX) continue;  // Skip bomb position
             
-            Vector3 worldPos = boardManager.GridToWorld(dx, centerY);
+            Vector3 worldPos = BoardManager.GridToWorld(dx, centerY);
             while (indicatorIndex >= _rangeIndicators.Count)
             {
                 GameObject indicator = new GameObject($"RangeIndicator_{_rangeIndicators.Count}");
@@ -170,7 +170,7 @@ public partial class GameManager : MonoBehaviour
         {
             if (dy == centerY) continue;  // Skip bomb position
             
-            Vector3 worldPos = boardManager.GridToWorld(centerX, dy);
+            Vector3 worldPos = BoardManager.GridToWorld(centerX, dy);
             while (indicatorIndex >= _rangeIndicators.Count)
             {
                 GameObject indicator = new GameObject($"RangeIndicator_{_rangeIndicators.Count}");
@@ -206,7 +206,7 @@ public partial class GameManager : MonoBehaviour
         // RealBomb kills enemies, no knockback prediction needed
         if (bombType == BombType.RealBomb) return;
         
-        float cellSize = boardManager.GetCellSize();
+        float cellSize = BoardManager.GetCellSize();
         int indicatorIndex = 0;
         int range = bombData.range;
         int knockbackDistance = bombData.knockbackDistance;
@@ -282,7 +282,7 @@ public partial class GameManager : MonoBehaviour
                     // Show prediction indicator if we have a predicted position
                     if (predictedPos.HasValue)
                     {
-                        Vector3 worldPos = boardManager.GridToWorld(predictedPos.Value.x, predictedPos.Value.y);
+                        Vector3 worldPos = BoardManager.GridToWorld(predictedPos.Value.x, predictedPos.Value.y);
                         while (indicatorIndex >= _enemyPredictionIndicators.Count)
                         {
                             GameObject indicator = new GameObject($"EnemyPrediction_{_enemyPredictionIndicators.Count}");
@@ -369,8 +369,8 @@ public partial class GameManager : MonoBehaviour
     
     private void ShowRemoveIndicator(int x, int y)
     {
-        float cellSize = boardManager.GetCellSize();
-        Vector3 worldPos = boardManager.GridToWorld(x, y);
+        float cellSize = BoardManager.GetCellSize();
+        Vector3 worldPos = BoardManager.GridToWorld(x, y);
         
         if (_removeIndicator == null)
         {

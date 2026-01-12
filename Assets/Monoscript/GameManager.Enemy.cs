@@ -17,7 +17,7 @@ public partial class GameManager : MonoBehaviour
             int y = UnityEngine.Random.Range(0, _height);
             if (_board[x, y].Count == 0)
             {
-                GameObject enemy = enemyManager.CreateEnemy(x, y);
+                GameObject enemy = EnemyManager.CreateEnemy(x, y);
                 _board[x, y].Add(enemy);
                 currentEnemy++;
             }
