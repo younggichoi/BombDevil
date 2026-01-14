@@ -77,30 +77,21 @@ public partial class GameManager : MonoBehaviour
     private TMP_Text _turnText;
     private float _elapsedTime = 0f;
 
+    private GameObject _enemyPrefab;
+    private Sprite _enemySprite;
+
     public void ClearStage()
     {
-        if (boardManager != null)
-        {
-            boardManager.ClearBoard();
-        }
-        if (bombManager != null)
-        {
-            bombManager.ClearBombs();
-        }
-        if (enemyManager != null)
-        {
-            enemyManager.ClearEnemies();
-        }
-        if (itemManager != null)
-        {
-            itemManager.ClearItems();
-        }
+        GameService.Get<BoardManager>()?.ClearBoard();
+        GameService.Get<BombManager>()?.ClearBombs();
+        GameService.Get<EnemyManager>()?.ClearEnemies();
+        GameService.Get<ItemManager>()?.ClearItems();
         HidePreview();
         HideItemPreview();
         HideRemovePreview();
     }
 
-    public void Initialize(EnemyManager enemyManager, BombManager bombManager, ItemManager itemManager, int stageId, IngameCommonData commonData)
+    public void Initialize(int stageId, IngameCommonData commonData)
     {
         StopAllCoroutines();
         _isTurnInProgress = false;
@@ -108,10 +99,7 @@ public partial class GameManager : MonoBehaviour
         ClearStage();
         SetStageState(stageId);
         SetCommonData(commonData);
-        this.enemyManager = enemyManager;
-        this.bombManager = bombManager;
-        this.itemManager = itemManager;
-        itemManager.ResetItems();
+        GameService.Get<ItemManager>()?.ResetItems();
         _board = new List<GameObject>[_width, _height];
         for (int x = 0; x < _width; x++)
         {
@@ -130,6 +118,10 @@ public partial class GameManager : MonoBehaviour
         _totalEnemyCount = _enemyNumber;
         _elapsedTime = 0f;
         _currentState = GameState.Playing;
+
+        //TODO: this is only a temporary fix. Need to find the real reason for the bug.
+        GameService.Get<BoardManager>()?.Initialize(null);
+        GameService.Register(this);
     }
     // Set default item sprite for item preview
     public void SetDefaultItemSprite(Sprite sprite)
@@ -164,6 +156,16 @@ public partial class GameManager : MonoBehaviour
     public void SetDefaultBombSprite(Sprite sprite)
     {
         _defaultBombSprite = sprite;
+    }
+
+    public void SetEnemyPrefab(GameObject enemyPrefab)
+    {
+        _enemyPrefab = enemyPrefab;
+    }
+
+    public void SetEnemySprite(Sprite enemySprite)
+    {
+        _enemySprite = enemySprite;
     }
 
     private void SetCommonData(IngameCommonData commonData)
@@ -218,6 +220,9 @@ public partial class GameManager : MonoBehaviour
         _elapsedTime += Time.deltaTime;
         UpdateTimeText();
 
+        var itemManager = GameService.Get<ItemManager>();
+        var bombManager = GameService.Get<BombManager>();
+
         // Show item preview if item is selected, otherwise bomb preview, otherwise remove preview, otherwise hide all
         if (itemManager != null && itemManager.HasItemSelected())
         {
@@ -254,50 +259,106 @@ public partial class GameManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             ExitRemoveMode();
-            itemManager.ClearCurrentItemType();
+            itemManager?.ClearCurrentItemType();
             if (bombManager != null) bombManager.SetCurrentBombType(BombType.FirstBomb);
         }
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {
             ExitRemoveMode();
-            itemManager.ClearCurrentItemType();
+            itemManager?.ClearCurrentItemType();
             if (bombManager != null) bombManager.SetCurrentBombType(BombType.SecondBomb);
         }
         if (Input.GetKeyDown(KeyCode.Alpha3))
         {
             ExitRemoveMode();
-            itemManager.ClearCurrentItemType();
+            itemManager?.ClearCurrentItemType();
             if (bombManager != null) bombManager.SetCurrentBombType(BombType.ThirdBomb);
         }
         if (Input.GetKeyDown(KeyCode.Alpha4))
         {
             ExitRemoveMode();
-            itemManager.ClearCurrentItemType();
+            itemManager?.ClearCurrentItemType();
             if (bombManager != null) bombManager.SetCurrentBombType(BombType.FourthBomb);
         }
         if (Input.GetKeyDown(KeyCode.Alpha5))
         {
             ExitRemoveMode();
-            itemManager.ClearCurrentItemType();
+            itemManager?.ClearCurrentItemType();
             if (bombManager != null) bombManager.SetCurrentBombType(BombType.FifthBomb);
         }
         if (Input.GetKeyDown(KeyCode.Alpha6))
         {
             ExitRemoveMode();
-            itemManager.ClearCurrentItemType();
+            itemManager?.ClearCurrentItemType();
             if (bombManager != null) bombManager.SetCurrentBombType(BombType.SixthBomb);
         }
         if (Input.GetKeyDown(KeyCode.Alpha7))
         {
             ExitRemoveMode();
-            itemManager.ClearCurrentItemType();
+            itemManager?.ClearCurrentItemType();
             if (bombManager != null) bombManager.SetCurrentBombType(BombType.SkyblueBomb);
         }
         if (Input.GetKeyDown(KeyCode.Alpha8))
         {
             ExitRemoveMode();
-            itemManager.ClearCurrentItemType();
+            itemManager?.ClearCurrentItemType();
             if (bombManager != null) bombManager.SetCurrentBombType(BombType.RealBomb);
+        }
+    }
+
+    private BoardManager _boardManager;
+    private BoardManager BoardManager
+    {
+        get
+        {
+            Debug.Log("Getting BoardManager");
+            if (_boardManager == null)
+            {
+                _boardManager = GameService.Get<BoardManager>();
+            }
+            return _boardManager;
+        }
+    }
+
+    private EnemyManager _enemyManager;
+    private EnemyManager EnemyManager
+    {
+        get
+        {
+            Debug.Log("Getting EnemyManager");
+            if (_enemyManager == null)
+            {
+                _enemyManager = GameService.Get<EnemyManager>();
+            }
+            return _enemyManager;
+        }
+    }
+
+    private BombManager _bombManager;
+    private BombManager BombManager
+    {
+        get
+        {
+            Debug.Log("Getting BombManager");
+            if (_bombManager == null)
+            {
+                _bombManager = GameService.Get<BombManager>();
+            }
+            return _bombManager;
+        }
+    }
+
+    private ItemManager _itemManager;
+    private ItemManager ItemManager
+    {
+        get
+        {
+            Debug.Log("Getting ItemManager");
+            if (_itemManager == null)
+            {
+                _itemManager = GameService.Get<ItemManager>();
+            }
+            return _itemManager;
         }
     }
 }

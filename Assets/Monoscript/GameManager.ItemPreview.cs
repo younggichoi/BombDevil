@@ -15,7 +15,7 @@ public partial class GameManager : MonoBehaviour
             HideItemPreview();
             return;
         }
-        if (!itemManager.HasItemSelected())
+        if (!ItemManager.HasItemSelected())
         {
             HideItemPreview();
             return;
@@ -42,12 +42,12 @@ public partial class GameManager : MonoBehaviour
 
     private void ShowItemPreview(int x, int y)
     {
-        ItemType? itemType = itemManager.GetCurrentItemType();
+        ItemType? itemType = ItemManager.GetCurrentItemType();
         if (!itemType.HasValue) return;
-        ItemData itemData = itemManager.GetItemData(itemType.Value);
+        ItemData itemData = ItemManager.GetItemData(itemType.Value);
         if (itemData == null) return;
-        float cellSize = boardManager.GetCellSize();
-        Vector3 worldPos = boardManager.GridToWorld(x, y);
+        float cellSize = BoardManager.GetCellSize();
+        Vector3 worldPos = BoardManager.GridToWorld(x, y);
         if (_ghostItem == null)
         {
             _ghostItem = new GameObject("GhostItem");
@@ -85,7 +85,7 @@ public partial class GameManager : MonoBehaviour
             if (indicator != null)
                 indicator.SetActive(false);
         }
-        float cellSize = boardManager.GetCellSize();
+        float cellSize = BoardManager.GetCellSize();
         int indicatorIndex = 0;
         for (int dx = -range; dx <= range; dx++)
         {
@@ -95,7 +95,7 @@ public partial class GameManager : MonoBehaviour
                     continue;
                 int targetX = Mod(centerX + dx, _width);
                 int targetY = Mod(centerY + dy, _height);
-                Vector3 worldPos = boardManager.GridToWorld(targetX, targetY);
+                Vector3 worldPos = BoardManager.GridToWorld(targetX, targetY);
                 while (indicatorIndex >= _itemRangeIndicators.Count)
                 {
                     GameObject indicator = new GameObject($"ItemRangeIndicator_{_itemRangeIndicators.Count}");

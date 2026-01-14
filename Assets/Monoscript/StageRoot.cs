@@ -87,6 +87,13 @@ public class StageRoot : MonoBehaviour
             bombManager = GetComponentInChildren<BombManager>();
             boardManager = GetComponentInChildren<BoardManager>();
             itemManager = GetComponentInChildren<ItemManager>();
+
+            // Register all managers with the GameService
+            GameService.Register(gameManager);
+            GameService.Register(enemyManager);
+            GameService.Register(bombManager);
+            GameService.Register(boardManager);
+            GameService.Register(itemManager);
             
             // Find item prefabs and UI
             ItemPrefabLibrary itemPrefabLibrary = GetComponentInChildren<ItemPrefabLibrary>();
@@ -149,41 +156,41 @@ public class StageRoot : MonoBehaviour
             if (explodeButton != null)
             {
                 explodeButton.onClick.RemoveAllListeners();
-                explodeButton.onClick.AddListener(gameManager.OnExplodeButtonClick);
+                explodeButton.onClick.AddListener(() => GameService.Get<GameManager>()?.OnExplodeButtonClick());
             }
     
             if (teleporterButton != null)
             {
                 teleporterButton.onClick.RemoveAllListeners();
                 teleporterButton.onClick.AddListener(() => 
-                    gameManager.OnItemButtonClicked(ItemType.Teleporter));
+                    GameService.Get<GameManager>()?.OnItemButtonClicked(ItemType.Teleporter));
             }
     
             if (megaphoneButton != null)
             {
                 megaphoneButton.onClick.RemoveAllListeners();
                 megaphoneButton.onClick.AddListener(() => 
-                    gameManager.OnItemButtonClicked(ItemType.Megaphone));
+                    GameService.Get<GameManager>()?.OnItemButtonClicked(ItemType.Megaphone));
             }
             
             if (removeButton != null)
             {
                 removeButton.onClick.RemoveAllListeners();
                 removeButton.onClick.AddListener(() =>
-                    gameManager.OnRemoveButtonClick());
+                    GameService.Get<GameManager>()?.OnRemoveButtonClick());
             }
     
             if (resetButton != null)
             {
                 resetButton.onClick.RemoveAllListeners();
                 resetButton.onClick.AddListener(() =>
-                    gameManager.OnResetButtonClick());
+                    GameService.Get<GameManager>()?.OnResetButtonClick());
             }
     
             if (exitButton != null)
             {
                 exitButton.onClick.RemoveAllListeners();
-                exitButton.onClick.AddListener(() => gameManager.OnExitButtonClick());
+                exitButton.onClick.AddListener(() => GameService.Get<GameManager>()?.OnExitButtonClick());
             }
 
             _isInitialized = true;
@@ -191,52 +198,30 @@ public class StageRoot : MonoBehaviour
 
         // 2. Per-Stage Logic (Reset dynamic state)
 
-        // Initialize itemManager
-        if (itemManager != null)
-        {
-            itemManager.Initialize(itemPrefabs, gameManager, boardManager, itemSet, itemButtonTexts);
-        }
-
-        // Deactivate all check UIs
-        if (_1stBombChecked != null) _1stBombChecked.SetActive(false);
-        if (_2ndBombChecked != null) _2ndBombChecked.SetActive(false);
-        if (_3rdBombChecked != null) _3rdBombChecked.SetActive(false);
-        if (_4thBombChecked != null) _4thBombChecked.SetActive(false);
-        if (_5thBombChecked != null) _5thBombChecked.SetActive(false);
-        if (_6thBombChecked != null) _6thBombChecked.SetActive(false);
-        if (skyblueBombChecked != null) skyblueBombChecked.SetActive(false);
-        if (realBombChecked != null) realBombChecked.SetActive(false);
-
-        // Initialize GameManager first (loads stage data including board sprite path)
-        gameManager.Initialize(enemyManager, bombManager, itemManager, stageId, commonData);
-        
-        // Set manager references and UI in GameManager
-        gameManager.SetBoardManager(boardManager);
-        gameManager.SetBombManager(bombManager);
-        gameManager.SetInfoText(infoText);
-        gameManager.SetStageStatsUI(stageText, timeText, turnText);
-        
-        // Load board sprite from Resources using path from JSON
-        Sprite boardSprite = null;
-        string boardSpritePath = gameManager.GetBoardSpritePath();
-        if (boardSpritePath == "Sprites/Boards/board_7x7")
-        {
-            boardSprite = LoadSprite(boardSpritePath, "board");
-        }
-        
-        // Initialize BoardManager (calculates cellSize, scales board sprite)
-        boardManager.Initialize(gameManager, boardSprite);
-        
-        // Initialize other managers with BoardManager reference and sprites
-        enemyManager.Initialize(this.enemyPrefab, enemySet, gameManager, boardManager, this.enemySprite);
-        bombManager.Initialize(this.auxiliaryBombPrefab, this.realBombPrefab, gameManager, 
+        // Initialize all managers with their scene references first.
+        gameManager.Initialize(stageId, commonData);
+        boardManager.Initialize(null); // Sprite is not used, can be null
+        enemyManager.Initialize(this.enemyPrefab, enemySet, this.enemySprite);
+        bombManager.Initialize(this.auxiliaryBombPrefab, this.realBombPrefab, 
             auxiliaryBombSet, realBombSet,
             _1stBombText, _2ndBombText, _3rdBombText, _4thBombText, _5thBombText, _6thBombText,
             skyblueBombText, realBombText,
             _1stBombChecked, _2ndBombChecked, _3rdBombChecked, _4thBombChecked, _5thBombChecked, _6thBombChecked,
             skyblueBombChecked, realBombChecked,
-            explodeButtonText, boardManager);
+            explodeButtonText);
+        itemManager.Initialize(itemPrefabs, itemSet, itemButtonTexts);
 
+        // Now that all managers are initialized, clear the stage.
+        gameManager.ClearStage();
+
+        // Set UI texts in GameManager
+        gameManager.SetInfoText(infoText);
+        gameManager.SetStageStatsUI(stageText, timeText, turnText);
+
+        enemyManager = GameService.Get<EnemyManager>();
+        enemyManager.SetEnemyPrefab(enemyPrefab);
+        enemyManager.SetEnemySprite(enemySprite);
+        
         // Create enemies for this stage
         gameManager.CreateEnemy();
     }

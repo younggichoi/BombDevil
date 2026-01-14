@@ -21,9 +21,11 @@ public class Enemy : MonoBehaviour
     public bool IsStunned => _isStunned;
 
     // initializing internal attribute
-    public void Initialize(GameManager gameManager, BoardManager boardManager, Sprite sprite, int? forcedId = null)
+    public void Initialize(Sprite sprite, int? forcedId = null)
     {
-        _gameManager = gameManager;
+        var gameManager = GameService.Get<GameManager>();
+        var boardManager = GameService.Get<BoardManager>();
+
         _walkDuration = gameManager.getWalkDuration();
         _knockbackDuration = gameManager.getKnockbackDuration();
         _cellSize = boardManager.GetCellSize();
@@ -46,6 +48,26 @@ public class Enemy : MonoBehaviour
                 sr.sprite = sprite;
             }
         }
+    }
+
+    public Vector2Int GetNextPosition()
+    {
+        var boardManager = GameService.Get<BoardManager>();
+        if (boardManager == null) return Vector2Int.zero;
+
+        Vector2Int currentPos = boardManager.WorldToGrid(transform.position);
+        Vector2Int nextPos = currentPos + _moveDirection;
+
+        if (!boardManager.IsWithinBounds(nextPos.x, nextPos.y))
+        {
+            // Wrap around logic
+            if (nextPos.x < 0) nextPos.x = boardManager.GetWidth() - 1;
+            else if (nextPos.x >= boardManager.GetWidth()) nextPos.x = 0;
+
+            if (nextPos.y < 0) nextPos.y = boardManager.GetHeight() - 1;
+            else if (nextPos.y >= boardManager.GetHeight()) nextPos.y = 0;
+        }
+        return nextPos;
     }
 
     // Set stunned state

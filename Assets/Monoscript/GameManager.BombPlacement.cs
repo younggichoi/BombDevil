@@ -6,10 +6,10 @@ public partial class GameManager : MonoBehaviour
 
     private void CreateAuxiliaryBomb(int x, int y)
     {
-        BombType? currentType = bombManager.GetCurrentBombType();
-        if (currentType.HasValue && !bombManager.CheckBombAvailable(currentType.Value))
+        BombType? currentType = BombManager.GetCurrentBombType();
+        if (currentType.HasValue && !BombManager.CheckBombAvailable(currentType.Value))
             return;
-        GameObject bomb = bombManager.PlantAuxiliaryBomb(x, y);
+        GameObject bomb = BombManager.PlantAuxiliaryBomb(x, y);
         if (bomb != null)
         {
             _board[x, y].Add(bomb);
@@ -19,7 +19,7 @@ public partial class GameManager : MonoBehaviour
 
     private void CreateRealBomb(int x, int y)
     {
-        GameObject bomb = bombManager.PlantRealBomb(x, y);
+        GameObject bomb = BombManager.PlantRealBomb(x, y);
         if (bomb != null)
         {
             _board[x, y].Add(bomb);
@@ -29,13 +29,13 @@ public partial class GameManager : MonoBehaviour
 
     private int GlobalToGridX(float x)
     {
-        float cellSize = boardManager.GetCellSize();
+        float cellSize = BoardManager.GetCellSize();
         return Mathf.FloorToInt(x / cellSize + _width / 2f);
     }
 
     private int GlobalToGridY(float y)
     {
-        float cellSize = boardManager.GetCellSize();
+        float cellSize = BoardManager.GetCellSize();
         return Mathf.FloorToInt(y / cellSize + _height / 2f);
     }
     
@@ -69,7 +69,7 @@ public partial class GameManager : MonoBehaviour
                     }
                 }
                 // Restore to inventory
-                bombManager.RestoreBomb(auxBomb.GetBombType());
+                BombManager.RestoreBomb(auxBomb.GetBombType());
                 ShowTempMessage("Bomb removed!", 0.5f, "Remove mode");
             }
             else if (realBomb != null)
@@ -84,7 +84,7 @@ public partial class GameManager : MonoBehaviour
                     }
                 }
                 // Restore to inventory
-                bombManager.RestoreRealBomb();
+                BombManager.RestoreRealBomb();
                 ShowTempMessage("Bomb removed!", 0.5f, "Remove mode");
             }
             else if (item != null)
@@ -98,7 +98,7 @@ public partial class GameManager : MonoBehaviour
                 }
 
                 // Restore to inventory
-                itemManager.RestoreItem(item.Type);
+                ItemManager.RestoreItem(item.Type);
                 ShowTempMessage("Item removed!", 0.5f, "Remove mode");
             }
             

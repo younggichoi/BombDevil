@@ -82,8 +82,8 @@ public partial class GameManager : MonoBehaviour
     public void OnRemoveButtonClick()
     {
         // Clear current selections
-        bombManager.ClearCurrentBombType();
-        itemManager.ClearCurrentItemType();
+        BombManager.ClearCurrentBombType();
+        ItemManager.ClearCurrentItemType();
         
         // Enter remove mode
         _isRemoveMode = true;
