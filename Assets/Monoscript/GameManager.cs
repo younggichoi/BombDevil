@@ -311,7 +311,6 @@ public partial class GameManager : MonoBehaviour
     {
         get
         {
-            Debug.Log("Getting BoardManager");
             if (_boardManager == null)
             {
                 _boardManager = GameService.Get<BoardManager>();
@@ -325,7 +324,6 @@ public partial class GameManager : MonoBehaviour
     {
         get
         {
-            Debug.Log("Getting EnemyManager");
             if (_enemyManager == null)
             {
                 _enemyManager = GameService.Get<EnemyManager>();
@@ -339,7 +337,6 @@ public partial class GameManager : MonoBehaviour
     {
         get
         {
-            Debug.Log("Getting BombManager");
             if (_bombManager == null)
             {
                 _bombManager = GameService.Get<BombManager>();
@@ -353,7 +350,6 @@ public partial class GameManager : MonoBehaviour
     {
         get
         {
-            Debug.Log("Getting ItemManager");
             if (_itemManager == null)
             {
                 _itemManager = GameService.Get<ItemManager>();

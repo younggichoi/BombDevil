@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -147,20 +148,14 @@ public partial class GameManager : MonoBehaviour
                     Vector2Int knockbackDir;
                     
                     // Move away from the NEAREST axis
-                    if (Mathf.Abs(dx) < Mathf.Abs(dy))
+                    knockbackDir = Vector2Int.zero;
+                    if (Mathf.Abs(dx) == 1)
                     {
-                        // Closer to vertical axis (bombX) → move away horizontally
-                        knockbackDir = new Vector2Int(dx > 0 ? 1 : -1, 0);
+                        knockbackDir += new Vector2Int(dx, 0);
                     }
-                    else if (Mathf.Abs(dx) > Mathf.Abs(dy))
+                    if (Mathf.Abs(dy) == 1)
                     {
-                        // Closer to horizontal axis (bombY) → move away vertically
-                        knockbackDir = new Vector2Int(0, dy > 0 ? 1 : -1);
-                    }
-                    else
-                    {
-                        // Equal distance → move diagonally away from both axes
-                        knockbackDir = new Vector2Int(dx > 0 ? 1 : -1, dy > 0 ? 1 : -1);
+                        knockbackDir += new Vector2Int(0, dy);
                     }
                     
                     Debug.Log($"SkyblueBomb: Enemy at ({ex}, {ey}), dx={dx}, dy={dy}, knockback={knockbackDir}");
