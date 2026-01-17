@@ -4,6 +4,7 @@ using Entity;
 
 public partial class GameManager : MonoBehaviour
 {
+    private bool _bombTypeChanged;
     private void UpdateBombPreview()
     {
         if (_isTurnInProgress)
@@ -23,8 +24,9 @@ public partial class GameManager : MonoBehaviour
         if (x >= 0 && x < _width && y >= 0 && y < _height && !HasBombAt(x, y))
         {
             Vector2Int currentCell = new Vector2Int(x, y);
-            if (currentCell != _lastHoveredCell)
+            if (currentCell != _lastHoveredCell || _bombTypeChanged)
             {
+                Debug.Log("Bomb preview updated");
                 ShowPreview(x, y);
                 _lastHoveredCell = currentCell;
             }

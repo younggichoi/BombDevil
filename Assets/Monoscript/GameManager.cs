@@ -176,8 +176,8 @@ public partial class GameManager : MonoBehaviour
     }
 
     private void SetStageState(int stageId)
-    {
-                                                                string path = Path.Combine(Application.streamingAssetsPath, "Json/Stage/stage" + stageId + ".json");
+    { 
+        string path = Path.Combine(Application.streamingAssetsPath, "Json/Stage/stage" + stageId + ".json");
         if (!File.Exists(path))
         {
             Debug.LogError($"Failed to load stage{stageId}.json from {path}");
@@ -215,6 +215,7 @@ public partial class GameManager : MonoBehaviour
 
     void Update()
     {
+        _bombTypeChanged = false; //TODO: bombTypeChanged is only a temporary measure; full fix required later
         if (_board == null || _currentState != GameState.Playing)
             return;
         _elapsedTime += Time.deltaTime;
@@ -223,6 +224,70 @@ public partial class GameManager : MonoBehaviour
         var itemManager = GameService.Get<ItemManager>();
         var bombManager = GameService.Get<BombManager>();
 
+        if (Input.GetMouseButtonDown(0))
+            MouseClickProcess();
+
+        if (Input.GetMouseButtonDown(1))
+            MouseRightClickProcess();
+        
+        // --- Bomb Selection Input ---
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            ExitRemoveMode();
+            itemManager?.ClearCurrentItemType();
+            if (bombManager != null) bombManager.SetCurrentBombType(BombType.FirstBomb);
+            _bombTypeChanged = true;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            ExitRemoveMode();
+            itemManager?.ClearCurrentItemType();
+            if (bombManager != null) bombManager.SetCurrentBombType(BombType.SecondBomb);
+            _bombTypeChanged = true;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            ExitRemoveMode();
+            itemManager?.ClearCurrentItemType();
+            if (bombManager != null) bombManager.SetCurrentBombType(BombType.ThirdBomb);
+            _bombTypeChanged = true;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            ExitRemoveMode();
+            itemManager?.ClearCurrentItemType();
+            if (bombManager != null) bombManager.SetCurrentBombType(BombType.FourthBomb);
+            _bombTypeChanged = true;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha5))
+        {
+            ExitRemoveMode();
+            itemManager?.ClearCurrentItemType();
+            if (bombManager != null) bombManager.SetCurrentBombType(BombType.FifthBomb);
+            _bombTypeChanged = true;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha6))
+        {
+            ExitRemoveMode();
+            itemManager?.ClearCurrentItemType();
+            if (bombManager != null) bombManager.SetCurrentBombType(BombType.SixthBomb);
+            _bombTypeChanged = true;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha7))
+        {
+            ExitRemoveMode();
+            itemManager?.ClearCurrentItemType();
+            if (bombManager != null) bombManager.SetCurrentBombType(BombType.SkyblueBomb);
+            _bombTypeChanged = true;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha8))
+        {
+            ExitRemoveMode();
+            itemManager?.ClearCurrentItemType();
+            if (bombManager != null) bombManager.SetCurrentBombType(BombType.RealBomb);
+            _bombTypeChanged = true;
+        }
+        
         // Show item preview if item is selected, otherwise bomb preview, otherwise remove preview, otherwise hide all
         if (itemManager != null && itemManager.HasItemSelected())
         {
@@ -247,62 +312,6 @@ public partial class GameManager : MonoBehaviour
             HideItemPreview();
             HidePreview();
             HideRemovePreview();
-        }
-
-        if (Input.GetMouseButtonDown(0))
-            MouseClickProcess();
-
-        if (Input.GetMouseButtonDown(1))
-            MouseRightClickProcess();
-        
-        // --- Bomb Selection Input ---
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-        {
-            ExitRemoveMode();
-            itemManager?.ClearCurrentItemType();
-            if (bombManager != null) bombManager.SetCurrentBombType(BombType.FirstBomb);
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            ExitRemoveMode();
-            itemManager?.ClearCurrentItemType();
-            if (bombManager != null) bombManager.SetCurrentBombType(BombType.SecondBomb);
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
-            ExitRemoveMode();
-            itemManager?.ClearCurrentItemType();
-            if (bombManager != null) bombManager.SetCurrentBombType(BombType.ThirdBomb);
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha4))
-        {
-            ExitRemoveMode();
-            itemManager?.ClearCurrentItemType();
-            if (bombManager != null) bombManager.SetCurrentBombType(BombType.FourthBomb);
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha5))
-        {
-            ExitRemoveMode();
-            itemManager?.ClearCurrentItemType();
-            if (bombManager != null) bombManager.SetCurrentBombType(BombType.FifthBomb);
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha6))
-        {
-            ExitRemoveMode();
-            itemManager?.ClearCurrentItemType();
-            if (bombManager != null) bombManager.SetCurrentBombType(BombType.SixthBomb);
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha7))
-        {
-            ExitRemoveMode();
-            itemManager?.ClearCurrentItemType();
-            if (bombManager != null) bombManager.SetCurrentBombType(BombType.SkyblueBomb);
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha8))
-        {
-            ExitRemoveMode();
-            itemManager?.ClearCurrentItemType();
-            if (bombManager != null) bombManager.SetCurrentBombType(BombType.RealBomb);
         }
     }
 
