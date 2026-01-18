@@ -12,11 +12,13 @@ public class StageRoot : MonoBehaviour
     private BombManager bombManager;
     private BoardManager boardManager;
     private ItemManager itemManager;
+    private WallManager wallManager;
     
     // Prefabs and sprites (received from StageManager)
     private GameObject enemyPrefab;
     private GameObject auxiliaryBombPrefab;
     private GameObject realBombPrefab;
+    private GameObject wallPrefab;
     private Sprite enemySprite;
     
     // Scene objects (found by name)
@@ -70,7 +72,8 @@ public class StageRoot : MonoBehaviour
     
 
     public void Install(int stageId, IngameCommonData commonData, 
-        GameObject enemyPrefab, GameObject auxiliaryBombPrefab, GameObject realBombPrefab, Sprite enemySprite)
+        GameObject enemyPrefab, GameObject auxiliaryBombPrefab, GameObject realBombPrefab, 
+        GameObject wallPrefab, Sprite enemySprite)
     {
         // 1. One-time Init (Find objects, cache references, set listeners)
         if (!_isInitialized)
@@ -79,6 +82,7 @@ public class StageRoot : MonoBehaviour
             this.enemyPrefab = enemyPrefab;
             this.auxiliaryBombPrefab = auxiliaryBombPrefab;
             this.realBombPrefab = realBombPrefab;
+            this.wallPrefab = wallPrefab;
             this.enemySprite = enemySprite;
             
             // Find managers in children
@@ -87,6 +91,7 @@ public class StageRoot : MonoBehaviour
             bombManager = GetComponentInChildren<BombManager>();
             boardManager = GetComponentInChildren<BoardManager>();
             itemManager = GetComponentInChildren<ItemManager>();
+            wallManager = GetComponentInChildren<WallManager>();
 
             // Register all managers with the GameService
             GameService.Register(gameManager);
@@ -94,6 +99,7 @@ public class StageRoot : MonoBehaviour
             GameService.Register(bombManager);
             GameService.Register(boardManager);
             GameService.Register(itemManager);
+            GameService.Register(wallManager);
             
             // Find item prefabs and UI
             ItemPrefabLibrary itemPrefabLibrary = GetComponentInChildren<ItemPrefabLibrary>();
@@ -210,6 +216,7 @@ public class StageRoot : MonoBehaviour
             skyblueBombChecked, realBombChecked,
             explodeButtonText);
         itemManager.Initialize(itemPrefabs, itemSet, itemButtonTexts);
+        wallManager.Initialize(wallPrefab);
 
         // Now that all managers are initialized, clear the stage.
         gameManager.ClearStage();
@@ -222,7 +229,8 @@ public class StageRoot : MonoBehaviour
         enemyManager.SetEnemyPrefab(enemyPrefab);
         enemyManager.SetEnemySprite(enemySprite);
         
-        // Create enemies for this stage
+        // Create walls and enemies for this stage'
+        gameManager.CreateWall();
         gameManager.CreateEnemy();
     }
     

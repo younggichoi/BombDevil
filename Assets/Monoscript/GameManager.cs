@@ -8,10 +8,11 @@ using TMPro;
 public partial class GameManager : MonoBehaviour
 {
     // Manager references (set via Initialize)
-    private EnemyManager enemyManager;
+    /*private EnemyManager enemyManager;
     private BombManager bombManager;
     private ItemManager itemManager;
     private BoardManager boardManager;
+    private WallManager wallManager;*/
     // setting option from StageManager (common set)
     private float _walkDuration;
     private float _knockbackDuration;
@@ -129,7 +130,7 @@ public partial class GameManager : MonoBehaviour
         _defaultItemSprite = sprite;
     }
 
-    public void SetBoardManager(BoardManager boardManager)
+    /*public void SetBoardManager(BoardManager boardManager)
     {
         this.boardManager = boardManager;
     }
@@ -137,7 +138,7 @@ public partial class GameManager : MonoBehaviour
     public void SetBombManager(BombManager bombManager)
     {
         this.bombManager = bombManager;
-    }
+    }*/
 
     public void SetStageStatsUI(TMP_Text stageText, TMP_Text timeText, TMP_Text turnText)
     {
@@ -364,6 +365,20 @@ public partial class GameManager : MonoBehaviour
                 _itemManager = GameService.Get<ItemManager>();
             }
             return _itemManager;
+        }
+    }
+
+    private WallManager _wallManager;
+    private WallManager WallManager
+    {
+        get
+        {
+            if (_wallManager == null)
+            {
+                _wallManager = GameService.Get<WallManager>();
+            }
+
+            return _wallManager;
         }
     }
 }
