@@ -71,23 +71,21 @@ public partial class GameManager : MonoBehaviour
     // Check if a bomb exists at the given cell (ignores enemies)
     private bool HasBombAt(int x, int y)
     {
-        if (x < 0 || x >= _width || y < 0 || y >= _height) return false;
-        foreach (var obj in _board[x, y])
-        {
-            if (obj == null) continue;
-            if (obj.GetComponent<AuxiliaryBomb>() != null) return true;
-            if (obj.GetComponent<RealBomb>() != null) return true;
-        }
-        return false;
+        return HasObjectAt(x, y, typeof(AuxiliaryBomb)) || HasObjectAt(x, y, typeof(RealBomb));
     }
 
     private bool HasItemAt(int x, int y)
+    {
+        return HasObjectAt(x, y, typeof(Item));
+    }
+
+    private bool HasObjectAt(int x, int y, System.Type componentType)
     {
         if (x < 0 || x >= _width || y < 0 || y >= _height) return false;
         foreach (var obj in _board[x, y])
         {
             if (obj == null) continue;
-            if (obj.GetComponent<Item>() != null) return true;
+            if (obj.GetComponent(componentType) != null) return true;
         }
         return false;
     }
