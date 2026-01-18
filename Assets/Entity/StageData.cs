@@ -7,6 +7,7 @@ namespace Entity
         public int width;
         public int height;
         public int enemyNumber;
+        public int wallNumber;
         
         // Turn limit for the stage
         public int remainingTurns;

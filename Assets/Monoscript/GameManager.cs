@@ -21,6 +21,7 @@ public partial class GameManager : MonoBehaviour
     private int _width;
     private int _height;
     private int _enemyNumber;
+    private int _wallNumber;
     private int _initial1stBomb;
     private int _initial2ndBomb;
     private int _initial3rdBomb;
@@ -190,6 +191,7 @@ public partial class GameManager : MonoBehaviour
         _width = editorData.width;
         _height = editorData.height;
         _enemyNumber = editorData.enemyNumber;
+        _wallNumber = editorData.wallNumber;
         _remainingTurns = editorData.remainingTurns;
         _boardSpritePath = editorData.boardSpritePath;
 

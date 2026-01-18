@@ -6,7 +6,7 @@ public partial class GameManager : MonoBehaviour
     {
         DeleteWall();
         int currentWall = 0;
-        while (currentWall < 5) //TODO: remove hardcoding
+        while (currentWall < _wallNumber) //TODO: remove hardcoding
         {
             int x = UnityEngine.Random.Range(0, _width);
             int y = UnityEngine.Random.Range(0, _height);

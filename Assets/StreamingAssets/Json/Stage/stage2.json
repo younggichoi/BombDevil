@@ -1,8 +1,9 @@
 {
     "stageId": 1,
-    "width": 7,
-    "height": 7,
+    "width": 8,
+    "height": 8,
     "enemyNumber": 10,
+    "wallNumber": 10,
     "remainingTurns": 20,
     "boardSpritePath": "Sprites/Boards/board_7x7"
 }

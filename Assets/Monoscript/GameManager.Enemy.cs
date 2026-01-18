@@ -242,7 +242,7 @@ public partial class GameManager : MonoBehaviour
                 Vector2Int finalDirection = new Vector2Int(currentX - x - normalizedDir.x, currentY - y - normalizedDir.y);
                 enemy.Knockback(finalDirection);
                 _board[Mod(x + finalDirection.x, _width), Mod(y + finalDirection.y, _height)].Add(obj);
-                if (!isKnockback)
+                if (!isKnockback) //그냥 이동하는 경우 방향을 바꿈
                 {
                     enemy.SetDirection(-normalizedDir);
                 }
