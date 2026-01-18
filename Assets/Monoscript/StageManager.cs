@@ -76,7 +76,7 @@ public class StageManager : MonoBehaviour
             enemyColor);
         
         StageRoot stageRoot = currStage.GetComponent<StageRoot>();
-        stageRoot.Install(stageId, commonData, enemyPrefab, auxiliaryBombPrefab, realBombPrefab, enemySprite);
+        stageRoot.Install(stageId, commonData, enemyPrefab, auxiliaryBombPrefab, realBombPrefab, wallPrefab, enemySprite);
         
         // Subscribe to game state changed event
         _currentGameManager = stageRoot.GameManager;

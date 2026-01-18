@@ -168,6 +168,12 @@ public class Enemy : MonoBehaviour
         ApplyDirectionRotation();
     }
 
+    public void SetDirection(Vector2Int direction)
+    {
+        _moveDirection = direction;
+        ApplyDirectionRotation();
+    }
+
     // internal move API
     // directionAndDistance: the vector from current position to target cell (in board units, not normalized)
     private IEnumerator Move(Vector2Int directionAndDistance, float duration)

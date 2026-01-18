@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -114,7 +115,7 @@ public partial class GameManager : MonoBehaviour
             {
                 // Bombs can knock back stunned enemies
                 Vector2Int dirAndDist = GetDirectionAndDistance(x, y, targetX, targetY) * distance;
-                HandleMoveInBoard(targetX, targetY, obj, dirAndDist); // 1 step in that direction for board update
+                HandleMoveInBoard(targetX, targetY, obj, dirAndDist, true); // 1 step in that direction for board update
             }
         }
     }
@@ -147,20 +148,14 @@ public partial class GameManager : MonoBehaviour
                     Vector2Int knockbackDir;
                     
                     // Move away from the NEAREST axis
-                    if (Mathf.Abs(dx) < Mathf.Abs(dy))
+                    knockbackDir = Vector2Int.zero;
+                    if (Mathf.Abs(dx) == 1)
                     {
-                        // Closer to vertical axis (bombX) → move away horizontally
-                        knockbackDir = new Vector2Int(dx > 0 ? 1 : -1, 0);
+                        knockbackDir += new Vector2Int(dx, 0);
                     }
-                    else if (Mathf.Abs(dx) > Mathf.Abs(dy))
+                    if (Mathf.Abs(dy) == 1)
                     {
-                        // Closer to horizontal axis (bombY) → move away vertically
-                        knockbackDir = new Vector2Int(0, dy > 0 ? 1 : -1);
-                    }
-                    else
-                    {
-                        // Equal distance → move diagonally away from both axes
-                        knockbackDir = new Vector2Int(dx > 0 ? 1 : -1, dy > 0 ? 1 : -1);
+                        knockbackDir += new Vector2Int(0, dy);
                     }
                     
                     Debug.Log($"SkyblueBomb: Enemy at ({ex}, {ey}), dx={dx}, dy={dy}, knockback={knockbackDir}");
@@ -172,7 +167,7 @@ public partial class GameManager : MonoBehaviour
         // Then, process all knockbacks (separate loop to avoid collection modification during iteration)
         foreach (var (ex, ey, obj, knockbackDir) in enemiesToMove)
         {
-            HandleMoveInBoard(ex, ey, obj, knockbackDir);
+            HandleMoveInBoard(ex, ey, obj, knockbackDir, true);
         }
     }
     
@@ -204,7 +199,7 @@ public partial class GameManager : MonoBehaviour
     }
 
     // directionAndDistance: the vector from (x, y) to the new cell (in board units)
-    private void HandleMoveInBoard(int x, int y, GameObject obj, Vector2Int directionAndDistance)
+    private void HandleMoveInBoard(int x, int y, GameObject obj, Vector2Int directionAndDistance, bool isKnockback)
     {
         if (obj == null)
             return;
@@ -223,10 +218,38 @@ public partial class GameManager : MonoBehaviour
                 }
             }
         }
-
-        Vector2Int? entryTeleporterPos;
-        Vector2Int? exitTeleporterPos = HandleTeleporter(x, y, obj, directionAndDistance, out entryTeleporterPos);
-
+        
+        //Handle teleporters and walls
+        Vector2Int? entryTeleporterPos = null;
+        Vector2Int? exitTeleporterPos = null;
+        int steps = Mathf.Max(Mathf.Abs(directionAndDistance.x), Mathf.Abs(directionAndDistance.y));
+        Vector2Int normalizedDir = directionAndDistance / steps;
+        for (int step = 1; step <= steps; step++)
+        {
+            int currentX = Mod(x + normalizedDir.x * step, _width);
+            int currentY = Mod(y + normalizedDir.y * step, _height);
+            if (IsTeleporterAt(new Vector2Int(currentX, currentY)))
+            {
+                entryTeleporterPos = new Vector2Int(currentX, currentY);
+                Vector2Int? otherTele = FindOtherTeleporter(new Vector2Int(currentX, currentY));
+                if (otherTele.HasValue)
+                {
+                    exitTeleporterPos = new Vector2Int(otherTele.Value.x, otherTele.Value.y);
+                }
+            }
+            if(HasObjectAt(currentX, currentY, typeof(Wall)))
+            {
+                Vector2Int finalDirection = new Vector2Int(currentX - x - normalizedDir.x, currentY - y - normalizedDir.y);
+                enemy.Knockback(finalDirection);
+                _board[Mod(x + finalDirection.x, _width), Mod(y + finalDirection.y, _height)].Add(obj);
+                if (!isKnockback) //그냥 이동하는 경우 방향을 바꿈
+                {
+                    enemy.SetDirection(-normalizedDir);
+                }
+                return;
+            }
+        }
+        
         if (exitTeleporterPos.HasValue && entryTeleporterPos.HasValue)
         {
             // The enemy's path is interrupted by a teleporter.
@@ -280,7 +303,7 @@ public partial class GameManager : MonoBehaviour
         return null;
     }
 
-    private Vector2Int? HandleTeleporter (int x, int y, GameObject obj, Vector2Int directionAndDistance, out Vector2Int? entryPoint)
+    /*private Vector2Int? HandleTeleporter (int x, int y, GameObject obj, Vector2Int directionAndDistance, out Vector2Int? entryPoint)
     {
         entryPoint = null;
         int steps = Mathf.Max(Mathf.Abs(directionAndDistance.x), Mathf.Abs(directionAndDistance.y));
@@ -300,5 +323,21 @@ public partial class GameManager : MonoBehaviour
         }
         return null;
     }
-    
+
+    private Vector2Int? HandleWall(int x, int y, GameObject obj, Vector2Int directionAndDistance,
+        out Vector2Int? stopPoint)
+    {
+        stopPoint = null;
+        int steps = Mathf.Max(Mathf.Abs(directionAndDistance.x), Mathf.Abs(directionAndDistance.y));
+        for (int step = 1; step <= steps; step++)
+        {
+            int currentX = Mod(x + directionAndDistance.x * step / steps, _width);
+            int currentY = Mod(y + directionAndDistance.y * step / steps, _height);
+            if (HasObjectAt(currentX, currentY, typeof(Wall)))
+            {
+                stopPoint = new Vector2Int(currentX - directionAndDistance.x * step / steps,
+                    currentY - directionAndDistance.y * step / steps);
+            }
+        }
+    }*/
 }

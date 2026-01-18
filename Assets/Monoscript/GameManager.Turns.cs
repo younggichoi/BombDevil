@@ -182,7 +182,7 @@ public partial class GameManager : MonoBehaviour
             if (!enemy.IsStunned)
             {
                 Vector2Int dirAndDist = enemy.GetMoveDirection();
-                HandleMoveInBoard(x, y, obj, dirAndDist);
+                HandleMoveInBoard(x, y, obj, dirAndDist, false);
             }
         }
 

@@ -8,10 +8,11 @@ using TMPro;
 public partial class GameManager : MonoBehaviour
 {
     // Manager references (set via Initialize)
-    private EnemyManager enemyManager;
+    /*private EnemyManager enemyManager;
     private BombManager bombManager;
     private ItemManager itemManager;
     private BoardManager boardManager;
+    private WallManager wallManager;*/
     // setting option from StageManager (common set)
     private float _walkDuration;
     private float _knockbackDuration;
@@ -20,6 +21,7 @@ public partial class GameManager : MonoBehaviour
     private int _width;
     private int _height;
     private int _enemyNumber;
+    private int _wallNumber;
     private int _initial1stBomb;
     private int _initial2ndBomb;
     private int _initial3rdBomb;
@@ -129,7 +131,7 @@ public partial class GameManager : MonoBehaviour
         _defaultItemSprite = sprite;
     }
 
-    public void SetBoardManager(BoardManager boardManager)
+    /*public void SetBoardManager(BoardManager boardManager)
     {
         this.boardManager = boardManager;
     }
@@ -137,7 +139,7 @@ public partial class GameManager : MonoBehaviour
     public void SetBombManager(BombManager bombManager)
     {
         this.bombManager = bombManager;
-    }
+    }*/
 
     public void SetStageStatsUI(TMP_Text stageText, TMP_Text timeText, TMP_Text turnText)
     {
@@ -176,8 +178,8 @@ public partial class GameManager : MonoBehaviour
     }
 
     private void SetStageState(int stageId)
-    {
-                                                                string path = Path.Combine(Application.streamingAssetsPath, "Json/Stage/stage" + stageId + ".json");
+    { 
+        string path = Path.Combine(Application.streamingAssetsPath, "Json/Stage/stage" + stageId + ".json");
         if (!File.Exists(path))
         {
             Debug.LogError($"Failed to load stage{stageId}.json from {path}");
@@ -189,6 +191,7 @@ public partial class GameManager : MonoBehaviour
         _width = editorData.width;
         _height = editorData.height;
         _enemyNumber = editorData.enemyNumber;
+        _wallNumber = editorData.wallNumber;
         _remainingTurns = editorData.remainingTurns;
         _boardSpritePath = editorData.boardSpritePath;
 
@@ -215,6 +218,7 @@ public partial class GameManager : MonoBehaviour
 
     void Update()
     {
+        _bombTypeChanged = false; //TODO: bombTypeChanged is only a temporary measure; full fix required later
         if (_board == null || _currentState != GameState.Playing)
             return;
         _elapsedTime += Time.deltaTime;
@@ -223,6 +227,70 @@ public partial class GameManager : MonoBehaviour
         var itemManager = GameService.Get<ItemManager>();
         var bombManager = GameService.Get<BombManager>();
 
+        if (Input.GetMouseButtonDown(0))
+            MouseClickProcess();
+
+        if (Input.GetMouseButtonDown(1))
+            MouseRightClickProcess();
+        
+        // --- Bomb Selection Input ---
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            ExitRemoveMode();
+            itemManager?.ClearCurrentItemType();
+            if (bombManager != null) bombManager.SetCurrentBombType(BombType.FirstBomb);
+            _bombTypeChanged = true;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            ExitRemoveMode();
+            itemManager?.ClearCurrentItemType();
+            if (bombManager != null) bombManager.SetCurrentBombType(BombType.SecondBomb);
+            _bombTypeChanged = true;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            ExitRemoveMode();
+            itemManager?.ClearCurrentItemType();
+            if (bombManager != null) bombManager.SetCurrentBombType(BombType.ThirdBomb);
+            _bombTypeChanged = true;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            ExitRemoveMode();
+            itemManager?.ClearCurrentItemType();
+            if (bombManager != null) bombManager.SetCurrentBombType(BombType.FourthBomb);
+            _bombTypeChanged = true;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha5))
+        {
+            ExitRemoveMode();
+            itemManager?.ClearCurrentItemType();
+            if (bombManager != null) bombManager.SetCurrentBombType(BombType.FifthBomb);
+            _bombTypeChanged = true;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha6))
+        {
+            ExitRemoveMode();
+            itemManager?.ClearCurrentItemType();
+            if (bombManager != null) bombManager.SetCurrentBombType(BombType.SixthBomb);
+            _bombTypeChanged = true;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha7))
+        {
+            ExitRemoveMode();
+            itemManager?.ClearCurrentItemType();
+            if (bombManager != null) bombManager.SetCurrentBombType(BombType.SkyblueBomb);
+            _bombTypeChanged = true;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha8))
+        {
+            ExitRemoveMode();
+            itemManager?.ClearCurrentItemType();
+            if (bombManager != null) bombManager.SetCurrentBombType(BombType.RealBomb);
+            _bombTypeChanged = true;
+        }
+        
         // Show item preview if item is selected, otherwise bomb preview, otherwise remove preview, otherwise hide all
         if (itemManager != null && itemManager.HasItemSelected())
         {
@@ -248,62 +316,6 @@ public partial class GameManager : MonoBehaviour
             HidePreview();
             HideRemovePreview();
         }
-
-        if (Input.GetMouseButtonDown(0))
-            MouseClickProcess();
-
-        if (Input.GetMouseButtonDown(1))
-            MouseRightClickProcess();
-        
-        // --- Bomb Selection Input ---
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-        {
-            ExitRemoveMode();
-            itemManager?.ClearCurrentItemType();
-            if (bombManager != null) bombManager.SetCurrentBombType(BombType.FirstBomb);
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            ExitRemoveMode();
-            itemManager?.ClearCurrentItemType();
-            if (bombManager != null) bombManager.SetCurrentBombType(BombType.SecondBomb);
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
-            ExitRemoveMode();
-            itemManager?.ClearCurrentItemType();
-            if (bombManager != null) bombManager.SetCurrentBombType(BombType.ThirdBomb);
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha4))
-        {
-            ExitRemoveMode();
-            itemManager?.ClearCurrentItemType();
-            if (bombManager != null) bombManager.SetCurrentBombType(BombType.FourthBomb);
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha5))
-        {
-            ExitRemoveMode();
-            itemManager?.ClearCurrentItemType();
-            if (bombManager != null) bombManager.SetCurrentBombType(BombType.FifthBomb);
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha6))
-        {
-            ExitRemoveMode();
-            itemManager?.ClearCurrentItemType();
-            if (bombManager != null) bombManager.SetCurrentBombType(BombType.SixthBomb);
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha7))
-        {
-            ExitRemoveMode();
-            itemManager?.ClearCurrentItemType();
-            if (bombManager != null) bombManager.SetCurrentBombType(BombType.SkyblueBomb);
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha8))
-        {
-            ExitRemoveMode();
-            itemManager?.ClearCurrentItemType();
-            if (bombManager != null) bombManager.SetCurrentBombType(BombType.RealBomb);
-        }
     }
 
     private BoardManager _boardManager;
@@ -311,7 +323,6 @@ public partial class GameManager : MonoBehaviour
     {
         get
         {
-            Debug.Log("Getting BoardManager");
             if (_boardManager == null)
             {
                 _boardManager = GameService.Get<BoardManager>();
@@ -325,7 +336,6 @@ public partial class GameManager : MonoBehaviour
     {
         get
         {
-            Debug.Log("Getting EnemyManager");
             if (_enemyManager == null)
             {
                 _enemyManager = GameService.Get<EnemyManager>();
@@ -339,7 +349,6 @@ public partial class GameManager : MonoBehaviour
     {
         get
         {
-            Debug.Log("Getting BombManager");
             if (_bombManager == null)
             {
                 _bombManager = GameService.Get<BombManager>();
@@ -353,12 +362,25 @@ public partial class GameManager : MonoBehaviour
     {
         get
         {
-            Debug.Log("Getting ItemManager");
             if (_itemManager == null)
             {
                 _itemManager = GameService.Get<ItemManager>();
             }
             return _itemManager;
+        }
+    }
+
+    private WallManager _wallManager;
+    private WallManager WallManager
+    {
+        get
+        {
+            if (_wallManager == null)
+            {
+                _wallManager = GameService.Get<WallManager>();
+            }
+
+            return _wallManager;
         }
     }
 }

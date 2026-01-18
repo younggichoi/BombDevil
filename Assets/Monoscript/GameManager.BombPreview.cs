@@ -4,6 +4,7 @@ using Entity;
 
 public partial class GameManager : MonoBehaviour
 {
+    private bool _bombTypeChanged;
     private void UpdateBombPreview()
     {
         if (_isTurnInProgress)
@@ -23,8 +24,9 @@ public partial class GameManager : MonoBehaviour
         if (x >= 0 && x < _width && y >= 0 && y < _height && !HasBombAt(x, y))
         {
             Vector2Int currentCell = new Vector2Int(x, y);
-            if (currentCell != _lastHoveredCell)
+            if (currentCell != _lastHoveredCell || _bombTypeChanged)
             {
+                Debug.Log("Bomb preview updated");
                 ShowPreview(x, y);
                 _lastHoveredCell = currentCell;
             }
@@ -233,18 +235,14 @@ public partial class GameManager : MonoBehaviour
                         // Skip if on axis
                         if (dx == 0 || dy == 0) continue;
                         
-                        Vector2Int knockbackDir;
-                        if (Mathf.Abs(dx) < Mathf.Abs(dy))
+                        Vector2Int knockbackDir = Vector2Int.zero;
+                        if (Mathf.Abs(dx) == 1)
                         {
-                            knockbackDir = new Vector2Int(dx > 0 ? 1 : -1, 0);
+                            knockbackDir += new Vector2Int(dx, 0);
                         }
-                        else if (Mathf.Abs(dx) > Mathf.Abs(dy))
+                        if (Mathf.Abs(dy) == 1)
                         {
-                            knockbackDir = new Vector2Int(0, dy > 0 ? 1 : -1);
-                        }
-                        else
-                        {
-                            knockbackDir = new Vector2Int(dx > 0 ? 1 : -1, dy > 0 ? 1 : -1);
+                            knockbackDir += new Vector2Int(0, dy);
                         }
                         predictedPos = new Vector2Int(
                             Mod(ex + knockbackDir.x, _width),
