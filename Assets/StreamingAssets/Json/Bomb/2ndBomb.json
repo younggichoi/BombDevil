@@ -2,5 +2,7 @@
     "bombType": "SecondBomb",
     "range": 1,
     "knockbackDistance": 2,
-    "colorHex": "#FFB347"
+    "colorHex": "#FFB347",
+    "fieldSpriteName": "bomb_field_2_3",
+    "iconSpriteName": "bomb_icon_2_2"
 }

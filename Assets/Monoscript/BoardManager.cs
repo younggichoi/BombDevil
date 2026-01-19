@@ -6,7 +6,7 @@ public class BoardManager : MonoBehaviour
     private GameObject[,] _tiles;
     
     // Parent object for tiles
-    private Transform _tileParent;
+    private GameObject _boardObject;
     
     // fixed board size on screen (units)
     private float fixedBoardSize = 8f;
@@ -24,15 +24,18 @@ public class BoardManager : MonoBehaviour
 
     public void ClearBoard()
     {
-        if (_tileParent != null)
+        if (_boardObject != null)
         {
-            Destroy(_tileParent.gameObject);
+            Destroy(_boardObject);
         }
         _tiles = null;
     }
 
-    public void Initialize(Sprite boardSpritePrefab)
+    // x and y are correction values based on the sprite's relative position
+    public void Initialize(Sprite fieldSprite, float x, float y)
     {
+        ClearBoard();
+
         var gameManager = GameService.Get<GameManager>();
         if (gameManager == null) return;
 
@@ -41,8 +44,14 @@ public class BoardManager : MonoBehaviour
         
         // Calculate cell size based on largest dimension
         _cellSize = fixedBoardSize / Mathf.Max(_width, _height);
+
+        _boardObject = new GameObject("BoardBackground");
+        _boardObject.transform.position = new Vector3(x, y, 0);
+        SpriteRenderer boardRenderer = _boardObject.AddComponent<SpriteRenderer>();
+        boardRenderer.sprite = fieldSprite;
+        boardRenderer.sortingOrder = -10;
         
-        // Create the tile grid
+        // Create the tile grid 
         CreateTileGrid();
     }
     
@@ -50,22 +59,18 @@ public class BoardManager : MonoBehaviour
     private void CreateTileGrid()
     {
         Debug.Log("BoardManager: Creating tile grid");
-        // Create parent object for tiles
-        GameObject parentObj = new GameObject("BoardTiles");
-        parentObj.transform.position = Vector3.zero;
-        _tileParent = parentObj.transform;
         
         _tiles = new GameObject[_width, _height];
         
         // Create a simple square sprite for tiles
-        Sprite tileSprite = CreateSquareSprite();
+        // Sprite tileSprite = CreateSquareSprite();
         
         for (int x = 0; x < _width; x++)
         {
             for (int y = 0; y < _height; y++)
             {
                 GameObject tile = new GameObject($"Tile_{x}_{y}");
-                tile.transform.SetParent(_tileParent);
+                tile.transform.SetParent(_boardObject.transform);
                 
                 // Position the tile
                 tile.transform.position = GridToWorld(x, y);
@@ -73,12 +78,12 @@ public class BoardManager : MonoBehaviour
                 
                 // Add sprite renderer
                 SpriteRenderer sr = tile.AddComponent<SpriteRenderer>();
-                sr.sprite = tileSprite;
+                // sr.sprite = tileSprite;
                 sr.sortingOrder = -10;
                 
                 // Apply checkerboard pattern
-                bool isLight = (x + y) % 2 == 0;
-                sr.color = isLight ? _lightTileColor : _darkTileColor;
+                // bool isLight = (x + y) % 2 == 0;
+                // sr.color = isLight ? _lightTileColor : _darkTileColor;
                 
                 _tiles[x, y] = tile;
             }

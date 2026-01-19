@@ -2,5 +2,7 @@
     "bombType": "FourthBomb",
     "range": 1,
     "knockbackDistance": 4,
-    "colorHex": "#6BCB77"
+    "colorHex": "#6BCB77",
+    "fieldSpriteName": "bomb_field_4_3",
+    "iconSpriteName": "bomb_icon_4_2"
 }

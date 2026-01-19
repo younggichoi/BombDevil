@@ -1,6 +1,7 @@
 using UnityEngine;
 using Entity;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class StageManager : MonoBehaviour
 {
@@ -15,6 +16,11 @@ public class StageManager : MonoBehaviour
     public GameObject realBombPrefab;
     public GameObject wallPrefab;
     public Sprite enemySprite;
+    public Sprite fieldSprite;
+    public Dictionary<BombType, Sprite> bombFieldSprites;
+    public Dictionary<BombType, Sprite> bombIconSprites;
+    public Dictionary<ItemType, Sprite> itemFieldSprites;
+    public Dictionary<ItemType, Sprite> itemIconSprites;
     
     // StageRoot prefab
     public GameObject stageRootPrefab;
@@ -31,7 +37,7 @@ public class StageManager : MonoBehaviour
     void Start()
     {
         StartGame();
-        
+
         // Find the reset button and add a listener
         Button resetButton = GameObject.Find("ResetButton")?.GetComponent<Button>();
         if (resetButton != null)
@@ -76,7 +82,8 @@ public class StageManager : MonoBehaviour
             enemyColor);
         
         StageRoot stageRoot = currStage.GetComponent<StageRoot>();
-        stageRoot.Install(stageId, commonData, enemyPrefab, auxiliaryBombPrefab, realBombPrefab, wallPrefab, enemySprite);
+
+        stageRoot.Install(stageId, commonData, enemyPrefab, auxiliaryBombPrefab, realBombPrefab, wallPrefab, enemySprite, fieldSprite);
         
         // Subscribe to game state changed event
         _currentGameManager = stageRoot.GameManager;

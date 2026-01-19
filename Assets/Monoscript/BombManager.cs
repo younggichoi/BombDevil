@@ -162,6 +162,8 @@ public class BombManager : MonoBehaviour
         
         string json = File.ReadAllText(path);
         BombData bombData = JsonUtility.FromJson<BombData>(json);
+        bombData.fieldSprite = Resources.Load<Sprite>($"Sprites/Bomb/{bombData.fieldSpriteName}");
+        bombData.iconSprite = Resources.Load<Sprite>($"Sprites/Bomb/{bombData.iconSpriteName}");
         BombType bombType = bombData.GetBombType();
         _bombDataDict[bombType] = bombData;
         

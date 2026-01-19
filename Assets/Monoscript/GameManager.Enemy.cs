@@ -61,20 +61,38 @@ public partial class GameManager : MonoBehaviour
     private List<(int targetX, int targetY, GameObject obj)> FindEnemiesInRange(int x, int y, int range)
     {
         List<(int targetX, int targetY, GameObject obj)> target = new List<(int, int, GameObject)>();
-        for (int r = 1; r <= range; r++)
+
+        // for (int r = 1; r <= range; r++)
+        // {
+        //     for(int dx = -r; dx <= r; dx++)
+        //     {
+        //         for(int dy = -r; dy <= r; dy++)
+        //         {
+        //             int targetX = Mod(x + dx, _width);
+        //             int targetY = Mod(y + dy, _height);
+        //             foreach (var obj in _board[targetX, targetY])
+        //             {
+        //                 if (obj != null && obj.GetComponent<Enemy>() != null)
+        //                 {
+        //                     target.Add((targetX, targetY, obj));
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
+
+        // optimization: remove redundant loop
+        for(int dx = -range; dx <= range; dx++)
         {
-            for(int dx = -r; dx <= r; dx++)
+            for(int dy = -range; dy <= range; dy++)
             {
-                for(int dy = -r; dy <= r; dy++)
+                int targetX = Mod(x + dx, _width);
+                int targetY = Mod(y + dy, _height);
+                foreach (var obj in _board[targetX, targetY])
                 {
-                    int targetX = Mod(x + dx, _width);
-                    int targetY = Mod(y + dy, _height);
-                    foreach (var obj in _board[targetX, targetY])
+                    if (obj != null && obj.GetComponent<Enemy>() != null)
                     {
-                        if (obj != null && obj.GetComponent<Enemy>() != null)
-                        {
-                            target.Add((targetX, targetY, obj));
-                        }
+                        target.Add((targetX, targetY, obj));
                     }
                 }
             }
@@ -207,17 +225,20 @@ public partial class GameManager : MonoBehaviour
         if (enemy == null)
             return;
 
-        // Remove enemy from all cells to ensure uniqueness
-        for (int i = 0; i < _width; i++)
-        {
-            for (int j = 0; j < _height; j++)
-            {
-                if (_board[i, j].Contains(obj))
-                {
-                    _board[i, j].Remove(obj);
-                }
-            }
-        }
+        // // Remove enemy from all cells to ensure uniqueness
+        // for (int i = 0; i < _width; i++)
+        // {
+        //     for (int j = 0; j < _height; j++)
+        //     {
+        //         if (_board[i, j].Contains(obj))
+        //         {
+        //             _board[i, j].Remove(obj);
+        //         }
+        //     }
+        // }
+
+        // optimization: remove enemy from current cell
+        _board[x, y].Remove(obj);
         
         //Handle teleporters and walls
         Vector2Int? entryTeleporterPos = null;

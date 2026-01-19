@@ -19,7 +19,13 @@ public class AuxiliaryBomb : MonoBehaviour
         SpriteRenderer sr = GetComponent<SpriteRenderer>();
         if (sr != null)
         {
-            sr.color = bombData.GetColor();
+            if (bombData.fieldSprite != null)
+            {
+                sr.sprite = bombData.fieldSprite;
+            } else
+            {
+                sr.color = bombData.GetColor();
+            }
         }
     }
     

@@ -75,6 +75,8 @@ public class ItemManager : MonoBehaviour
         }
         string json = File.ReadAllText(path);
         ItemData data = JsonUtility.FromJson<ItemData>(json);
+        data.fieldSprite = Resources.Load<Sprite>("Sprites/Item/" + data.fieldSpriteName);
+        data.iconSprite = Resources.Load<Sprite>("Sprites/Item/" + data.iconSpriteName);
         if (System.Enum.TryParse(itemTypeName, out ItemType type))
         {
             _itemDataDict[type] = data;
@@ -184,11 +186,16 @@ public class ItemManager : MonoBehaviour
 
         // Load and assign sprite if possible
         var sr = item.GetComponent<SpriteRenderer>();
-        if (sr != null && itemData != null && !string.IsNullOrEmpty(itemData.spriteName))
+        if (sr != null && itemData != null && itemData.fieldSprite != null)
         {
-            Sprite sprite = Resources.Load<Sprite>("ItemSprites/" + itemData.spriteName);
-            if (sprite != null)
-                sr.sprite = sprite;
+            sr.sprite = itemData.fieldSprite;
+            // Scale sprite to fit exactly one cell
+            float cellSize = _boardManager.GetCellSize();
+            Vector2 spriteSize = sr.sprite.bounds.size;
+            float scaleX = cellSize / spriteSize.x;
+            float scaleY = cellSize / spriteSize.y;
+            float scale = Mathf.Min(scaleX, scaleY);  // Keep aspect ratio, fit within cell
+            item.transform.localScale = Vector3.one * scale;
         }
 
         // Add Item component to identify it later
@@ -197,7 +204,7 @@ public class ItemManager : MonoBehaviour
 
         _leftoverItems[itemType]--;
         UpdateAllItemButtonTexts();
-        Debug.Log($"Placed item {itemType} at ({x}, {y}). Leftover: {_leftoverItems[itemType]}");
+        Debug.Log($"Placed item {itemType} at ({x}, {y}). Leftover: {_leftoverItems[itemType]}.");
         return item;
     }
 

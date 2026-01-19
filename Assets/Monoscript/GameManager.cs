@@ -47,8 +47,6 @@ public partial class GameManager : MonoBehaviour
     // combined item order (tracks all items in placement order)
     private List<(Vector2Int coord, ItemType itemType)> _allItems;
     private List<Vector2Int> _teleporters;
-    // default item sprite for preview
-    private Sprite _defaultItemSprite;
     // RealBomb kill tracking
     private int _realBombKillCount = 0;
     private int _totalEnemyCount = 0;
@@ -69,7 +67,6 @@ public partial class GameManager : MonoBehaviour
     private List<GameObject> _rangeIndicators;
     private List<GameObject> _enemyPredictionIndicators;  // Shows predicted enemy positions
     private Vector2Int _lastHoveredCell = new Vector2Int(-1, -1);
-    private Sprite _defaultBombSprite;
     // Remove mode
     private bool _isRemoveMode = false;
     private GameObject _removeIndicator;  // X marker for remove mode
@@ -84,7 +81,7 @@ public partial class GameManager : MonoBehaviour
 
     public void ClearStage()
     {
-        GameService.Get<BoardManager>()?.ClearBoard();
+        // GameService.Get<BoardManager>()?.ClearBoard();
         GameService.Get<BombManager>()?.ClearBombs();
         GameService.Get<EnemyManager>()?.ClearEnemies();
         GameService.Get<ItemManager>()?.ClearItems();
@@ -122,14 +119,14 @@ public partial class GameManager : MonoBehaviour
         _currentState = GameState.Playing;
 
         //TODO: this is only a temporary fix. Need to find the real reason for the bug.
-        GameService.Get<BoardManager>()?.Initialize(null);
+        // GameService.Get<BoardManager>()?.Initialize(fieldSprite, 0.5f, -0.5f);
         GameService.Register(this);
     }
     // Set default item sprite for item preview
-    public void SetDefaultItemSprite(Sprite sprite)
-    {
-        _defaultItemSprite = sprite;
-    }
+    // public void SetDefaultItemSprite(Sprite sprite)
+    // {
+    //     _defaultItemSprite = sprite;
+    // }
 
     /*public void SetBoardManager(BoardManager boardManager)
     {
@@ -155,10 +152,10 @@ public partial class GameManager : MonoBehaviour
         SetInfoMessage("Player's turn");
     }
 
-    public void SetDefaultBombSprite(Sprite sprite)
-    {
-        _defaultBombSprite = sprite;
-    }
+    // public void SetDefaultBombSprite(Sprite sprite)
+    // {
+    //     _defaultBombSprite = sprite;
+    // }
 
     public void SetEnemyPrefab(GameObject enemyPrefab)
     {

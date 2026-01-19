@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 36a15043c77b5e4479e509ae3487e14a
+guid: 8794b58ab62681144bd8169ee3ad5a7b
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -712532704075654901
-    second: field8by8_0
+      213: 3942511161431534805
+    second: bomb_field_6_3_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: field8by8_0
+      name: bomb_field_6_3_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 1052
-        height: 1052
+        x: 39
+        y: 39
+        width: 402
+        height: 402
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b09d8b2e7439c16f0800000000000000
-      internalID: -712532704075654901
+      spriteID: 5dca324530d96b630800000000000000
+      internalID: 3942511161431534805
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      field8by8_0: -712532704075654901
+      bomb_field_6_3_0: 3942511161431534805
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

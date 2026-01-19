@@ -96,9 +96,9 @@ public partial class GameManager : MonoBehaviour
         // 폭탄 배치 처리
         if (!BombManager.HasBombSelected())
         {
-            int testX = GlobalToGridX(worldPos.x);
-            int testY = GlobalToGridY(worldPos.y);
-            if (testX >= 0 && testX < _width && testY >= 0 && testY < _height)
+            int x = GlobalToGridX(worldPos.x);
+            int y = GlobalToGridY(worldPos.y);
+            if (x >= 0 && x < _width && y >= 0 && y < _height)
             {
                 ShowTempMessage("No bomb has been selected!", 1f, "Player's turn");
             }

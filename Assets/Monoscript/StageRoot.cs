@@ -20,6 +20,7 @@ public class StageRoot : MonoBehaviour
     private GameObject realBombPrefab;
     private GameObject wallPrefab;
     private Sprite enemySprite;
+    private Sprite fieldSprite;
     
     // Scene objects (found by name)
     private Transform enemySet;
@@ -73,7 +74,7 @@ public class StageRoot : MonoBehaviour
 
     public void Install(int stageId, IngameCommonData commonData, 
         GameObject enemyPrefab, GameObject auxiliaryBombPrefab, GameObject realBombPrefab, 
-        GameObject wallPrefab, Sprite enemySprite)
+        GameObject wallPrefab, Sprite enemySprite, Sprite fieldSprite)
     {
         // 1. One-time Init (Find objects, cache references, set listeners)
         if (!_isInitialized)
@@ -84,6 +85,7 @@ public class StageRoot : MonoBehaviour
             this.realBombPrefab = realBombPrefab;
             this.wallPrefab = wallPrefab;
             this.enemySprite = enemySprite;
+            this.fieldSprite = fieldSprite;
             
             // Find managers in children
             gameManager = GetComponentInChildren<GameManager>();
@@ -206,7 +208,8 @@ public class StageRoot : MonoBehaviour
 
         // Initialize all managers with their scene references first.
         gameManager.Initialize(stageId, commonData);
-        boardManager.Initialize(null); // Sprite is not used, can be null
+        // Corrected via hardcoding
+        boardManager.Initialize(fieldSprite, 0.17f, -0.17f);
         enemyManager.Initialize(this.enemyPrefab, enemySet, this.enemySprite);
         bombManager.Initialize(this.auxiliaryBombPrefab, this.realBombPrefab, 
             auxiliaryBombSet, realBombSet,

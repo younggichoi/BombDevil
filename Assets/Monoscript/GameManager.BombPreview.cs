@@ -57,15 +57,21 @@ public partial class GameManager : MonoBehaviour
         SpriteRenderer ghostSr = _ghostBomb.GetComponent<SpriteRenderer>();
         if (ghostSr != null)
         {
-            if (_defaultBombSprite != null)
+            Color bombColor = Color.white;
+            if (bombData.fieldSprite != null)
             {
-                ghostSr.sprite = _defaultBombSprite;
+                ghostSr.sprite = bombData.fieldSprite;
+                Vector2 spriteSize = ghostSr.sprite.bounds.size;
+                float scaleX = cellSize / spriteSize.x;
+                float scaleY = cellSize / spriteSize.y;
+                float scale = Mathf.Min(scaleX, scaleY);  // Keep aspect ratio, fit within cell
+                _ghostBomb.transform.localScale = Vector3.one * scale;
             }
             else
             {
                 ghostSr.sprite = CreateSquareSprite();
+                bombColor = bombData.GetColor();
             }
-            Color bombColor = bombData.GetColor();
             bombColor.a = 0.5f;
             ghostSr.color = bombColor;
         }

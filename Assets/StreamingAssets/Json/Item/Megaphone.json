@@ -1,5 +1,7 @@
 {
     "itemName": "Megaphone",
+    "fieldSpriteName": "item_megaphone_field_1",
+    "iconSpriteName": "item_megaphone_icon_1",
     "range": 8,
     "color": {
         "r": 1.0,
