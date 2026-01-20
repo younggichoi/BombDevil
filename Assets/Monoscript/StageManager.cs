@@ -16,11 +16,9 @@ public class StageManager : MonoBehaviour
     public GameObject realBombPrefab;
     public GameObject wallPrefab;
     public Sprite enemySprite;
+    public Sprite stunnedEnemySprite;
     public Sprite fieldSprite;
-    public Dictionary<BombType, Sprite> bombFieldSprites;
-    public Dictionary<BombType, Sprite> bombIconSprites;
-    public Dictionary<ItemType, Sprite> itemFieldSprites;
-    public Dictionary<ItemType, Sprite> itemIconSprites;
+    public Sprite wallSprite;
     
     // StageRoot prefab
     public GameObject stageRootPrefab;
@@ -83,7 +81,8 @@ public class StageManager : MonoBehaviour
         
         StageRoot stageRoot = currStage.GetComponent<StageRoot>();
 
-        stageRoot.Install(stageId, commonData, enemyPrefab, auxiliaryBombPrefab, realBombPrefab, wallPrefab, enemySprite, fieldSprite);
+        stageRoot.Install(stageId, commonData, enemyPrefab, auxiliaryBombPrefab, realBombPrefab,
+            wallPrefab, enemySprite, stunnedEnemySprite, fieldSprite, wallSprite);
         
         // Subscribe to game state changed event
         _currentGameManager = stageRoot.GameManager;

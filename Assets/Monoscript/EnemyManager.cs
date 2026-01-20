@@ -25,8 +25,9 @@ public class EnemyManager : MonoBehaviour
     
     private GameObject _enemyPrefab;
     private Sprite _enemySprite;
+    private Sprite _stunnedEnemySprite;
 
-    public void Initialize(GameObject enemy, Transform enemySet, Sprite enemySprite)
+    public void Initialize(GameObject enemy, Transform enemySet, Sprite enemySprite, Sprite stunnedEnemySprite)
     {
         this.enemy = enemy;
         this.enemySet = enemySet;
@@ -34,6 +35,7 @@ public class EnemyManager : MonoBehaviour
         var gameManager = GameService.Get<GameManager>();
         _enemyColor = gameManager.GetEnemyColor();
         _enemySprite = enemySprite;
+        _stunnedEnemySprite = stunnedEnemySprite;
     }
 
     public void ClearEnemies()
@@ -72,7 +74,7 @@ public class EnemyManager : MonoBehaviour
         
         // Initialize enemy with unique id
         Enemy enemyComponent = enemyObj.GetComponent<Enemy>();
-        enemyComponent.Initialize(_enemySprite);
+        enemyComponent.Initialize(_enemySprite, _stunnedEnemySprite);
         
         // Set random direction for this enemy (Up, Down, Left, Right)
         enemyComponent.SetRandomDirection();

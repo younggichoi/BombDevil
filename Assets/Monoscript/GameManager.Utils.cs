@@ -1,5 +1,6 @@
 using UnityEngine;
 using Entity;
+using System.Collections.Generic;
 
 public partial class GameManager : MonoBehaviour
 {
@@ -88,6 +89,15 @@ public partial class GameManager : MonoBehaviour
             if (obj.GetComponent(componentType) != null) return true;
         }
         return false;
+    }
+
+    // Get all objects at a specific grid position (for collision detection)
+    public List<GameObject> GetObjectsAt(int x, int y)
+    {
+        if (x < 0 || x >= _width || y < 0 || y >= _height)
+            return new List<GameObject>();
+        
+        return _board[x, y];
     }
 
     // Vector2 version: directionAndDistance is in board units (not normalized)

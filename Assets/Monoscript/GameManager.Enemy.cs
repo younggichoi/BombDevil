@@ -244,7 +244,11 @@ public partial class GameManager : MonoBehaviour
         Vector2Int? entryTeleporterPos = null;
         Vector2Int? exitTeleporterPos = null;
         int steps = Mathf.Max(Mathf.Abs(directionAndDistance.x), Mathf.Abs(directionAndDistance.y));
-        Vector2Int normalizedDir = directionAndDistance / steps;
+        Vector2Int normalizedDir = new Vector2Int(0, 0);
+        if (steps > 0)
+        {
+            normalizedDir = directionAndDistance / steps;
+        }
         for (int step = 1; step <= steps; step++)
         {
             int currentX = Mod(x + normalizedDir.x * step, _width);
@@ -274,6 +278,8 @@ public partial class GameManager : MonoBehaviour
         if (exitTeleporterPos.HasValue && entryTeleporterPos.HasValue)
         {
             // The enemy's path is interrupted by a teleporter.
+            // Build path segments for visual teleporter traversal
+            
             // 1. Calculate the movement vector to reach the teleporter entry.
             Vector2Int moveToEntry = GetDirectionAndDistance(x, y, entryTeleporterPos.Value.x, entryTeleporterPos.Value.y);
             
@@ -286,13 +292,28 @@ public partial class GameManager : MonoBehaviour
                 Mod(exitTeleporterPos.Value.y + remainingMove.y, _height)
             );
 
-            // 4. Calculate the total displacement vector from the start to the final position, accounting for board wrap.
-            Vector2Int totalMove = GetDirectionAndDistance(x, y, finalPos.x, finalPos.y);
+            // 4. Build path segments for visual animation
+            var path = new System.Collections.Generic.List<PathSegment>();
+            
+            // Segment 1: Move from current position to teleporter entry
+            if (moveToEntry != Vector2Int.zero)
+            {
+                path.Add(new PathSegment(moveToEntry, false, null));
+            }
+            
+            // Segment 2: Instant teleport to exit teleporter
+            path.Add(new PathSegment(Vector2Int.zero, true, exitTeleporterPos.Value));
+            
+            // Segment 3: Move from exit teleporter to final position  
+            if (remainingMove != Vector2Int.zero)
+            {
+                path.Add(new PathSegment(remainingMove, false, null));
+            }
 
-            // 5. Apply a single knockback for the entire calculated path.
-            enemy.Knockback(totalMove);
+            // 5. Apply path-based knockback for visual teleporter traversal
+            enemy.KnockbackPath(path);
             _board[finalPos.x, finalPos.y].Add(obj);
-            Debug.Log($"Enemy at ({x}, {y}) path via teleporter. Final position: {finalPos}. Total move vector: {totalMove}");
+            Debug.Log($"Enemy at ({x}, {y}) path via teleporter. Entry: {entryTeleporterPos.Value}, Exit: {exitTeleporterPos.Value}, Final: {finalPos}");
             return;
         }
         else {
@@ -302,6 +323,7 @@ public partial class GameManager : MonoBehaviour
             _board[Mod(x + directionAndDistance.x, _width), Mod(y + directionAndDistance.y, _height)].Add(obj);
         }
     }
+
 
     // Checks if a teleporter exists at the given position
     private bool IsTeleporterAt(Vector2Int pos)

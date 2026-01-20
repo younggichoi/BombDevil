@@ -20,7 +20,9 @@ public class StageRoot : MonoBehaviour
     private GameObject realBombPrefab;
     private GameObject wallPrefab;
     private Sprite enemySprite;
+    private Sprite stunnedEnemySprite;
     private Sprite fieldSprite;
+    private Sprite wallSprite;
     
     // Scene objects (found by name)
     private Transform enemySet;
@@ -74,7 +76,7 @@ public class StageRoot : MonoBehaviour
 
     public void Install(int stageId, IngameCommonData commonData, 
         GameObject enemyPrefab, GameObject auxiliaryBombPrefab, GameObject realBombPrefab, 
-        GameObject wallPrefab, Sprite enemySprite, Sprite fieldSprite)
+        GameObject wallPrefab, Sprite enemySprite, Sprite stunnedEnemySprite, Sprite fieldSprite, Sprite wallSprite)
     {
         // 1. One-time Init (Find objects, cache references, set listeners)
         if (!_isInitialized)
@@ -85,7 +87,9 @@ public class StageRoot : MonoBehaviour
             this.realBombPrefab = realBombPrefab;
             this.wallPrefab = wallPrefab;
             this.enemySprite = enemySprite;
+            this.stunnedEnemySprite = stunnedEnemySprite;
             this.fieldSprite = fieldSprite;
+            this.wallSprite = wallSprite;
             
             // Find managers in children
             gameManager = GetComponentInChildren<GameManager>();
@@ -210,7 +214,7 @@ public class StageRoot : MonoBehaviour
         gameManager.Initialize(stageId, commonData);
         // Corrected via hardcoding
         boardManager.Initialize(fieldSprite, 0.17f, -0.17f);
-        enemyManager.Initialize(this.enemyPrefab, enemySet, this.enemySprite);
+        enemyManager.Initialize(this.enemyPrefab, enemySet, this.enemySprite, this.stunnedEnemySprite);
         bombManager.Initialize(this.auxiliaryBombPrefab, this.realBombPrefab, 
             auxiliaryBombSet, realBombSet,
             _1stBombText, _2ndBombText, _3rdBombText, _4thBombText, _5thBombText, _6thBombText,
@@ -219,7 +223,7 @@ public class StageRoot : MonoBehaviour
             skyblueBombChecked, realBombChecked,
             explodeButtonText);
         itemManager.Initialize(itemPrefabs, itemSet, itemButtonTexts);
-        wallManager.Initialize(wallPrefab);
+        wallManager.Initialize(wallPrefab, wallSprite);
 
         // Now that all managers are initialized, clear the stage.
         gameManager.ClearStage();

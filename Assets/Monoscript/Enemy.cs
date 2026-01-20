@@ -1,5 +1,21 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+
+// Path segment for multi-step movement (e.g., through teleporters)
+public struct PathSegment
+{
+    public Vector2Int move;         // Movement vector (grid units)
+    public bool isInstant;          // If true, instantly teleport to teleportTo position
+    public Vector2Int? teleportTo;  // Destination grid position for instant teleport
+
+    public PathSegment(Vector2Int move, bool isInstant = false, Vector2Int? teleportTo = null)
+    {
+        this.move = move;
+        this.isInstant = isInstant;
+        this.teleportTo = teleportTo;
+    }
+}
 
 public class Enemy : MonoBehaviour
 {
@@ -19,9 +35,10 @@ public class Enemy : MonoBehaviour
     // Stun state
     private bool _isStunned = false;
     public bool IsStunned => _isStunned;
+    private Sprite _stunnedSprite;
 
     // initializing internal attribute
-    public void Initialize(Sprite sprite, int? forcedId = null)
+    public void Initialize(Sprite sprite, Sprite stunnedSprite, int? forcedId = null)
     {
         var gameManager = GameService.Get<GameManager>();
         var boardManager = GameService.Get<BoardManager>();
@@ -29,6 +46,7 @@ public class Enemy : MonoBehaviour
         _walkDuration = gameManager.getWalkDuration();
         _knockbackDuration = gameManager.getKnockbackDuration();
         _cellSize = boardManager.GetCellSize();
+        _stunnedSprite = stunnedSprite;
         _minX = boardManager.GetMinX();
         _maxX = boardManager.GetMaxX();
         _minY = boardManager.GetMinY();
@@ -74,10 +92,13 @@ public class Enemy : MonoBehaviour
     public void SetStunned(bool stunned)
     {
         // Once stunned, cannot be unstunned
-        if (stunned)
+        if (!_isStunned) {
             _isStunned = true;
-        // Optionally, add visual feedback for stun here
-        // e.g., change color, play animation, etc.
+            GetComponent<SpriteRenderer>().sprite = _stunnedSprite;
+            // Hardcoded correction for the size and rotation difference between the normal and stunned sprites
+            transform.localScale *= 1.25f;
+            transform.Rotate(0, 0, 180f);
+        }
     }
 
     // walk API
@@ -145,6 +166,69 @@ public class Enemy : MonoBehaviour
         StartCoroutine(Move(directionAndDistance, _knockbackDuration));
     }
 
+    // Path-based knockback for teleporter traversal
+    // Executes each path segment sequentially, showing visual teleporter pass-through
+    public void KnockbackPath(List<PathSegment> path)
+    {
+        Debug.Log($"Enemy at {transform.position} knockback via path with {path.Count} segments");
+        StartCoroutine(MoveAlongPath(path, _knockbackDuration));
+    }
+
+    // Move along a path of segments (for teleporter traversal)
+    private IEnumerator MoveAlongPath(List<PathSegment> path, float totalDuration)
+    {
+        if (path == null || path.Count == 0)
+            yield break;
+
+        // Calculate total movement distance to distribute duration proportionally
+        float totalDistance = 0f;
+        foreach (var segment in path)
+        {
+            if (!segment.isInstant)
+            {
+                totalDistance += Mathf.Max(Mathf.Abs(segment.move.x), Mathf.Abs(segment.move.y));
+            }
+        }
+
+        foreach (var segment in path)
+        {
+            if (segment.isInstant && segment.teleportTo.HasValue)
+            {
+                // Instant teleport: move to exit teleporter position
+                var boardManager = GameService.Get<BoardManager>();
+                if (boardManager != null)
+                {
+                    Vector3 teleportPos = boardManager.GridToWorld(segment.teleportTo.Value.x, segment.teleportTo.Value.y);
+                    teleportPos.z = transform.position.z;
+                    transform.position = teleportPos;
+                }
+            }
+            else if (segment.move != Vector2Int.zero)
+            {
+                // Normal movement segment
+                float segmentDistance = Mathf.Max(Mathf.Abs(segment.move.x), Mathf.Abs(segment.move.y));
+                float segmentDuration = totalDistance > 0 ? totalDuration * (segmentDistance / totalDistance) : totalDuration;
+                
+                Vector3 start = transform.position;
+                Vector3 target = GetTarget(segment.move, start, _cellSize);
+                float time = 0f;
+                while (time < segmentDuration)
+                {
+                    time += Time.deltaTime;
+                    float t = time / segmentDuration;
+                    transform.position = LerpWrap(start, target, t, _minX, _maxX, _minY, _maxY);
+                    yield return null;
+                }
+                Vector3 finalPosition = GetWrappedTarget(segment.move, start, _minX, _maxX, _minY, _maxY, _cellSize);
+                finalPosition.z = start.z;
+                transform.position = finalPosition;
+            }
+        }
+        
+        // Check for collision after all movement completes
+        CheckAndStunCollision();
+    }
+
     // set direction towards megaphone and apply rotation
     public void SetDirectionTowards(Vector3 targetPosition)
     {
@@ -191,6 +275,9 @@ public class Enemy : MonoBehaviour
         Vector3 finalPosition = GetWrappedTarget(directionAndDistance, start, _minX, _maxX, _minY, _maxY, _cellSize);
         finalPosition.z = start.z;
         transform.position = finalPosition;
+        
+        // Check for collision after movement completes
+        CheckAndStunCollision();
     }
 
     // It can process boundary condition - wraps position within bounds
@@ -240,6 +327,48 @@ public class Enemy : MonoBehaviour
         if (result.y < minY || result.y >= maxY)
             result.y = Mod(result.y - minY, maxY - minY) + minY;
         return result;
+    }
+
+    // Check if multiple enemies are at the same position and stun them
+    private void CheckAndStunCollision()
+    {
+        var boardManager = GameService.Get<BoardManager>();
+        var gameManager = GameService.Get<GameManager>();
+        
+        if (boardManager == null || gameManager == null)
+            return;
+        
+        // Get current grid position
+        Vector2Int gridPos = boardManager.WorldToGrid(transform.position);
+        
+        // Get all enemies at this position from GameManager's board
+        var enemies = new List<Enemy>();
+        var objectsAtPos = gameManager.GetObjectsAt(gridPos.x, gridPos.y);
+        
+        if (objectsAtPos != null)
+        {
+            foreach (var obj in objectsAtPos)
+            {
+                if (obj != null)
+                {
+                    Enemy enemy = obj.GetComponent<Enemy>();
+                    if (enemy != null)
+                    {
+                        enemies.Add(enemy);
+                    }
+                }
+            }
+        }
+        
+        // If 2 or more enemies at the same position, stun them all
+        if (enemies.Count >= 2)
+        {
+            Debug.Log($"Collision detected at ({gridPos.x}, {gridPos.y}): {enemies.Count} enemies stunned");
+            foreach (var enemy in enemies)
+            {
+                enemy.SetStunned(true);
+            }
+        }
     }
 
     private static float Mod(float x, int m)

@@ -7,11 +7,13 @@ public class WallManager : MonoBehaviour
     private static GameObject _wallPrefab;
     private static GameObject _wallSet;
     private BoardManager _boardManager;
+    private static Sprite _wallSprite;
 
-    public void Initialize(GameObject wallPrefab)
+    public void Initialize(GameObject wallPrefab, Sprite wallSprite)
     {
         _wallPrefab = wallPrefab;
         _wallSet = GameObject.Find("WallSet");
+        _wallSprite = wallSprite;
     }
 
     public static GameObject CreateWall(int x, int y)
@@ -29,7 +31,7 @@ public class WallManager : MonoBehaviour
         GameObject wallGO = Instantiate(_wallPrefab, boardManager.GridToWorld(x, y), Quaternion.identity);
         wallGO.transform.SetParent(_wallSet.transform);
         var wall = wallGO.AddComponent<Wall>();
-        wall.Initialize();
+        wall.Initialize(_wallSprite);
         return wallGO;
     }
 

@@ -78,8 +78,14 @@ public partial class GameManager : MonoBehaviour
             ghostSr.color = itemColor;
         }
         _ghostItem.SetActive(true);
-        int range = itemData.range;
-        ShowItemRangeIndicators(x, y, range);
+        if (itemType == ItemType.Megaphone)
+        {
+            ShowItemCrossRangeIndicators(x, y);
+        }
+        else
+        {
+            // other preview algorithm
+        }
     }
 
     private void ShowItemRangeIndicators(int centerX, int centerY, int range)
@@ -121,6 +127,72 @@ public partial class GameManager : MonoBehaviour
                 rangeObj.SetActive(true);
                 indicatorIndex++;
             }
+        }
+    }
+
+    // Show cross-shaped range indicators for items (e.g., Megaphone)
+    private void ShowItemCrossRangeIndicators(int centerX, int centerY)
+    {
+        if (_itemRangeIndicators == null)
+            _itemRangeIndicators = new List<GameObject>();
+        foreach (var indicator in _itemRangeIndicators)
+        {
+            if (indicator != null)
+                indicator.SetActive(false);
+        }
+        float cellSize = BoardManager.GetCellSize();
+        int indicatorIndex = 0;
+        
+        // Horizontal line (same Y as item, all X)
+        for (int dx = 0; dx < _width; dx++)
+        {
+            if (dx == centerX) continue;  // Skip item position
+            
+            Vector3 worldPos = BoardManager.GridToWorld(dx, centerY);
+            while (indicatorIndex >= _itemRangeIndicators.Count)
+            {
+                GameObject indicator = new GameObject($"ItemRangeIndicator_{_itemRangeIndicators.Count}");
+                SpriteRenderer sr = indicator.AddComponent<SpriteRenderer>();
+                sr.sprite = CreateSquareSprite();
+                sr.sortingOrder = 4;
+                _itemRangeIndicators.Add(indicator);
+            }
+            GameObject rangeObj = _itemRangeIndicators[indicatorIndex];
+            rangeObj.transform.position = worldPos;
+            rangeObj.transform.localScale = Vector3.one * cellSize;
+            SpriteRenderer rangeSr = rangeObj.GetComponent<SpriteRenderer>();
+            if (rangeSr != null)
+            {
+                rangeSr.color = new Color(0.3f, 0.7f, 1f, 0.4f);  // Blue color
+            }
+            rangeObj.SetActive(true);
+            indicatorIndex++;
+        }
+        
+        // Vertical line (same X as item, all Y)
+        for (int dy = 0; dy < _height; dy++)
+        {
+            if (dy == centerY) continue;  // Skip item position
+            
+            Vector3 worldPos = BoardManager.GridToWorld(centerX, dy);
+            while (indicatorIndex >= _itemRangeIndicators.Count)
+            {
+                GameObject indicator = new GameObject($"ItemRangeIndicator_{_itemRangeIndicators.Count}");
+                SpriteRenderer sr = indicator.AddComponent<SpriteRenderer>();
+                sr.sprite = CreateSquareSprite();
+                sr.sortingOrder = 4;
+                _itemRangeIndicators.Add(indicator);
+            }
+            GameObject rangeObj = _itemRangeIndicators[indicatorIndex];
+            rangeObj.transform.position = worldPos;
+            rangeObj.transform.localScale = Vector3.one * cellSize;
+            SpriteRenderer rangeSr = rangeObj.GetComponent<SpriteRenderer>();
+            if (rangeSr != null)
+            {
+                rangeSr.color = new Color(0.3f, 0.7f, 1f, 0.4f);  // Blue color
+            }
+            rangeObj.SetActive(true);
+            indicatorIndex++;
         }
     }
 

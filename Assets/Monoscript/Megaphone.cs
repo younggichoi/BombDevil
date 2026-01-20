@@ -2,18 +2,27 @@ using UnityEngine;
 
 public class Megaphone : MonoBehaviour
 {
-    public static Vector3? activeMegaphonePosition;
+    public static Vector2Int? activeMegaphonePosition;
 
     private void OnEnable()
     {
-        activeMegaphonePosition = transform.position;
+        var boardManager = GameService.Get<BoardManager>();
+        if (boardManager != null)
+        {
+            activeMegaphonePosition = boardManager.WorldToGrid(transform.position);
+        }
     }
 
     private void OnDisable()
     {
-        if (activeMegaphonePosition == transform.position)
+        var boardManager = GameService.Get<BoardManager>();
+        if (boardManager != null)
         {
-            activeMegaphonePosition = null;
+            Vector2Int currentGridPos = boardManager.WorldToGrid(transform.position);
+            if (activeMegaphonePosition == currentGridPos)
+            {
+                activeMegaphonePosition = null;
+            }
         }
     }
 }
