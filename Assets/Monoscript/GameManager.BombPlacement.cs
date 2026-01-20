@@ -7,7 +7,7 @@ public partial class GameManager : MonoBehaviour
     private void CreateAuxiliaryBomb(int x, int y)
     {
         BombType? currentType = BombManager.GetCurrentBombType();
-        if (currentType.HasValue && !BombManager.CheckBombAvailable(currentType.Value))
+        if (currentType.HasValue && !BombManager.CheckBombAvailable(BombManager.GetCurrentIndex(), false))
             return;
         GameObject bomb = BombManager.PlantAuxiliaryBomb(x, y);
         if (bomb != null)

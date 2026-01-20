@@ -77,26 +77,6 @@ public partial class GameManager : MonoBehaviour
             Debug.LogError("StageManager not found in the scene!");
         }
     }
-    
-    // Enter remove mode - clear selections and allow removing placed bombs
-    public void OnRemoveButtonClick()
-    {
-        // Clear current selections
-        BombManager.ClearCurrentBombType();
-        ItemManager.ClearCurrentItemType();
-        
-        // Enter remove mode
-        _isRemoveMode = true;
-        ShowTempMessage("Remove mode - Click a bomb to remove it", 1f, "Remove mode");
-    }
-    
-    // Exit remove mode (called when any other mode is selected)
-    private void ExitRemoveMode()
-    {
-        _isRemoveMode = false;
-        if (_removeIndicator != null)
-            _removeIndicator.SetActive(false);
-    }
 
     public void OnExitButtonClick()
     {

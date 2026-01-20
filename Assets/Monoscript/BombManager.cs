@@ -16,20 +16,17 @@ public class BombManager : MonoBehaviour
     private TMP_Text _1stBombText;
     private TMP_Text _2ndBombText;
     private TMP_Text _3rdBombText;
-    private TMP_Text _4thBombText;
-    private TMP_Text _5thBombText;
-    private TMP_Text _6thBombText;
-    private TMP_Text _skyblueBombText;
-    private TMP_Text _realBombText;
+
+    // Icon UI for each bomb type
+    private GameObject _1stBombIcon;
+    private GameObject _2ndBombIcon;
+    private GameObject _3rdBombIcon;
+    private GameObject _realBombIcon;
     
     // Check UI for each bomb type (shows which bomb is selected)
     private GameObject _1stBombChecked;
     private GameObject _2ndBombChecked;
     private GameObject _3rdBombChecked;
-    private GameObject _4thBombChecked;
-    private GameObject _5thBombChecked;
-    private GameObject _6thBombChecked;
-    private GameObject _skyblueBombChecked;
     private GameObject _realBombChecked;
 
     // Explode button text
@@ -39,20 +36,25 @@ public class BombManager : MonoBehaviour
     private BoardManager _boardManager;
     
     // Leftover bomb counts per type
-    private Dictionary<BombType, int> _leftoverBombs;
+    struct BombCount
+    {
+        public BombType bombType;
+        public int count;
+    }
+    private BombCount[] _leftoverBombs;
     
     // RealBomb count (1 per stage)
     private int _realBombCount = 1;
     
     // Bomb data loaded from JSON
     private Dictionary<BombType, BombData> _bombDataDict;
-    
-    // Current selected bomb type (null = not selected)
-    private BombType? _currentBombType = null;
+
+    // Current selected index (-1 = not selected, 3 = real bomb)
+    private int _currentIndex = -1;
 
     public void ClearBombs()
     {
-        _currentBombType = null;
+        _currentIndex = -1;
         UpdateCheckedUI();
         if (auxiliaryBombSet != null)
         {
@@ -74,12 +76,10 @@ public class BombManager : MonoBehaviour
     public void Initialize(GameObject auxiliaryBomb, GameObject realBombPrefab, 
         Transform auxiliaryBombSet, Transform realBombSet,
         TMP_Text _1stBombText, TMP_Text _2ndBombText, TMP_Text _3rdBombText, 
-        TMP_Text _4thBombText, TMP_Text _5thBombText, TMP_Text _6thBombText,
-        TMP_Text skyblueBombText, TMP_Text realBombText,
+        GameObject _1stBombIcon, GameObject _2ndBombIcon, GameObject _3rdBombIcon, GameObject _realBombIcon,
         GameObject _1stBombChecked, GameObject _2ndBombChecked, GameObject _3rdBombChecked,
-        GameObject _4thBombChecked, GameObject _5thBombChecked, GameObject _6thBombChecked,
-        GameObject skyblueBombChecked, GameObject realBombChecked,
-        TMP_Text explodeButtonText)
+        GameObject realBombChecked, TMP_Text explodeButtonText,
+        SaveData saveData)
     {
         this.auxiliaryBomb = auxiliaryBomb;
         this.realBombPrefab = realBombPrefab;
@@ -88,18 +88,13 @@ public class BombManager : MonoBehaviour
         this._1stBombText = _1stBombText;
         this._2ndBombText = _2ndBombText;
         this._3rdBombText = _3rdBombText;
-        this._4thBombText = _4thBombText;
-        this._5thBombText = _5thBombText;
-        this._6thBombText = _6thBombText;
-        this._skyblueBombText = skyblueBombText;
-        this._realBombText = realBombText;
+        this._1stBombIcon = _1stBombIcon;
+        this._2ndBombIcon = _2ndBombIcon;
+        this._3rdBombIcon = _3rdBombIcon;
+        this._realBombIcon = _realBombIcon;
         this._1stBombChecked = _1stBombChecked;
         this._2ndBombChecked = _2ndBombChecked;
         this._3rdBombChecked = _3rdBombChecked;
-        this._4thBombChecked = _4thBombChecked;
-        this._5thBombChecked = _5thBombChecked;
-        this._6thBombChecked = _6thBombChecked;
-        this._skyblueBombChecked = skyblueBombChecked;
         this._realBombChecked = realBombChecked;
         _explodeButtonText = explodeButtonText;
         _boardManager = GameService.Get<BoardManager>();
@@ -108,18 +103,22 @@ public class BombManager : MonoBehaviour
         if (_explodeButtonText != null)
             _explodeButtonText.text = "PASS";
         
-        var gameManager = GameService.Get<GameManager>();
-        // Initialize leftover bombs from GameManager
-        _leftoverBombs = new Dictionary<BombType, int>
-        {
-            { BombType.FirstBomb, gameManager.GetInitialBombCount(BombType.FirstBomb) },
-            { BombType.SecondBomb, gameManager.GetInitialBombCount(BombType.SecondBomb) },
-            { BombType.ThirdBomb, gameManager.GetInitialBombCount(BombType.ThirdBomb) },
-            { BombType.FourthBomb, gameManager.GetInitialBombCount(BombType.FourthBomb) },
-            { BombType.FifthBomb, gameManager.GetInitialBombCount(BombType.FifthBomb) },
-            { BombType.SixthBomb, gameManager.GetInitialBombCount(BombType.SixthBomb) },
-            { BombType.SkyblueBomb, gameManager.GetInitialBombCount(BombType.SkyblueBomb) }
-        };
+        // Initialize leftover bombs from SaveData
+        _leftoverBombs = new BombCount[3];
+        _leftoverBombs[0] = new BombCount { bombType = saveData.firstBombType, count = saveData.left1stBomb };
+        _leftoverBombs[1] = new BombCount { bombType = saveData.secondBombType, count = saveData.left2ndBomb };
+        _leftoverBombs[2] = new BombCount { bombType = saveData.thirdBombType, count = saveData.left3rdBomb };
+
+        this._1stBombIcon.AddComponent<SpriteRenderer>();
+        this._2ndBombIcon.AddComponent<SpriteRenderer>();
+        this._3rdBombIcon.AddComponent<SpriteRenderer>();
+        this._realBombIcon.AddComponent<SpriteRenderer>();
+
+        // Add colliders for click detection
+        this._1stBombIcon.AddComponent<BoxCollider2D>();
+        this._2ndBombIcon.AddComponent<BoxCollider2D>();
+        this._3rdBombIcon.AddComponent<BoxCollider2D>();
+        this._realBombIcon.AddComponent<BoxCollider2D>();
         
         // Initialize RealBomb count (1 per stage)
         _realBombCount = 1;
@@ -132,6 +131,23 @@ public class BombManager : MonoBehaviour
         
         // Initialize all check UIs to inactive
         UpdateCheckedUI();
+
+        // Initialize all icon UIs
+        UpdateIconUI();
+
+        SpriteRenderer icon1 = this._1stBombIcon.GetComponent<SpriteRenderer>();
+        SpriteRenderer icon2 = this._2ndBombIcon.GetComponent<SpriteRenderer>();
+        SpriteRenderer icon3 = this._3rdBombIcon.GetComponent<SpriteRenderer>();
+        SpriteRenderer icon4 = this._realBombIcon.GetComponent<SpriteRenderer>();
+        float cellSize = _boardManager.GetCellSize();
+        Vector2 spriteSize = icon1.sprite.bounds.size;
+        float scaleX = cellSize / spriteSize.x;
+        float scaleY = cellSize / spriteSize.y;
+        float scale = Mathf.Min(scaleX, scaleY);  // Keep aspect ratio, fit within cell
+        icon1.transform.localScale = Vector3.one * scale;
+        icon2.transform.localScale = Vector3.one * scale;
+        icon3.transform.localScale = Vector3.one * scale;
+        icon4.transform.localScale = Vector3.one * scale;
     }
     
     // Load all bomb data from JSON files
@@ -168,64 +184,36 @@ public class BombManager : MonoBehaviour
         _bombDataDict[bombType] = bombData;
         
     }
-    
-    // Update all bomb text UIs
-    private void UpdateAllBombTexts()
+
+    // Update specific bomb text UI by slot index
+    private void UpdateBombText(int index)
     {
-        UpdateBombText(BombType.FirstBomb);
-        UpdateBombText(BombType.SecondBomb);
-        UpdateBombText(BombType.ThirdBomb);
-        UpdateBombText(BombType.FourthBomb);
-        UpdateBombText(BombType.FifthBomb);
-        UpdateBombText(BombType.SixthBomb);
-        UpdateBombText(BombType.SkyblueBomb);
-        UpdateRealBombText();
-    }
-    
-    // Update specific bomb text UI
-    private void UpdateBombText(BombType bombType)
-    {
-        if (!_leftoverBombs.TryGetValue(bombType, out int count))
-            return;
+        if (index < 0 || index >= 3) return;
         
-        switch (bombType)
+        switch (index)
         {
-            case BombType.FirstBomb:
+            case 0:
                 if (_1stBombText != null)
-                    _1stBombText.text = $"1st: {count}";
+                    _1stBombText.text = $"leftover: {_leftoverBombs[index].count}";
                 break;
-            case BombType.SecondBomb:
+            case 1:
                 if (_2ndBombText != null)
-                    _2ndBombText.text = $"2nd: {count}";
+                    _2ndBombText.text = $"leftover: {_leftoverBombs[index].count}";
                 break;
-            case BombType.ThirdBomb:
+            case 2:
                 if (_3rdBombText != null)
-                    _3rdBombText.text = $"3rd: {count}";
-                break;
-            case BombType.FourthBomb:
-                if (_4thBombText != null)
-                    _4thBombText.text = $"4th: {count}";
-                break;
-            case BombType.FifthBomb:
-                if (_5thBombText != null)
-                    _5thBombText.text = $"5th: {count}";
-                break;
-            case BombType.SixthBomb:
-                if (_6thBombText != null)
-                    _6thBombText.text = $"6th: {count}";
-                break;
-            case BombType.SkyblueBomb:
-                if (_skyblueBombText != null)
-                    _skyblueBombText.text = $"Sky: {count}";
+                    _3rdBombText.text = $"leftover: {_leftoverBombs[index].count}";
                 break;
         }
     }
     
-    // Update RealBomb text UI
-    private void UpdateRealBombText()
+    // Update all bomb text UIs
+    private void UpdateAllBombTexts()
     {
-        if (_realBombText != null)
-            _realBombText.text = $"Real: {_realBombCount}";
+        for (int i = 0; i < 3; i++)
+        {
+            UpdateBombText(i);
+        }
     }
     
     // Get bomb data by type
@@ -241,51 +229,58 @@ public class BombManager : MonoBehaviour
     // Get current selected bomb type (nullable)
     public BombType? GetCurrentBombType()
     {
-        return _currentBombType;
+        if (_currentIndex == 3)
+            return BombType.RealBomb;
+        return _leftoverBombs[_currentIndex].bombType;
     }
     
+    public int GetCurrentIndex()
+    {
+        return _currentIndex;
+    }
+
     // Check if a bomb type is selected
     public bool HasBombSelected()
     {
-        return _currentBombType.HasValue;
+        return _currentIndex != -1;
     }
     
-    // Set current bomb type (for UI selection)
-    public void SetCurrentBombType(BombType bombType)
+    public void SetCurrentIndex(int index)
     {
-        _currentBombType = bombType;
+        _currentIndex = index;
         UpdateCheckedUI();
-        
-        var gameManager = GameService.Get<GameManager>();
-        // Show selection message via GameManager
-        if (gameManager != null)
-        {
-            string bombName = GetBombDisplayName(bombType);
-            gameManager.ShowBombSelectedMessage(bombName);
-        }
     }
 
     public void ClearCurrentBombType()
     {
-        _currentBombType = null;
+        _currentIndex = -1;
         UpdateCheckedUI();
     }
     
     // Restore a bomb to inventory (used when removing placed bombs)
     public void RestoreBomb(BombType bombType)
     {
-        if (_leftoverBombs.ContainsKey(bombType))
+        for (int i = 0; i < 3; i++)
         {
-            _leftoverBombs[bombType]++;
-            UpdateBombText(bombType);
+            if (_leftoverBombs[i].bombType == bombType)
+            {
+                _leftoverBombs[i].count++;
+                UpdateBombText(i);
+                return;
+            }
         }
+    }
+
+    public void RestoreBomb(int index)
+    {
+        _leftoverBombs[index].count++;
+        UpdateBombText(index);
     }
     
     // Restore RealBomb to inventory
     public void RestoreRealBomb()
     {
         _realBombCount++;
-        UpdateRealBombText();
     }
     
     // Get display name for bomb type
@@ -306,23 +301,23 @@ public class BombManager : MonoBehaviour
     }
     
     // Check if selected bomb has any left (and show message if not)
-    public bool CheckBombAvailable(BombType bombType)
+    public bool CheckBombAvailable(int index, bool checkRealBomb)
     {
         bool available = false;
         
-        if (bombType == BombType.RealBomb)
+        if (checkRealBomb)
         {
             available = _realBombCount > 0;
         }
-        else if (_leftoverBombs.TryGetValue(bombType, out int count))
+        else
         {
-            available = count > 0;
+            available = _leftoverBombs[index].count > 0;
         }
         
         var gameManager = GameService.Get<GameManager>();
         if (!available && gameManager != null)
         {
-            gameManager.ShowNoBombLeftMessage(GetBombDisplayName(bombType));
+            gameManager.ShowNoBombLeftMessage(GetBombDisplayName(_leftoverBombs[index].bombType));
         }
         
         return available;
@@ -342,42 +337,61 @@ public class BombManager : MonoBehaviour
         if (_1stBombChecked != null) _1stBombChecked.SetActive(false);
         if (_2ndBombChecked != null) _2ndBombChecked.SetActive(false);
         if (_3rdBombChecked != null) _3rdBombChecked.SetActive(false);
-        if (_4thBombChecked != null) _4thBombChecked.SetActive(false);
-        if (_5thBombChecked != null) _5thBombChecked.SetActive(false);
-        if (_6thBombChecked != null) _6thBombChecked.SetActive(false);
-        if (_skyblueBombChecked != null) _skyblueBombChecked.SetActive(false);
         if (_realBombChecked != null) _realBombChecked.SetActive(false);
+
+        if (_currentIndex == -1)
+            return;
         
-        // Activate the selected one
-        if (_currentBombType.HasValue)
+        switch (_currentIndex)
         {
-            switch (_currentBombType.Value)
-            {
-                case BombType.FirstBomb:
-                    if (_1stBombChecked != null) _1stBombChecked.SetActive(true);
-                    break;
-                case BombType.SecondBomb:
-                    if (_2ndBombChecked != null) _2ndBombChecked.SetActive(true);
-                    break;
-                case BombType.ThirdBomb:
-                    if (_3rdBombChecked != null) _3rdBombChecked.SetActive(true);
-                    break;
-                case BombType.FourthBomb:
-                    if (_4thBombChecked != null) _4thBombChecked.SetActive(true);
-                    break;
-                case BombType.FifthBomb:
-                    if (_5thBombChecked != null) _5thBombChecked.SetActive(true);
-                    break;
-                case BombType.SixthBomb:
-                    if (_6thBombChecked != null) _6thBombChecked.SetActive(true);
-                    break;
-                case BombType.SkyblueBomb:
-                    if (_skyblueBombChecked != null) _skyblueBombChecked.SetActive(true);
-                    break;
-                case BombType.RealBomb:
-                    if (_realBombChecked != null) _realBombChecked.SetActive(true);
-                    break;
-            }
+            case 0:
+                if (_1stBombChecked != null) _1stBombChecked.SetActive(true);
+                break;
+            case 1:
+                if (_2ndBombChecked != null) _2ndBombChecked.SetActive(true);
+                break;
+            case 2:
+                if (_3rdBombChecked != null) _3rdBombChecked.SetActive(true);
+                break;
+            case 3:
+                if (_realBombChecked != null) _realBombChecked.SetActive(true);
+                break;
+        }
+    }
+
+    private void UpdateIconUI()
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            UpdateIcon(i);
+        }
+    }
+
+    private void UpdateIcon(int index)
+    {
+        switch (index)
+        {
+            case 0:
+                if (_1stBombIcon != null)
+                {
+                    Sprite icon = GetBombData(_leftoverBombs[index].bombType).iconSprite;
+                    _1stBombIcon.GetComponent<SpriteRenderer>().sprite = icon;
+                }
+                break;
+            case 1:
+                if (_2ndBombIcon != null)
+                {
+                    Sprite icon = GetBombData(_leftoverBombs[index].bombType).iconSprite;
+                    _2ndBombIcon.GetComponent<SpriteRenderer>().sprite = icon;
+                }
+                break;
+            case 2:
+                if (_3rdBombIcon != null)
+                {
+                    Sprite icon = GetBombData(_leftoverBombs[index].bombType).iconSprite;
+                    _3rdBombIcon.GetComponent<SpriteRenderer>().sprite = icon;
+                }
+                break;
         }
     }
     
@@ -385,23 +399,21 @@ public class BombManager : MonoBehaviour
     // Uses current selected bomb type
     public GameObject PlantAuxiliaryBomb(int x, int y)
     {
-        if (!_currentBombType.HasValue)
+        if (_currentIndex == -1)
             return null;
             
-        return PlantBomb(x, y, _currentBombType.Value);
+        return PlantBomb(x, y, _currentIndex);
     }
     
     // Plant specific bomb type
-    public GameObject PlantBomb(int x, int y, BombType bombType)
+    public GameObject PlantBomb(int x, int y, int index)
     {
-        // Check if we have leftover bombs of this type
-        if (!_leftoverBombs.TryGetValue(bombType, out int leftover) || leftover <= 0)
-            return null;
+        if (index < 0 || index >= 3) return null;
         
-        BombData bombData = GetBombData(bombType);
+        BombData bombData = GetBombData(_leftoverBombs[index].bombType);
         if (bombData == null)
         {
-            Debug.LogError($"Bomb data not found for type: {bombType}");
+            Debug.LogError($"Bomb data not found for type: {_leftoverBombs[index].bombType}");
             return null;
         }
         
@@ -425,8 +437,8 @@ public class BombManager : MonoBehaviour
         }
 
         // Decrease leftover count for this bomb type
-        _leftoverBombs[bombType]--;
-        UpdateBombText(bombType);
+        _leftoverBombs[index].count--;
+        UpdateBombText(index);
         
         // Change explode button text to EXPLOSION
         if (_explodeButtonText != null)
@@ -436,22 +448,32 @@ public class BombManager : MonoBehaviour
     }
     
     // Get remaining bombs count for specific type
-    public int GetLeftoverBomb(BombType bombType)
+    // public int GetLeftoverBomb(BombType bombType)
+    // {
+    //     if (_leftoverBombs.TryGetValue(bombType, out int count))
+    //     {
+    //         return count;
+    //     }
+    //     return 0;
+    // }
+
+    public int GetBombCount(int index)
     {
-        if (_leftoverBombs.TryGetValue(bombType, out int count))
-        {
-            return count;
-        }
-        return 0;
+        return _leftoverBombs[index].count;
+    }
+
+    public BombType GetBombType(int index)
+    {
+        return _leftoverBombs[index].bombType;
     }
     
     // Get total remaining bombs count (all types)
     public int GetTotalLeftoverBombs()
     {
         int total = 0;
-        foreach (var kvp in _leftoverBombs)
+        for (int i = 0; i < 3; i++)
         {
-            total += kvp.Value;
+            total += _leftoverBombs[i].count;
         }
         return total;
     }
@@ -517,7 +539,6 @@ public class BombManager : MonoBehaviour
         
         // Decrease RealBomb count
         _realBombCount--;
-        UpdateRealBombText();
         
         // Change explode button text to EXPLOSION
         if (_explodeButtonText != null)

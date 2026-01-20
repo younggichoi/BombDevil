@@ -14,16 +14,20 @@ public class ItemManager : MonoBehaviour
     private BoardManager _boardManager;
 
     // Leftover item counts per type
-    private Dictionary<ItemType, int> _leftoverItems;
-
-    // Item button text UI
-    private Dictionary<ItemType, TMP_Text> _itemButtonTexts;
+    private List<ItemCount> _leftoverItems;
+    
+    // Initial item counts (stored for reset)
+    private List<ItemCount> _initialItems;
 
     // Item data loaded from JSON
     private Dictionary<ItemType, ItemData> _itemDataDict;
 
-    // Current selected item type (null = not selected)
-    private ItemType? _currentItemType = null;
+    // Current selected item index
+    private int _currentItemIndex = 0;
+
+    private bool _hasItemSelected = false;
+
+    private GameObject _itemIcon;
 
     private void Awake()
     {
@@ -34,26 +38,26 @@ public class ItemManager : MonoBehaviour
         }
     }
 
-    public void Initialize(Dictionary<ItemType, GameObject> itemPrefabs, Transform itemSet, Dictionary<ItemType, TMP_Text> itemButtonTexts)
+    public void Initialize(Dictionary<ItemType, GameObject> itemPrefabs, Transform itemSet, 
+        List<ItemCount> initialItems, GameObject itemIcon)
     {
         _itemPrefabs = itemPrefabs;
         _boardManager = GameService.Get<BoardManager>();
         _itemSet = itemSet;
-        _itemButtonTexts = itemButtonTexts;
+        _itemIcon = itemIcon;
 
-        var gameManager = GameService.Get<GameManager>();
-        // Initialize leftover items from GameManager
-        _leftoverItems = new Dictionary<ItemType, int>();
-        foreach (var itemType in _itemPrefabs.Keys)
-        {
-            _leftoverItems[itemType] = gameManager.GetInitialItemCount(itemType);
-        }
+        // Store initial items for reset
+        _initialItems = new List<ItemCount>(initialItems ?? new List<ItemCount>());
+        
+        // Initialize leftover items dictionary
+        _leftoverItems = new List<ItemCount>(_initialItems);
 
         // Load all item data from JSON
         LoadAllItemData();
 
         // Update UI
-        UpdateAllItemButtonTexts();
+        // UpdateAllItemButtonTexts();
+        UpdateItemIcon();
     }
 
     private void LoadAllItemData()
@@ -83,34 +87,35 @@ public class ItemManager : MonoBehaviour
         }
     }
 
-    private void UpdateAllItemButtonTexts()
-    {
-        if (_itemButtonTexts == null) return;
+    // private void UpdateAllItemButtonTexts()
+    // {
+    //     if (_itemButtonTexts == null) return;
 
-        foreach (var kvp in _itemButtonTexts)
-        {
-            var itemType = kvp.Key;
-            var textComponent = kvp.Value;
+    //     foreach (var kvp in _itemButtonTexts)
+    //     {
+    //         var itemType = kvp.Key;
+    //         var textComponent = kvp.Value;
 
-            if (textComponent != null && _leftoverItems.TryGetValue(itemType, out int count))
-            {
-                textComponent.text = $"{itemType}: {count}";
-            }
-        }
-    }
+    //         if (textComponent != null)
+    //         {
+    //             int count = GetLeftoverItem(itemType);
+    //             textComponent.text = $"{itemType}: {count}";
+    //         }
+    //     }
+    // }
 
-    private void UpdateAllItemTexts()
-    {
-        if (_itemText != null)
-        {
-            string text = "";
-            foreach (var kvp in _leftoverItems)
-            {
-                text += $"{kvp.Key}: {kvp.Value}\n";
-            }
-            _itemText.text = text;
-        }
-    }
+    // private void UpdateAllItemTexts()
+    // {
+    //     if (_itemText != null)
+    //     {
+    //         string text = "";
+    //         foreach (var item in _leftoverItems)
+    //         {
+    //             text += $"{item.itemType}: {item.count}\n";
+    //         }
+    //         _itemText.text = text;
+    //     }
+    // }
 
     public ItemData GetItemData(ItemType itemType)
     {
@@ -121,54 +126,64 @@ public class ItemManager : MonoBehaviour
 
     public ItemType? GetCurrentItemType()
     {
-        return _currentItemType;
+        return _leftoverItems[_currentItemIndex].itemType;
     }
 
     public bool HasItemSelected()
     {
-        return _currentItemType.HasValue;
+        return _leftoverItems.Count > 0 && _hasItemSelected;
     }
 
-    public void SetCurrentItemType(ItemType itemType)
+    public void UnselectItem()
     {
-        _currentItemType = itemType;
-        var gameManager = GameService.Get<GameManager>();
-        if (gameManager != null)
-        {
-            gameManager.ShowItemSelectedMessage(itemType.ToString());
-        }
+        _hasItemSelected = false;
     }
 
-    public void ClearCurrentItemType()
+    public void SelectItem()
     {
-        _currentItemType = null;
+        _hasItemSelected = true;
     }
 
-    public bool CheckItemAvailable(ItemType itemType)
+    // public void SetCurrentItemType(ItemType itemType)
+    // {
+    //     _currentItemType = itemType;
+    //     var gameManager = GameService.Get<GameManager>();
+    //     if (gameManager != null)
+    //     {
+    //         gameManager.ShowItemSelectedMessage(itemType.ToString());
+    //     }
+    // }
+    public void SetNextIndex()
     {
-        bool available = _leftoverItems.TryGetValue(itemType, out int count) && count > 0;
-        var gameManager = GameService.Get<GameManager>();
-        if (!available && gameManager != null)
-        {
+        _currentItemIndex = (_currentItemIndex + 1) % _leftoverItems.Count;
+        UpdateItemIcon();
+    }
+
+    // public void ClearCurrentItemType()
+    // {
+    //     _currentItemType = null;
+    // }
+
+    // public bool CheckItemAvailable(ItemType itemType)
+    // {
+    //     bool available = _leftoverItems.TryGetValue(itemType, out int count) && count > 0;
+    //     var gameManager = GameService.Get<GameManager>();
+    //     if (!available && gameManager != null)
+    //     {
             
-            gameManager.ShowNoItemLeftMessage(itemType.ToString());
-        }
-        return available;
-    }
+    //         gameManager.ShowNoItemLeftMessage(itemType.ToString());
+    //     }
+    //     return available;
+    // }
 
     public GameObject PlaceItem(int x, int y)
     {
-        if (!_currentItemType.HasValue)
+        if (!_hasItemSelected)
         {
             Debug.LogWarning($"PlaceItem failed: No item type selected.");
             return null;
         }
-        ItemType itemType = _currentItemType.Value;
-        if (!_leftoverItems.TryGetValue(itemType, out int leftover) || leftover <= 0)
-        {
-            Debug.LogWarning($"PlaceItem failed: No leftover items for {itemType}.");
-            return null;
-        }
+        ItemType itemType = _leftoverItems[_currentItemIndex].itemType;
         if (!_itemPrefabs.TryGetValue(itemType, out GameObject prefab))
         {
             Debug.LogWarning($"PlaceItem failed: No prefab found for {itemType}.");
@@ -202,33 +217,75 @@ public class ItemManager : MonoBehaviour
         Item itemComponent = item.AddComponent<Item>();
         itemComponent.Type = itemType;
 
-        _leftoverItems[itemType]--;
-        UpdateAllItemButtonTexts();
-        Debug.Log($"Placed item {itemType} at ({x}, {y}). Leftover: {_leftoverItems[itemType]}.");
+        // Modify struct by creating new instance
+        ItemCount current = _leftoverItems[_currentItemIndex];
+        current.count--;
+        if (current.count == 0)
+        {
+            _leftoverItems.RemoveAt(_currentItemIndex);
+            if (_currentItemIndex >= _leftoverItems.Count && _leftoverItems.Count > 0)
+            {
+                _currentItemIndex = _leftoverItems.Count - 1;
+            }
+        }
+        else
+        {
+            _leftoverItems[_currentItemIndex] = current;
+        }
+        // UpdateAllItemButtonTexts();
+        UpdateItemIcon();
+        Debug.Log($"Placed item {itemType} at ({x}, {y}). Leftover: {current.count}.");
         return item;
     }
 
     public void RestoreItem(ItemType itemType)
     {
-        if (_leftoverItems.ContainsKey(itemType))
+        for(int i = 0; i < _leftoverItems.Count; i++)
         {
-            _leftoverItems[itemType]++;
-            UpdateAllItemButtonTexts();
+            if (_leftoverItems[i].itemType == itemType)
+            {
+                ItemCount temp = _leftoverItems[i];
+                temp.count++;
+                _leftoverItems[i] = temp;
+                // UpdateAllItemButtonTexts();
+                UpdateItemIcon();
+                return;
+            }
         }
+        _leftoverItems.Add(new ItemCount(itemType, 1));
+        // UpdateAllItemButtonTexts();
+        UpdateItemIcon();
     }
 
     public int GetLeftoverItem(ItemType itemType)
     {
-        if (_leftoverItems.TryGetValue(itemType, out int count))
-            return count;
+        for(int i = 0; i < _leftoverItems.Count; i++)
+        {
+            if (_leftoverItems[i].itemType == itemType)
+            {
+                return _leftoverItems[i].count;
+            }
+        }
         return 0;
+    }
+
+    public List<ItemCount> GetRemainingItem()
+    {
+        return new List<ItemCount>(_leftoverItems);
+    }
+
+    public int GetLeftoverItem()
+    {
+        if (_leftoverItems.Count == 0)
+            return 0;
+        return _leftoverItems[_currentItemIndex].count;
     }
 
     public int GetTotalLeftoverItems()
     {
         int total = 0;
-        foreach (var count in _leftoverItems.Values)
-            total += count;
+        foreach (var item in _leftoverItems)
+            total += item.count;
         return total;
     }
 
@@ -246,21 +303,22 @@ public class ItemManager : MonoBehaviour
     public void ResetItems()
     {
         Debug.Log("ItemManager.ResetItems called");
-        var gameManager = GameService.Get<GameManager>();
-        if (gameManager == null) {
-            Debug.LogError("GameManager is null in ItemManager.ResetItems");
+        if (_initialItems == null) {
+            Debug.LogError("_initialItems is null in ItemManager.ResetItems");
             return;
         }
-        // Initialize leftover items from GameManager
-        _leftoverItems = new Dictionary<ItemType, int>();
-        if (_itemPrefabs == null) {
-            Debug.LogError("_itemPrefabs is null in ItemManager.ResetItems");
-            return;
-        }
-        foreach (var itemType in _itemPrefabs.Keys)
+        // Reset leftover items from stored initial values
+        _leftoverItems = new List<ItemCount>(_initialItems);
+        _currentItemIndex = 0;
+        // UpdateAllItemButtonTexts();
+        UpdateItemIcon();
+    }
+
+    private void UpdateItemIcon()
+    {
+        if (_itemIcon != null && _leftoverItems.Count > 0)
         {
-            _leftoverItems[itemType] = gameManager.GetInitialItemCount(itemType);
+            _itemIcon.GetComponent<SpriteRenderer>().sprite = GetItemData(_leftoverItems[_currentItemIndex].itemType).iconSprite;
         }
-        UpdateAllItemButtonTexts();
     }
 }

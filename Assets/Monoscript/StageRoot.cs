@@ -31,30 +31,22 @@ public class StageRoot : MonoBehaviour
     private TMP_Text _1stBombText;
     private TMP_Text _2ndBombText;
     private TMP_Text _3rdBombText;
-    private TMP_Text _4thBombText;
-    private TMP_Text _5thBombText;
-    private TMP_Text _6thBombText;
-    private TMP_Text skyblueBombText;
-    private TMP_Text realBombText;
+
+    // Bomb Icon objects (found by name)
+    private GameObject _1stBombIcon;
+    private GameObject _2ndBombIcon;
+    private GameObject _3rdBombIcon;
+    private GameObject _realBombIcon;
     
     // Check UI objects (found by name)
     private GameObject _1stBombChecked;
     private GameObject _2ndBombChecked;
     private GameObject _3rdBombChecked;
-    private GameObject _4thBombChecked;
-    private GameObject _5thBombChecked;
-    private GameObject _6thBombChecked;
-    private GameObject skyblueBombChecked;
     private GameObject realBombChecked;
 
-    // Teleporter and Megaphone buttons and texts
-    private Button teleporterButton;
-    private Button megaphoneButton;
-    private Button removeButton;
+    // UI Buttons
     private Button resetButton;
     private Button exitButton;
-    private TMP_Text teleporterButtonText;
-    private TMP_Text megaphoneButtonText;
     
     // Explode button and text
     private Button explodeButton;
@@ -64,7 +56,6 @@ public class StageRoot : MonoBehaviour
     private bool _isInitialized = false;
     private Transform itemSet;
     private Dictionary<ItemType, GameObject> itemPrefabs;
-    private Dictionary<ItemType, TMP_Text> itemButtonTexts;
     private TMP_Text infoText;
     private TMP_Text stageText;
     private TMP_Text timeText;
@@ -76,7 +67,7 @@ public class StageRoot : MonoBehaviour
 
     public void Install(int stageId, IngameCommonData commonData, 
         GameObject enemyPrefab, GameObject auxiliaryBombPrefab, GameObject realBombPrefab, 
-        GameObject wallPrefab, Sprite enemySprite, Sprite stunnedEnemySprite, Sprite fieldSprite, Sprite wallSprite)
+        GameObject wallPrefab, GameObject itemIcon, Sprite enemySprite, Sprite stunnedEnemySprite, Sprite fieldSprite, Sprite wallSprite)
     {
         // 1. One-time Init (Find objects, cache references, set listeners)
         if (!_isInitialized)
@@ -112,41 +103,26 @@ public class StageRoot : MonoBehaviour
             itemPrefabs = itemPrefabLibrary != null ? itemPrefabLibrary.GetPrefabDictionary() : new Dictionary<ItemType, GameObject>();
             itemSet = GameObject.Find("ItemSet")?.transform;
             
-            teleporterButtonText = GameObject.Find("TeleporterButton")?.GetComponentInChildren<TMP_Text>();
-            megaphoneButtonText = GameObject.Find("MegaphoneButton")?.GetComponentInChildren<TMP_Text>();
-            
-            itemButtonTexts = new Dictionary<ItemType, TMP_Text>
-            {
-                { ItemType.Teleporter, teleporterButtonText },
-                { ItemType.Megaphone, megaphoneButtonText }
-            };
-            
             // Find scene objects by name
             enemySet = GameObject.Find("EnemySet")?.transform;
             auxiliaryBombSet = GameObject.Find("AuxiliaryBombSet")?.transform;
             realBombSet = GameObject.Find("RealBombSet")?.transform;
-            _1stBombText = GameObject.Find("Leftover1stBomb")?.GetComponent<TMP_Text>();
-            _2ndBombText = GameObject.Find("Leftover2ndBomb")?.GetComponent<TMP_Text>();
-            _3rdBombText = GameObject.Find("Leftover3rdBomb")?.GetComponent<TMP_Text>();
-            _4thBombText = GameObject.Find("Leftover4thBomb")?.GetComponent<TMP_Text>();
-            _5thBombText = GameObject.Find("Leftover5thBomb")?.GetComponent<TMP_Text>();
-            _6thBombText = GameObject.Find("Leftover6thBomb")?.GetComponent<TMP_Text>();
-            skyblueBombText = GameObject.Find("LeftoverSkyblueBomb")?.GetComponent<TMP_Text>();
-            realBombText = GameObject.Find("LeftoverRealBomb")?.GetComponent<TMP_Text>();
+            _1stBombText = GameObject.Find("1stBombLeftover")?.GetComponent<TMP_Text>();
+            _2ndBombText = GameObject.Find("2ndBombLeftover")?.GetComponent<TMP_Text>();
+            _3rdBombText = GameObject.Find("3rdBombLeftover")?.GetComponent<TMP_Text>();
+
+            // Find bomb icon objects by name
+            _1stBombIcon = GameObject.Find("1stBombIcon");
+            _2ndBombIcon = GameObject.Find("2ndBombIcon");
+            _3rdBombIcon = GameObject.Find("3rdBombIcon");
+            _realBombIcon = GameObject.Find("RealBombIcon");
             
             // Find check UI objects by name
             _1stBombChecked = GameObject.Find("1stBombChecked");
             _2ndBombChecked = GameObject.Find("2ndBombChecked");
             _3rdBombChecked = GameObject.Find("3rdBombChecked");
-            _4thBombChecked = GameObject.Find("4thBombChecked");
-            _5thBombChecked = GameObject.Find("5thBombChecked");
-            _6thBombChecked = GameObject.Find("6thBombChecked");
-            skyblueBombChecked = GameObject.Find("SkyblueBombChecked");
             realBombChecked = GameObject.Find("RealBombChecked");
     
-            teleporterButton = GameObject.Find("TeleporterButton")?.GetComponent<Button>();
-            megaphoneButton = GameObject.Find("MegaphoneButton")?.GetComponent<Button>();
-            removeButton = GameObject.Find("RemoveButton")?.GetComponent<Button>();
             resetButton = GameObject.Find("ResetButton")?.GetComponent<Button>();
             exitButton = GameObject.Find("ExitButton")?.GetComponent<Button>();
             
@@ -171,27 +147,6 @@ public class StageRoot : MonoBehaviour
                 explodeButton.onClick.AddListener(() => GameService.Get<GameManager>()?.OnExplodeButtonClick());
             }
     
-            if (teleporterButton != null)
-            {
-                teleporterButton.onClick.RemoveAllListeners();
-                teleporterButton.onClick.AddListener(() => 
-                    GameService.Get<GameManager>()?.OnItemButtonClicked(ItemType.Teleporter));
-            }
-    
-            if (megaphoneButton != null)
-            {
-                megaphoneButton.onClick.RemoveAllListeners();
-                megaphoneButton.onClick.AddListener(() => 
-                    GameService.Get<GameManager>()?.OnItemButtonClicked(ItemType.Megaphone));
-            }
-            
-            if (removeButton != null)
-            {
-                removeButton.onClick.RemoveAllListeners();
-                removeButton.onClick.AddListener(() =>
-                    GameService.Get<GameManager>()?.OnRemoveButtonClick());
-            }
-    
             if (resetButton != null)
             {
                 resetButton.onClick.RemoveAllListeners();
@@ -209,6 +164,9 @@ public class StageRoot : MonoBehaviour
         }
 
         // 2. Per-Stage Logic (Reset dynamic state)
+        
+        // Load SaveData for initial bomb/item values
+        SaveData saveData = JsonDataUtility.LoadGameData(1); // TODO: remove hardcoding on file number
 
         // Initialize all managers with their scene references first.
         gameManager.Initialize(stageId, commonData);
@@ -217,12 +175,12 @@ public class StageRoot : MonoBehaviour
         enemyManager.Initialize(this.enemyPrefab, enemySet, this.enemySprite, this.stunnedEnemySprite);
         bombManager.Initialize(this.auxiliaryBombPrefab, this.realBombPrefab, 
             auxiliaryBombSet, realBombSet,
-            _1stBombText, _2ndBombText, _3rdBombText, _4thBombText, _5thBombText, _6thBombText,
-            skyblueBombText, realBombText,
-            _1stBombChecked, _2ndBombChecked, _3rdBombChecked, _4thBombChecked, _5thBombChecked, _6thBombChecked,
-            skyblueBombChecked, realBombChecked,
-            explodeButtonText);
-        itemManager.Initialize(itemPrefabs, itemSet, itemButtonTexts);
+            _1stBombText, _2ndBombText, _3rdBombText,
+            _1stBombIcon, _2ndBombIcon, _3rdBombIcon, _realBombIcon,
+            _1stBombChecked, _2ndBombChecked, _3rdBombChecked,
+            realBombChecked, explodeButtonText,
+            saveData);
+        itemManager.Initialize(itemPrefabs, itemSet, saveData.leftItem, itemIcon);
         wallManager.Initialize(wallPrefab, wallSprite);
 
         // Now that all managers are initialized, clear the stage.
