@@ -30,13 +30,13 @@ public partial class GameManager : MonoBehaviour
     private int GlobalToGridX(float x)
     {
         float cellSize = BoardManager.GetCellSize();
-        return Mathf.FloorToInt(x / cellSize + _width / 2f);
+        return Mathf.FloorToInt((x - _centerX) / cellSize + _width / 2f);
     }
 
     private int GlobalToGridY(float y)
     {
         float cellSize = BoardManager.GetCellSize();
-        return Mathf.FloorToInt(y / cellSize + _height / 2f);
+        return Mathf.FloorToInt((y - _centerY) / cellSize + _height / 2f);
     }
     
     // Remove a bomb or item at the specified position and restore to inventory

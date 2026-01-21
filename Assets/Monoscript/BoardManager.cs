@@ -22,6 +22,10 @@ public class BoardManager : MonoBehaviour
     private Color _lightTileColor = new Color(0.9f, 0.9f, 0.85f);
     private Color _darkTileColor = new Color(0.7f, 0.75f, 0.65f);
 
+    // center position of board
+    private float _centerX;
+    private float _centerY;
+
     public void ClearBoard()
     {
         if (_boardObject != null)
@@ -41,12 +45,16 @@ public class BoardManager : MonoBehaviour
 
         _width = gameManager.GetWidth();
         _height = gameManager.GetHeight();
+
+        _centerX = x;
+        _centerY = y;
         
         // Calculate cell size based on largest dimension
         _cellSize = fixedBoardSize / Mathf.Max(_width, _height);
 
         _boardObject = new GameObject("BoardBackground");
-        _boardObject.transform.position = new Vector3(x, y, 0);
+        // Hardcoded correction values based on the fieldSprite's characteristics
+        _boardObject.transform.position = new Vector3(x + 0.175f, y - 0.165f, 0);
         SpriteRenderer boardRenderer = _boardObject.AddComponent<SpriteRenderer>();
         boardRenderer.sprite = fieldSprite;
         boardRenderer.sortingOrder = -10;
@@ -70,10 +78,11 @@ public class BoardManager : MonoBehaviour
             for (int y = 0; y < _height; y++)
             {
                 GameObject tile = new GameObject($"Tile_{x}_{y}");
-                tile.transform.SetParent(_boardObject.transform);
+                
                 
                 // Position the tile
                 tile.transform.position = GridToWorld(x, y);
+                tile.transform.SetParent(_boardObject.transform);
                 tile.transform.localScale = Vector3.one * _cellSize * 0.95f; // Slight gap between tiles
                 
                 // Add sprite renderer
@@ -110,13 +119,15 @@ public class BoardManager : MonoBehaviour
     {
         float xCoordination = (x - (_width - 1) / 2f) * _cellSize;
         float yCoordination = (y - (_height - 1) / 2f) * _cellSize;
-        return new Vector3(xCoordination, yCoordination, 0);
+        return new Vector3(xCoordination + _centerX, yCoordination + _centerY, 0);
     }
 
     public Vector2Int WorldToGrid(Vector3 worldPosition)
     {
-        int x = Mathf.RoundToInt((worldPosition.x / _cellSize) + (_width - 1) / 2f);
-        int y = Mathf.RoundToInt((worldPosition.y / _cellSize) + (_height - 1) / 2f);
+        float xCoordination = worldPosition.x - _centerX;
+        float yCoordination = worldPosition.y - _centerY;
+        int x = Mathf.RoundToInt((xCoordination / _cellSize) + (_width - 1) / 2f);
+        int y = Mathf.RoundToInt((yCoordination / _cellSize) + (_height - 1) / 2f);
         return new Vector2Int(x, y);
     }
 

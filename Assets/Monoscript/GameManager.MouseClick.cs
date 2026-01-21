@@ -35,6 +35,10 @@ public partial class GameManager : MonoBehaviour
                     ItemManager.UnselectItem();
                     BombManager.SetCurrentIndex(3);
                     return;
+                case "ItemIcon":
+                    ItemManager.SelectItem();
+                    BombManager.SetCurrentIndex(-1);
+                    return;
             }
         }
 

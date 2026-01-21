@@ -159,6 +159,12 @@ public class ItemManager : MonoBehaviour
         UpdateItemIcon();
     }
 
+    public void SetPreviousIndex()
+    {
+        _currentItemIndex = (_currentItemIndex - 1 + _leftoverItems.Count) % _leftoverItems.Count;
+        UpdateItemIcon();
+    }
+
     // public void ClearCurrentItemType()
     // {
     //     _currentItemType = null;
@@ -316,9 +322,17 @@ public class ItemManager : MonoBehaviour
 
     private void UpdateItemIcon()
     {
-        if (_itemIcon != null && _leftoverItems.Count > 0)
-        {
-            _itemIcon.GetComponent<SpriteRenderer>().sprite = GetItemData(_leftoverItems[_currentItemIndex].itemType).iconSprite;
-        }
+        var sr = _itemIcon.GetComponent<SpriteRenderer>();
+        ItemData data = GetItemData(_leftoverItems[_currentItemIndex].itemType);
+        sr.sprite = data.iconSprite;
+        // Resize to match cell size
+        float cellSize = _boardManager.GetCellSize();
+        Vector2 spriteSize = sr.sprite.bounds.size;
+        float scaleX = cellSize / spriteSize.x;
+        float scaleY = cellSize / spriteSize.y;
+        float scale = Mathf.Min(scaleX, scaleY);
+        // Hardcoded to match the size of the item slot sprite
+        _itemIcon.transform.localScale = Vector3.one * scale * 0.5f;
     }
+
 }

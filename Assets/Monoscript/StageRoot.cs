@@ -67,7 +67,8 @@ public class StageRoot : MonoBehaviour
 
     public void Install(int stageId, IngameCommonData commonData, 
         GameObject enemyPrefab, GameObject auxiliaryBombPrefab, GameObject realBombPrefab, 
-        GameObject wallPrefab, GameObject itemIcon, Sprite enemySprite, Sprite stunnedEnemySprite, Sprite fieldSprite, Sprite wallSprite)
+        GameObject wallPrefab, GameObject itemIcon, Sprite enemySprite, Sprite stunnedEnemySprite,
+        Sprite fieldSprite, Sprite wallSprite, float centerX, float centerY)
     {
         // 1. One-time Init (Find objects, cache references, set listeners)
         if (!_isInitialized)
@@ -164,14 +165,22 @@ public class StageRoot : MonoBehaviour
         }
 
         // 2. Per-Stage Logic (Reset dynamic state)
+
+        // set the center position of parent object
+        Transform wallSet = GameObject.Find("WallSet").transform;
+        enemySet.position = new Vector3(centerX, centerY, 0);
+        auxiliaryBombSet.position = new Vector3(centerX, centerY, 0);
+        realBombSet.position = new Vector3(centerX, centerY, 0);
+        itemSet.position = new Vector3(centerX, centerY, 0);
+        wallSet.position = new Vector3(centerX, centerY, 0);
         
         // Load SaveData for initial bomb/item values
         SaveData saveData = JsonDataUtility.LoadGameData(1); // TODO: remove hardcoding on file number
 
         // Initialize all managers with their scene references first.
-        gameManager.Initialize(stageId, commonData);
+        gameManager.Initialize(stageId, commonData, centerX, centerY);
         // Corrected via hardcoding
-        boardManager.Initialize(fieldSprite, 0.17f, -0.17f);
+        boardManager.Initialize(fieldSprite, centerX, centerY);
         enemyManager.Initialize(this.enemyPrefab, enemySet, this.enemySprite, this.stunnedEnemySprite);
         bombManager.Initialize(this.auxiliaryBombPrefab, this.realBombPrefab, 
             auxiliaryBombSet, realBombSet,

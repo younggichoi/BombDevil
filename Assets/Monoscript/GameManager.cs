@@ -68,6 +68,9 @@ public partial class GameManager : MonoBehaviour
     private GameObject _enemyPrefab;
     private Sprite _enemySprite;
 
+    private float _centerX;
+    private float _centerY;
+
     public void ClearStage()
     {
         // GameService.Get<BoardManager>()?.ClearBoard();
@@ -78,10 +81,12 @@ public partial class GameManager : MonoBehaviour
         HideItemPreview();
     }
 
-    public void Initialize(int stageId, IngameCommonData commonData)
+    public void Initialize(int stageId, IngameCommonData commonData, float centerX, float centerY)
     {
         StopAllCoroutines();
         _isTurnInProgress = false;
+        _centerX = centerX;
+        _centerY = centerY;
         
         ClearStage();
         SetStageState(stageId);
@@ -221,6 +226,23 @@ public partial class GameManager : MonoBehaviour
             itemManager?.UnselectItem();
             if (bombManager != null) bombManager.SetCurrentIndex(3);
             _bombTypeChanged = true;
+        }
+        
+        if (Input.GetKeyDown(KeyCode.Alpha5))
+        {
+            itemManager?.SelectItem();
+            // unselect bomb
+            bombManager?.SetCurrentIndex(-1);
+        }
+        
+        if (Input.GetKeyDown(KeyCode.LeftArrow))
+        {
+            itemManager?.SetPreviousIndex();
+        }
+        
+        if (Input.GetKeyDown(KeyCode.RightArrow))
+        {
+            itemManager?.SetNextIndex();
         }
         
         // Show item preview if item is selected, otherwise bomb preview, otherwise remove preview, otherwise hide all
