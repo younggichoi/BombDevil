@@ -25,7 +25,7 @@ public partial class GameManager : MonoBehaviour
     private int _scoring;
     private int _remainingTurns;
     private int _stageId;
-    private string _boardSpritePath;
+    private List<TreasureChestData> _treasureChests;
     // scoping board situation - List to allow multiple objects per cell
     private List<GameObject>[,] _board;
     // combined bomb order (tracks both auxiliary and real bombs in placement order)
@@ -182,7 +182,7 @@ public partial class GameManager : MonoBehaviour
         _enemyNumber = editorData.enemyNumber;
         _wallNumber = editorData.wallNumber;
         _remainingTurns = editorData.remainingTurns;
-        _boardSpritePath = editorData.boardSpritePath;
+        _treasureChests = editorData.treasureChest;
     }
 
     void Update()

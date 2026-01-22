@@ -35,7 +35,6 @@ public partial class GameManager : MonoBehaviour
         return _scoring;
     }
     
-    public string GetBoardSpritePath() => _boardSpritePath;
     public GameState GetCurrentState() => _currentState;
 
     private static float Mod(float x, int m) => (x % m + m) % m;

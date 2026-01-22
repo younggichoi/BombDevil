@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Entity
 {
     [System.Serializable]
@@ -12,6 +14,13 @@ namespace Entity
         // Turn limit for the stage
         public int remainingTurns;
         
-        public string boardSpritePath;  // Resources path to board sprite (e.g., "Sprites/Boards/board_7x7")
+        public List<TreasureChestData> treasureChest;
+    }
+
+    [System.Serializable]
+    public struct TreasureChestData
+    {
+        public int durability;
+        public int value;
     }
 }

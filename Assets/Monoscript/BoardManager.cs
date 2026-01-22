@@ -146,9 +146,9 @@ public class BoardManager : MonoBehaviour
     public int GetWidth() => _width;
     public int GetHeight() => _height;
     
-    // get boundary coordinates (scaled)
-    public float GetMinX() => -_width / 2f * _cellSize;
-    public float GetMaxX() => _width / 2f * _cellSize;
-    public float GetMinY() => -_height / 2f * _cellSize;
-    public float GetMaxY() => _height / 2f * _cellSize;
+    // get boundary coordinates (scaled, including center offset)
+    public float GetMinX() => -_width / 2f * _cellSize + _centerX;
+    public float GetMaxX() => _width / 2f * _cellSize + _centerX;
+    public float GetMinY() => -_height / 2f * _cellSize + _centerY;
+    public float GetMaxY() => _height / 2f * _cellSize + _centerY;
 }

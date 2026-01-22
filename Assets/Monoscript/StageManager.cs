@@ -15,11 +15,13 @@ public class StageManager : MonoBehaviour
     public GameObject auxiliaryBombPrefab;
     public GameObject realBombPrefab;
     public GameObject wallPrefab;
+    public GameObject treasureChestPrefab;
     public GameObject itemIcon;
     public Sprite enemySprite;
     public Sprite stunnedEnemySprite;
     public Sprite fieldSprite;
     public Sprite wallSprite;
+    public Sprite treasureChestSprite;
 
     // center position of board
     public float centerX;
@@ -87,8 +89,8 @@ public class StageManager : MonoBehaviour
         StageRoot stageRoot = currStage.GetComponent<StageRoot>();
 
         stageRoot.Install(stageId, commonData, enemyPrefab, auxiliaryBombPrefab, realBombPrefab,
-            wallPrefab, itemIcon, enemySprite, stunnedEnemySprite, fieldSprite, wallSprite,
-            centerX, centerY);
+            wallPrefab, treasureChestPrefab, itemIcon, enemySprite, stunnedEnemySprite, fieldSprite,
+            wallSprite, treasureChestSprite, centerX, centerY);
         
         // Subscribe to game state changed event
         _currentGameManager = stageRoot.GameManager;

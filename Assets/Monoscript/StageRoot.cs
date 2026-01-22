@@ -13,6 +13,7 @@ public class StageRoot : MonoBehaviour
     private BoardManager boardManager;
     private ItemManager itemManager;
     private WallManager wallManager;
+    private TreasureChestManager treasureChestManager;
     
     // Prefabs and sprites (received from StageManager)
     private GameObject enemyPrefab;
@@ -67,8 +68,9 @@ public class StageRoot : MonoBehaviour
 
     public void Install(int stageId, IngameCommonData commonData, 
         GameObject enemyPrefab, GameObject auxiliaryBombPrefab, GameObject realBombPrefab, 
-        GameObject wallPrefab, GameObject itemIcon, Sprite enemySprite, Sprite stunnedEnemySprite,
-        Sprite fieldSprite, Sprite wallSprite, float centerX, float centerY)
+        GameObject wallPrefab, GameObject treasureChestPrefab, GameObject itemIcon, 
+        Sprite enemySprite, Sprite stunnedEnemySprite, Sprite fieldSprite, 
+        Sprite wallSprite, Sprite treasureChestSprite, float centerX, float centerY)
     {
         // 1. One-time Init (Find objects, cache references, set listeners)
         if (!_isInitialized)
@@ -90,6 +92,7 @@ public class StageRoot : MonoBehaviour
             boardManager = GetComponentInChildren<BoardManager>();
             itemManager = GetComponentInChildren<ItemManager>();
             wallManager = GetComponentInChildren<WallManager>();
+            treasureChestManager = GetComponentInChildren<TreasureChestManager>();
 
             // Register all managers with the GameService
             GameService.Register(gameManager);
@@ -98,6 +101,7 @@ public class StageRoot : MonoBehaviour
             GameService.Register(boardManager);
             GameService.Register(itemManager);
             GameService.Register(wallManager);
+            GameService.Register(treasureChestManager);
             
             // Find item prefabs and UI
             ItemPrefabLibrary itemPrefabLibrary = GetComponentInChildren<ItemPrefabLibrary>();
@@ -168,11 +172,13 @@ public class StageRoot : MonoBehaviour
 
         // set the center position of parent object
         Transform wallSet = GameObject.Find("WallSet").transform;
+        Transform treasureChestSet = GameObject.Find("TreasureChestSet").transform;
         enemySet.position = new Vector3(centerX, centerY, 0);
         auxiliaryBombSet.position = new Vector3(centerX, centerY, 0);
         realBombSet.position = new Vector3(centerX, centerY, 0);
         itemSet.position = new Vector3(centerX, centerY, 0);
         wallSet.position = new Vector3(centerX, centerY, 0);
+        treasureChestSet.position = new Vector3(centerX, centerY, 0);
         
         // Load SaveData for initial bomb/item values
         SaveData saveData = JsonDataUtility.LoadGameData(1); // TODO: remove hardcoding on file number
@@ -191,6 +197,7 @@ public class StageRoot : MonoBehaviour
             saveData);
         itemManager.Initialize(itemPrefabs, itemSet, saveData.leftItem, itemIcon);
         wallManager.Initialize(wallPrefab, wallSprite);
+        treasureChestManager.Initialize(treasureChestSet, treasureChestSprite, treasureChestPrefab);
 
         // Now that all managers are initialized, clear the stage.
         gameManager.ClearStage();
@@ -203,9 +210,10 @@ public class StageRoot : MonoBehaviour
         enemyManager.SetEnemyPrefab(enemyPrefab);
         enemyManager.SetEnemySprite(enemySprite);
         
-        // Create walls and enemies for this stage'
+        // Create objects for this stage'
         gameManager.CreateWall();
         gameManager.CreateEnemy();
+        gameManager.CreateTreasureChest();
     }
     
     // Load sprite from Resources folder
