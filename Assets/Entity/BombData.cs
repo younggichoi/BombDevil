@@ -10,6 +10,10 @@ namespace Entity
         public int range;
         public int knockbackDistance;
         public string colorHex;
+        public string fieldSpriteName;
+        public string iconSpriteName;
+        public Sprite fieldSprite;
+        public Sprite iconSprite;
         
         // Get Color from hex string
         public Color GetColor()

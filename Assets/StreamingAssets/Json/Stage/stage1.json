@@ -5,5 +5,10 @@
     "enemyNumber": 5,
     "wallNumber": 5,
     "remainingTurns": 20,
-    "boardSpritePath": "Sprites/Boards/board_7x7"
+    "treasureChest": [
+        {
+            "durability": 3,
+            "value": 1
+        }
+    ]
 }

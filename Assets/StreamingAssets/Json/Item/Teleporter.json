@@ -1,5 +1,7 @@
 {
   "itemName": "Teleporter",
+  "fieldSpriteName": "item_potal_field_1",
+  "iconSpriteName": "item_potal_icon_1",
   "range": 0,
   "color": {
     "r": 0.5,

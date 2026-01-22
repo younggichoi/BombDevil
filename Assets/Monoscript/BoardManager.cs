@@ -6,7 +6,7 @@ public class BoardManager : MonoBehaviour
     private GameObject[,] _tiles;
     
     // Parent object for tiles
-    private Transform _tileParent;
+    private GameObject _boardObject;
     
     // fixed board size on screen (units)
     private float fixedBoardSize = 8f;
@@ -22,27 +22,44 @@ public class BoardManager : MonoBehaviour
     private Color _lightTileColor = new Color(0.9f, 0.9f, 0.85f);
     private Color _darkTileColor = new Color(0.7f, 0.75f, 0.65f);
 
+    // center position of board
+    private float _centerX;
+    private float _centerY;
+
     public void ClearBoard()
     {
-        if (_tileParent != null)
+        if (_boardObject != null)
         {
-            Destroy(_tileParent.gameObject);
+            Destroy(_boardObject);
         }
         _tiles = null;
     }
 
-    public void Initialize(Sprite boardSpritePrefab)
+    // x and y are correction values based on the sprite's relative position
+    public void Initialize(Sprite fieldSprite, float x, float y)
     {
+        ClearBoard();
+
         var gameManager = GameService.Get<GameManager>();
         if (gameManager == null) return;
 
         _width = gameManager.GetWidth();
         _height = gameManager.GetHeight();
+
+        _centerX = x;
+        _centerY = y;
         
         // Calculate cell size based on largest dimension
         _cellSize = fixedBoardSize / Mathf.Max(_width, _height);
+
+        _boardObject = new GameObject("BoardBackground");
+        // Hardcoded correction values based on the fieldSprite's characteristics
+        _boardObject.transform.position = new Vector3(x + 0.175f, y - 0.165f, 0);
+        SpriteRenderer boardRenderer = _boardObject.AddComponent<SpriteRenderer>();
+        boardRenderer.sprite = fieldSprite;
+        boardRenderer.sortingOrder = -10;
         
-        // Create the tile grid
+        // Create the tile grid 
         CreateTileGrid();
     }
     
@@ -50,35 +67,32 @@ public class BoardManager : MonoBehaviour
     private void CreateTileGrid()
     {
         Debug.Log("BoardManager: Creating tile grid");
-        // Create parent object for tiles
-        GameObject parentObj = new GameObject("BoardTiles");
-        parentObj.transform.position = Vector3.zero;
-        _tileParent = parentObj.transform;
         
         _tiles = new GameObject[_width, _height];
         
         // Create a simple square sprite for tiles
-        Sprite tileSprite = CreateSquareSprite();
+        // Sprite tileSprite = CreateSquareSprite();
         
         for (int x = 0; x < _width; x++)
         {
             for (int y = 0; y < _height; y++)
             {
                 GameObject tile = new GameObject($"Tile_{x}_{y}");
-                tile.transform.SetParent(_tileParent);
+                
                 
                 // Position the tile
                 tile.transform.position = GridToWorld(x, y);
+                tile.transform.SetParent(_boardObject.transform);
                 tile.transform.localScale = Vector3.one * _cellSize * 0.95f; // Slight gap between tiles
                 
                 // Add sprite renderer
                 SpriteRenderer sr = tile.AddComponent<SpriteRenderer>();
-                sr.sprite = tileSprite;
+                // sr.sprite = tileSprite;
                 sr.sortingOrder = -10;
                 
                 // Apply checkerboard pattern
-                bool isLight = (x + y) % 2 == 0;
-                sr.color = isLight ? _lightTileColor : _darkTileColor;
+                // bool isLight = (x + y) % 2 == 0;
+                // sr.color = isLight ? _lightTileColor : _darkTileColor;
                 
                 _tiles[x, y] = tile;
             }
@@ -105,13 +119,15 @@ public class BoardManager : MonoBehaviour
     {
         float xCoordination = (x - (_width - 1) / 2f) * _cellSize;
         float yCoordination = (y - (_height - 1) / 2f) * _cellSize;
-        return new Vector3(xCoordination, yCoordination, 0);
+        return new Vector3(xCoordination + _centerX, yCoordination + _centerY, 0);
     }
 
     public Vector2Int WorldToGrid(Vector3 worldPosition)
     {
-        int x = Mathf.RoundToInt((worldPosition.x / _cellSize) + (_width - 1) / 2f);
-        int y = Mathf.RoundToInt((worldPosition.y / _cellSize) + (_height - 1) / 2f);
+        float xCoordination = worldPosition.x - _centerX;
+        float yCoordination = worldPosition.y - _centerY;
+        int x = Mathf.RoundToInt((xCoordination / _cellSize) + (_width - 1) / 2f);
+        int y = Mathf.RoundToInt((yCoordination / _cellSize) + (_height - 1) / 2f);
         return new Vector2Int(x, y);
     }
 
@@ -130,9 +146,9 @@ public class BoardManager : MonoBehaviour
     public int GetWidth() => _width;
     public int GetHeight() => _height;
     
-    // get boundary coordinates (scaled)
-    public float GetMinX() => -_width / 2f * _cellSize;
-    public float GetMaxX() => _width / 2f * _cellSize;
-    public float GetMinY() => -_height / 2f * _cellSize;
-    public float GetMaxY() => _height / 2f * _cellSize;
+    // get boundary coordinates (scaled, including center offset)
+    public float GetMinX() => -_width / 2f * _cellSize + _centerX;
+    public float GetMaxX() => _width / 2f * _cellSize + _centerX;
+    public float GetMinY() => -_height / 2f * _cellSize + _centerY;
+    public float GetMaxY() => _height / 2f * _cellSize + _centerY;
 }

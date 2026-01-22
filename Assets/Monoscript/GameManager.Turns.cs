@@ -167,12 +167,19 @@ public partial class GameManager : MonoBehaviour
             }
         }
 
-        // If a megaphone is active, immediately set the enemies' direction towards it before they move.
+        // If a megaphone is active, set direction for enemies in same row/column (cross-pattern)
         if (Megaphone.activeMegaphonePosition.HasValue)
         {
+            Vector2Int megaphoneGridPos = Megaphone.activeMegaphonePosition.Value;
+            Vector3 megaphoneWorldPos = BoardManager.GridToWorld(megaphoneGridPos.x, megaphoneGridPos.y);
+            
             foreach (var (x, y, obj, enemy) in enemies)
             {
-                enemy.SetDirectionTowards(Megaphone.activeMegaphonePosition.Value);
+                // Only affect enemies in the same row OR same column as the megaphone
+                if (x == megaphoneGridPos.x || y == megaphoneGridPos.y)
+                {
+                    enemy.SetDirectionTowards(megaphoneWorldPos);
+                }
             }
         }
 

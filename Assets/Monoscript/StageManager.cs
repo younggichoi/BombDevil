@@ -1,6 +1,7 @@
 using UnityEngine;
 using Entity;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class StageManager : MonoBehaviour
 {
@@ -14,7 +15,17 @@ public class StageManager : MonoBehaviour
     public GameObject auxiliaryBombPrefab;
     public GameObject realBombPrefab;
     public GameObject wallPrefab;
+    public GameObject treasureChestPrefab;
+    public GameObject itemIcon;
     public Sprite enemySprite;
+    public Sprite stunnedEnemySprite;
+    public Sprite fieldSprite;
+    public Sprite wallSprite;
+    public Sprite treasureChestSprite;
+
+    // center position of board
+    public float centerX;
+    public float centerY;
     
     // StageRoot prefab
     public GameObject stageRootPrefab;
@@ -31,7 +42,7 @@ public class StageManager : MonoBehaviour
     void Start()
     {
         StartGame();
-        
+
         // Find the reset button and add a listener
         Button resetButton = GameObject.Find("ResetButton")?.GetComponent<Button>();
         if (resetButton != null)
@@ -76,7 +87,10 @@ public class StageManager : MonoBehaviour
             enemyColor);
         
         StageRoot stageRoot = currStage.GetComponent<StageRoot>();
-        stageRoot.Install(stageId, commonData, enemyPrefab, auxiliaryBombPrefab, realBombPrefab, wallPrefab, enemySprite);
+
+        stageRoot.Install(stageId, commonData, enemyPrefab, auxiliaryBombPrefab, realBombPrefab,
+            wallPrefab, treasureChestPrefab, itemIcon, enemySprite, stunnedEnemySprite, fieldSprite,
+            wallSprite, treasureChestSprite, centerX, centerY);
         
         // Subscribe to game state changed event
         _currentGameManager = stageRoot.GameManager;
@@ -121,15 +135,14 @@ public class StageManager : MonoBehaviour
     {
         SaveData saveData = new SaveData
         {
-            left1stBomb = _currentGameManager.GetRemainingBombCount(BombType.FirstBomb),
-            left2ndBomb = _currentGameManager.GetRemainingBombCount(BombType.SecondBomb),
-            left3rdBomb = _currentGameManager.GetRemainingBombCount(BombType.ThirdBomb),
-            left4thBomb = _currentGameManager.GetRemainingBombCount(BombType.FourthBomb),
-            left5thBomb = _currentGameManager.GetRemainingBombCount(BombType.FifthBomb),
-            left6thBomb = _currentGameManager.GetRemainingBombCount(BombType.SixthBomb),
-            leftSkyblueBomb = _currentGameManager.GetRemainingBombCount(BombType.SkyblueBomb),
-            leftTeleporter = _currentGameManager.GetRemainingItemCount(ItemType.Teleporter),
-            leftMegaphone = _currentGameManager.GetRemainingItemCount(ItemType.Megaphone)
+            left1stBomb = _currentGameManager.GetBombCount(0),
+            left2ndBomb = _currentGameManager.GetBombCount(1),
+            left3rdBomb = _currentGameManager.GetBombCount(2),
+            firstBombType = _currentGameManager.GetBombType(0),
+            secondBombType = _currentGameManager.GetBombType(1),
+            thirdBombType = _currentGameManager.GetBombType(2),
+            leftItem = GameService.Get<ItemManager>().GetRemainingItem(),
+            scoring = _currentGameManager.GetScore()
         };
         JsonDataUtility.SaveGameData(saveData, 1); // Hardcoded to file1.json
     }

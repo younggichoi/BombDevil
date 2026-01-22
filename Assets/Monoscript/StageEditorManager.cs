@@ -89,8 +89,7 @@ public class StageEditorManager : MonoBehaviour
             initial5thBomb = int.Parse(Initial5thBombInput.text),
             initial6thBomb = int.Parse(Initial6thBombInput.text),
             initialSkyblueBomb = int.Parse(InitialSkyblueBombInput.text),
-            remainingTurns = int.Parse(RemainingTurnsInput.text),
-            boardSpritePath = "Sprites/Boards/board_7x7" // Set a default or get from input
+            remainingTurns = int.Parse(RemainingTurnsInput.text)
         };
         JsonDataUtility.SaveStageEditorData(stageData);
     }

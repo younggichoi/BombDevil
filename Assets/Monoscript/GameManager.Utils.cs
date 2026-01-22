@@ -1,5 +1,6 @@
 using UnityEngine;
 using Entity;
+using System.Collections.Generic;
 
 public partial class GameManager : MonoBehaviour
 {
@@ -13,47 +14,15 @@ public partial class GameManager : MonoBehaviour
     public int GetWidth() => _width;
     public int GetHeight() => _height;
     public int GetEnemyNumber() => _enemyNumber;
-    public int GetInitialBombCount(BombType bombType)
+
+    public int GetBombCount(int index)
     {
-        switch (bombType)
-        {
-            case BombType.FirstBomb:
-                return _initial1stBomb;
-            case BombType.SecondBomb:
-                return _initial2ndBomb;
-            case BombType.ThirdBomb:
-                return _initial3rdBomb;
-            case BombType.FourthBomb:
-                return _initial4thBomb;
-            case BombType.FifthBomb:
-                return _initial5thBomb;
-            case BombType.SixthBomb:
-                return _initial6thBomb;
-            case BombType.SkyblueBomb:
-                return _initialSkyblueBomb;
-            default:
-                return 0;
-        }
+        return BombManager.GetBombCount(index);
     }
 
-    public int GetInitialItemCount(ItemType itemType)
+    public BombType GetBombType(int index)
     {
-        switch (itemType)
-        {
-            case ItemType.Teleporter:
-                Debug.Log($"Initial Teleporter Count: {_initialTeleporter}");
-                return _initialTeleporter;
-            case ItemType.Megaphone:
-                Debug.Log($"Initial Megaphone Count: {_initialMegaphone}");
-                return _initialMegaphone;
-            default:
-                return 0;
-        }
-    }
-
-    public int GetRemainingBombCount(BombType bombType)
-    {
-        return BombManager.GetLeftoverBomb(bombType);
+        return BombManager.GetBombType(index);
     }
 
     public int GetRemainingItemCount(ItemType itemType)
@@ -61,7 +30,11 @@ public partial class GameManager : MonoBehaviour
         return ItemManager.GetLeftoverItem(itemType);
     }
     
-    public string GetBoardSpritePath() => _boardSpritePath;
+    public int GetScore()
+    {
+        return _scoring;
+    }
+    
     public GameState GetCurrentState() => _currentState;
 
     private static float Mod(float x, int m) => (x % m + m) % m;
@@ -88,6 +61,15 @@ public partial class GameManager : MonoBehaviour
             if (obj.GetComponent(componentType) != null) return true;
         }
         return false;
+    }
+
+    // Get all objects at a specific grid position (for collision detection)
+    public List<GameObject> GetObjectsAt(int x, int y)
+    {
+        if (x < 0 || x >= _width || y < 0 || y >= _height)
+            return new List<GameObject>();
+        
+        return _board[x, y];
     }
 
     // Vector2 version: directionAndDistance is in board units (not normalized)

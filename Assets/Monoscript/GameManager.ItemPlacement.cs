@@ -4,19 +4,17 @@ using Entity;
 public partial class GameManager : MonoBehaviour
 {
     // Call this from UI button event
-    public void OnItemButtonClicked(ItemType itemType)
+    public void OnItemButtonClicked()
     {
-        ItemManager.SetCurrentItemType(itemType);
+        ItemManager.SelectItem();
     }
 
     // Call this from UI or game logic to place item at grid position
     public void PlaceItemAt(int x, int y)
     {
-        if (_board[x, y].Count > 0)
+        if (!ItemManager.HasItemSelected() || _board[x, y].Count > 0)
             return;
         ItemType? currentType = ItemManager.GetCurrentItemType();
-        if (!currentType.HasValue || !ItemManager.CheckItemAvailable(currentType.Value))
-            return;
         GameObject item = ItemManager.PlaceItem(x, y);
         if (item != null)
         {

@@ -2,5 +2,7 @@
     "bombType": "SkyblueBomb",
     "range": 1,
     "knockbackDistance": 3,
-    "colorHex": "#87CEFA"
+    "colorHex": "#87CEFA",
+    "fieldSpriteName": "bomb_field_cross_2",
+    "iconSpriteName": "bomb_icon_cross_2"
 }

@@ -8,21 +8,6 @@ public partial class GameManager : MonoBehaviour
         Vector3 screenPos = Input.mousePosition;
         Vector3 worldPos = Camera.main.ScreenToWorldPoint(screenPos);
         worldPos.z = 0;  // 2D 게임이므로 z를 0으로 설정
-
-        // Remove mode - click on bomb or item to remove it
-        if (_isRemoveMode)
-        {
-            int rx = GlobalToGridX(worldPos.x);
-            int ry = GlobalToGridY(worldPos.y);
-            if (rx >= 0 && rx < _width && ry >= 0 && ry < _height)
-            {
-                if (HasBombAt(rx, ry) || HasItemAt(rx, ry))
-                {
-                    RemoveObjectAt(rx, ry);
-                    return;
-                }
-            }
-        }
         
         // Raycast로 클릭된 오브젝트 감지
         RaycastHit2D hit = Physics2D.Raycast(worldPos, Vector2.zero);
@@ -34,48 +19,25 @@ public partial class GameManager : MonoBehaviour
             // 폭탄 선택 처리 (스프라이트에 Collider2D 필요)
             switch (objectName)
             {
-                case "1stBomb":
-                    ExitRemoveMode();
-                    ItemManager.ClearCurrentItemType();
-                    BombManager.SetCurrentBombType(BombType.FirstBomb);
+                case "1stBombIcon":
+                    ItemManager.UnselectItem();
+                    BombManager.SetCurrentIndex(0);
                     return;
-                case "2ndBomb":
-                    ExitRemoveMode();
-                    ItemManager.ClearCurrentItemType();
-                    BombManager.SetCurrentBombType(BombType.SecondBomb);
+                case "2ndBombIcon":
+                    ItemManager.UnselectItem();
+                    BombManager.SetCurrentIndex(1);
                     return;
-                case "3rdBomb":
-                    ExitRemoveMode();
-                    ItemManager.ClearCurrentItemType();
-                    BombManager.SetCurrentBombType(BombType.ThirdBomb);
+                case "3rdBombIcon":
+                    ItemManager.UnselectItem();
+                    BombManager.SetCurrentIndex(2);
                     return;
-                case "4thBomb":
-                    ExitRemoveMode();
-                    ItemManager.ClearCurrentItemType();
-                    BombManager.SetCurrentBombType(BombType.FourthBomb);
+                case "RealBombIcon":
+                    ItemManager.UnselectItem();
+                    BombManager.SetCurrentIndex(3);
                     return;
-                case "5thBomb":
-                    ExitRemoveMode();
-                    ItemManager.ClearCurrentItemType();
-                    BombManager.SetCurrentBombType(BombType.FifthBomb);
-                    return;
-                case "6thBomb":
-                    ExitRemoveMode();
-                    ItemManager.ClearCurrentItemType();
-                    BombManager.SetCurrentBombType(BombType.SixthBomb);
-                    return;
-                case "SkyblueBomb":
-                    ExitRemoveMode();
-                    ItemManager.ClearCurrentItemType();
-                    BombManager.SetCurrentBombType(BombType.SkyblueBomb);
-                    return;
-                case "RealBomb":
-                    ExitRemoveMode();
-                    ItemManager.ClearCurrentItemType();
-                    if (BombManager.IsRealBombAvailable())
-                    {
-                        BombManager.SetCurrentBombType(BombType.RealBomb);
-                    }
+                case "ItemIcon":
+                    ItemManager.SelectItem();
+                    BombManager.SetCurrentIndex(-1);
                     return;
             }
         }
@@ -96,9 +58,9 @@ public partial class GameManager : MonoBehaviour
         // 폭탄 배치 처리
         if (!BombManager.HasBombSelected())
         {
-            int testX = GlobalToGridX(worldPos.x);
-            int testY = GlobalToGridY(worldPos.y);
-            if (testX >= 0 && testX < _width && testY >= 0 && testY < _height)
+            int x = GlobalToGridX(worldPos.x);
+            int y = GlobalToGridY(worldPos.y);
+            if (x >= 0 && x < _width && y >= 0 && y < _height)
             {
                 ShowTempMessage("No bomb has been selected!", 1f, "Player's turn");
             }

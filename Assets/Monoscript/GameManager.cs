@@ -22,18 +22,10 @@ public partial class GameManager : MonoBehaviour
     private int _height;
     private int _enemyNumber;
     private int _wallNumber;
-    private int _initial1stBomb;
-    private int _initial2ndBomb;
-    private int _initial3rdBomb;
-    private int _initial4thBomb;
-    private int _initial5thBomb;
-    private int _initial6thBomb;
-    private int _initialSkyblueBomb;
-    private int _initialTeleporter;
-    private int _initialMegaphone;
+    private int _scoring;
     private int _remainingTurns;
     private int _stageId;
-    private string _boardSpritePath;
+    private List<TreasureChestData> _treasureChests;
     // scoping board situation - List to allow multiple objects per cell
     private List<GameObject>[,] _board;
     // combined bomb order (tracks both auxiliary and real bombs in placement order)
@@ -47,8 +39,6 @@ public partial class GameManager : MonoBehaviour
     // combined item order (tracks all items in placement order)
     private List<(Vector2Int coord, ItemType itemType)> _allItems;
     private List<Vector2Int> _teleporters;
-    // default item sprite for preview
-    private Sprite _defaultItemSprite;
     // RealBomb kill tracking
     private int _realBombKillCount = 0;
     private int _totalEnemyCount = 0;
@@ -69,10 +59,6 @@ public partial class GameManager : MonoBehaviour
     private List<GameObject> _rangeIndicators;
     private List<GameObject> _enemyPredictionIndicators;  // Shows predicted enemy positions
     private Vector2Int _lastHoveredCell = new Vector2Int(-1, -1);
-    private Sprite _defaultBombSprite;
-    // Remove mode
-    private bool _isRemoveMode = false;
-    private GameObject _removeIndicator;  // X marker for remove mode
     // Stage stats UI
     private TMP_Text _stageText;
     private TMP_Text _timeText;
@@ -82,26 +68,29 @@ public partial class GameManager : MonoBehaviour
     private GameObject _enemyPrefab;
     private Sprite _enemySprite;
 
+    private float _centerX;
+    private float _centerY;
+
     public void ClearStage()
     {
-        GameService.Get<BoardManager>()?.ClearBoard();
+        // GameService.Get<BoardManager>()?.ClearBoard();
         GameService.Get<BombManager>()?.ClearBombs();
         GameService.Get<EnemyManager>()?.ClearEnemies();
         GameService.Get<ItemManager>()?.ClearItems();
         HidePreview();
         HideItemPreview();
-        HideRemovePreview();
     }
 
-    public void Initialize(int stageId, IngameCommonData commonData)
+    public void Initialize(int stageId, IngameCommonData commonData, float centerX, float centerY)
     {
         StopAllCoroutines();
         _isTurnInProgress = false;
+        _centerX = centerX;
+        _centerY = centerY;
         
         ClearStage();
         SetStageState(stageId);
         SetCommonData(commonData);
-        GameService.Get<ItemManager>()?.ResetItems();
         _board = new List<GameObject>[_width, _height];
         for (int x = 0; x < _width; x++)
         {
@@ -122,14 +111,14 @@ public partial class GameManager : MonoBehaviour
         _currentState = GameState.Playing;
 
         //TODO: this is only a temporary fix. Need to find the real reason for the bug.
-        GameService.Get<BoardManager>()?.Initialize(null);
+        // GameService.Get<BoardManager>()?.Initialize(fieldSprite, 0.5f, -0.5f);
         GameService.Register(this);
     }
     // Set default item sprite for item preview
-    public void SetDefaultItemSprite(Sprite sprite)
-    {
-        _defaultItemSprite = sprite;
-    }
+    // public void SetDefaultItemSprite(Sprite sprite)
+    // {
+    //     _defaultItemSprite = sprite;
+    // }
 
     /*public void SetBoardManager(BoardManager boardManager)
     {
@@ -155,10 +144,10 @@ public partial class GameManager : MonoBehaviour
         SetInfoMessage("Player's turn");
     }
 
-    public void SetDefaultBombSprite(Sprite sprite)
-    {
-        _defaultBombSprite = sprite;
-    }
+    // public void SetDefaultBombSprite(Sprite sprite)
+    // {
+    //     _defaultBombSprite = sprite;
+    // }
 
     public void SetEnemyPrefab(GameObject enemyPrefab)
     {
@@ -193,27 +182,7 @@ public partial class GameManager : MonoBehaviour
         _enemyNumber = editorData.enemyNumber;
         _wallNumber = editorData.wallNumber;
         _remainingTurns = editorData.remainingTurns;
-        _boardSpritePath = editorData.boardSpritePath;
-
-        path = Path.Combine(Application.streamingAssetsPath, "Json/Save/file" + 1 + ".json");
-        //TODO: remove hardcoding on file number
-        if (!File.Exists(path))
-        {
-            Debug.LogError($"Failed to load save file from {path}");
-            return;
-        }
-        json = File.ReadAllText(path);
-        SaveData saveData = JsonUtility.FromJson<SaveData>(json);
-        _initial1stBomb = saveData.left1stBomb;
-        _initial2ndBomb = saveData.left2ndBomb;
-        _initial3rdBomb = saveData.left3rdBomb;
-        _initial4thBomb = saveData.left4thBomb;
-        _initial5thBomb = saveData.left5thBomb;
-        _initial6thBomb = saveData.left6thBomb;
-        _initialSkyblueBomb = saveData.leftSkyblueBomb;
-        _initialTeleporter = saveData.leftTeleporter;
-        _initialMegaphone = saveData.leftMegaphone;
-        Debug.Log($"initial teleporter count: {_initialTeleporter}, initial megaphone count: {_initialMegaphone}");
+        _treasureChests = editorData.treasureChest;
     }
 
     void Update()
@@ -236,85 +205,61 @@ public partial class GameManager : MonoBehaviour
         // --- Bomb Selection Input ---
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            ExitRemoveMode();
-            itemManager?.ClearCurrentItemType();
-            if (bombManager != null) bombManager.SetCurrentBombType(BombType.FirstBomb);
+            itemManager?.UnselectItem();
+            if (bombManager != null) bombManager.SetCurrentIndex(0);
             _bombTypeChanged = true;
         }
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            ExitRemoveMode();
-            itemManager?.ClearCurrentItemType();
-            if (bombManager != null) bombManager.SetCurrentBombType(BombType.SecondBomb);
+            itemManager?.UnselectItem();
+            if (bombManager != null) bombManager.SetCurrentIndex(1);
             _bombTypeChanged = true;
         }
         if (Input.GetKeyDown(KeyCode.Alpha3))
         {
-            ExitRemoveMode();
-            itemManager?.ClearCurrentItemType();
-            if (bombManager != null) bombManager.SetCurrentBombType(BombType.ThirdBomb);
+            itemManager?.UnselectItem();
+            if (bombManager != null) bombManager.SetCurrentIndex(2);
             _bombTypeChanged = true;
         }
         if (Input.GetKeyDown(KeyCode.Alpha4))
         {
-            ExitRemoveMode();
-            itemManager?.ClearCurrentItemType();
-            if (bombManager != null) bombManager.SetCurrentBombType(BombType.FourthBomb);
+            itemManager?.UnselectItem();
+            if (bombManager != null) bombManager.SetCurrentIndex(3);
             _bombTypeChanged = true;
         }
+        
         if (Input.GetKeyDown(KeyCode.Alpha5))
         {
-            ExitRemoveMode();
-            itemManager?.ClearCurrentItemType();
-            if (bombManager != null) bombManager.SetCurrentBombType(BombType.FifthBomb);
-            _bombTypeChanged = true;
+            itemManager?.SelectItem();
+            // unselect bomb
+            bombManager?.SetCurrentIndex(-1);
         }
-        if (Input.GetKeyDown(KeyCode.Alpha6))
+        
+        if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
-            ExitRemoveMode();
-            itemManager?.ClearCurrentItemType();
-            if (bombManager != null) bombManager.SetCurrentBombType(BombType.SixthBomb);
-            _bombTypeChanged = true;
+            itemManager?.SetPreviousIndex();
         }
-        if (Input.GetKeyDown(KeyCode.Alpha7))
+        
+        if (Input.GetKeyDown(KeyCode.RightArrow))
         {
-            ExitRemoveMode();
-            itemManager?.ClearCurrentItemType();
-            if (bombManager != null) bombManager.SetCurrentBombType(BombType.SkyblueBomb);
-            _bombTypeChanged = true;
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha8))
-        {
-            ExitRemoveMode();
-            itemManager?.ClearCurrentItemType();
-            if (bombManager != null) bombManager.SetCurrentBombType(BombType.RealBomb);
-            _bombTypeChanged = true;
+            itemManager?.SetNextIndex();
         }
         
         // Show item preview if item is selected, otherwise bomb preview, otherwise remove preview, otherwise hide all
         if (itemManager != null && itemManager.HasItemSelected())
         {
-            ExitRemoveMode();
             UpdateItemPreview();
             HidePreview(); // Hide bomb preview if item is selected
         }
         else if (bombManager != null && bombManager.HasBombSelected())
         {
-            ExitRemoveMode();
             UpdateBombPreview();
             HideItemPreview(); // Hide item preview if bomb is selected
-        }
-        else if (_isRemoveMode)
-        {
-            HideItemPreview();
-            HidePreview();
-            UpdateRemovePreview();
         }
         else
         {
             HideItemPreview();
             HidePreview();
-            HideRemovePreview();
         }
     }
 

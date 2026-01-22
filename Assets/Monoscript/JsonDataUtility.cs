@@ -79,7 +79,8 @@ public static class JsonDataUtility
         if (File.Exists(filePath))
         {
             string json = File.ReadAllText(filePath);
-            return JsonUtility.FromJson<SaveData>(json);
+            SaveData data = JsonUtility.FromJson<SaveData>(json);
+            return data;
         }
 
         Debug.LogWarning($"Save file not found: {filePath}. Creating a new default save data object.");
