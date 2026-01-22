@@ -2798,8 +2798,8 @@ MonoBehaviour:
   enemySprite: {fileID: 7506324398293790609, guid: 97546b61a06719241a0084cbe862720f, type: 3}
   stunnedEnemySprite: {fileID: -6501271436294068384, guid: ec550c5791f9b9243baf8a72986da518, type: 3}
   fieldSprite: {fileID: 21300000, guid: 389a3a1fa2c3d69419e5b5cacd22f275, type: 3}
-  wallSprite: {fileID: 7158327130922673913, guid: b4aaf06fbe7bcc94a86c6154fa50c75c, type: 3}
-  treasureChestSprite: {fileID: 2266913665716974633, guid: 04d04943d35d45b4098548e0d50e7c7c, type: 3}
+  wallSprite: {fileID: -7208061812612844599, guid: 3446d48410f9f264ba5aa43944e8f4ff, type: 3}
+  treasureChestSprite: {fileID: 4460951213685608970, guid: ff356da2e414fef42b8ed7418b30d3fd, type: 3}
   centerX: 0.3
   centerY: 0.5
   stageRootPrefab: {fileID: 384149538340230175, guid: 0c32e14cbdd79784db67ea4a78a6d013, type: 3}
