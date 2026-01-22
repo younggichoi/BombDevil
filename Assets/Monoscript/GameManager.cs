@@ -71,6 +71,8 @@ public partial class GameManager : MonoBehaviour
     private float _centerX;
     private float _centerY;
 
+    private bool _enemyMoveDisable;
+
     public void ClearStage()
     {
         // GameService.Get<BoardManager>()?.ClearBoard();
@@ -81,12 +83,13 @@ public partial class GameManager : MonoBehaviour
         HideItemPreview();
     }
 
-    public void Initialize(int stageId, IngameCommonData commonData, float centerX, float centerY)
+    public void Initialize(int stageId, IngameCommonData commonData, float centerX, float centerY, bool enemyMoveDisable)
     {
         StopAllCoroutines();
         _isTurnInProgress = false;
         _centerX = centerX;
         _centerY = centerY;
+        _enemyMoveDisable = enemyMoveDisable;
         
         ClearStage();
         SetStageState(stageId);

@@ -24,7 +24,8 @@ public partial class GameManager : MonoBehaviour
         yield return StartCoroutine(ExplodeAllBombsCoroutine());
         SetInfoMessage("Enemy's turn");
         yield return new WaitForSeconds(1f);
-        yield return StartCoroutine(MoveAllEnemiesCoroutine());
+        if (!_enemyMoveDisable)
+            yield return StartCoroutine(MoveAllEnemiesCoroutine());
         _remainingTurns--;
         if (_turnText != null)
             _turnText.text = $"Turns: {_remainingTurns}";
