@@ -1,0 +1,8 @@
+{
+    "bombType": "FifthBomb",
+    "range": 1,
+    "knockbackDistance": 5,
+    "colorHex": "#4D96FF",
+    "fieldSpriteName": "bomb_field_5_3",
+    "iconSpriteName": "bomb_icon_5_2"
+}

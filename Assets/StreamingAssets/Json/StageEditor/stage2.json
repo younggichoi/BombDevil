@@ -1,0 +1,15 @@
+{
+    "stageId": 2,
+    "width": 8,
+    "height": 8,
+    "enemyNumber": 6,
+    "initial1stBomb": 3,
+    "initial2ndBomb": 1,
+    "initial3rdBomb": 1,
+    "initial4thBomb": 1,
+    "initial5thBomb": 1,
+    "initial6thBomb": 1,
+    "initialSkyblueBomb": 1,
+    "remainingTurns": 15,
+    "boardSpritePath": "Sprites/Boards/board_10x10"
+}
