@@ -51,6 +51,8 @@ public class AuxiliaryBomb : MonoBehaviour
     // plan to add exploding motion (when the art is complete)
     public void Explode()
     {
+        SoundManager.Instance.PlaySFX(SoundManager.Instance.boomClip); 
+
         Destroy(gameObject);
     }
 }

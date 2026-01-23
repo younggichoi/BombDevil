@@ -5,6 +5,8 @@ public partial class GameManager : MonoBehaviour
 {
     private void MouseClickProcess()
     {
+        SoundManager.Instance.PlaySFX(SoundManager.Instance.clickClip); //클릭 소리 재생
+
         Vector3 screenPos = Input.mousePosition;
         Vector3 worldPos = Camera.main.ScreenToWorldPoint(screenPos);
         worldPos.z = 0;  // 2D 게임이므로 z를 0으로 설정
