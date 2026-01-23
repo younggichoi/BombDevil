@@ -3,6 +3,7 @@ using System.IO;
 using TMPro;
 using UnityEngine;
 using Entity;
+using UnityEngine.UI;
 
 public class ItemManager : MonoBehaviour
 {
@@ -322,17 +323,20 @@ public class ItemManager : MonoBehaviour
 
     private void UpdateItemIcon()
     {
-        var sr = _itemIcon.GetComponent<SpriteRenderer>();
+        var image = _itemIcon.GetComponent<Image>();
         ItemData data = GetItemData(_leftoverItems[_currentItemIndex].itemType);
-        sr.sprite = data.iconSprite;
+        image.sprite = data.iconSprite;
         // Resize to match cell size
-        float cellSize = _boardManager.GetCellSize();
-        Vector2 spriteSize = sr.sprite.bounds.size;
-        float scaleX = cellSize / spriteSize.x;
-        float scaleY = cellSize / spriteSize.y;
-        float scale = Mathf.Min(scaleX, scaleY);
+        // float cellSize = _boardManager.GetCellSize();
+        Vector2 spriteSize = image.sprite.bounds.size;
+        // float scaleX = cellSize / spriteSize.x;
+        // float scaleY = cellSize / spriteSize.y;
+        // float scale = Mathf.Min(scaleX, scaleY);
+        float scaleX = spriteSize.x;
+        float scaleY = spriteSize.y;
+        float scale = Mathf.Max(scaleX, scaleY);
         // Hardcoded to match the size of the item slot sprite
-        _itemIcon.transform.localScale = Vector3.one * scale * 0.5f;
+        _itemIcon.transform.localScale = Vector3.one * scale * 0.1f;
     }
 
 }

@@ -29,5 +29,8 @@ namespace Entity
         // List for serialization (direct support)
         public List<ItemCount> leftItem = new List<ItemCount>();
         public int scoring;
+
+        // Difficulty of the game
+        public int difficulty;
     }
 }

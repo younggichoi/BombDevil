@@ -12,37 +12,37 @@ public partial class GameManager : MonoBehaviour
         worldPos.z = 0;  // 2D 게임이므로 z를 0으로 설정
         
         // Raycast로 클릭된 오브젝트 감지
-        RaycastHit2D hit = Physics2D.Raycast(worldPos, Vector2.zero);
+        // RaycastHit2D hit = Physics2D.Raycast(worldPos, Vector2.zero);
         
-        if (hit.collider != null)
-        {
-            string objectName = hit.collider.gameObject.name;
+        // if (hit.collider != null)
+        // {
+        //     string objectName = hit.collider.gameObject.name;
             
-            // 폭탄 선택 처리 (스프라이트에 Collider2D 필요)
-            switch (objectName)
-            {
-                case "1stBombIcon":
-                    ItemManager.UnselectItem();
-                    BombManager.SetCurrentIndex(0);
-                    return;
-                case "2ndBombIcon":
-                    ItemManager.UnselectItem();
-                    BombManager.SetCurrentIndex(1);
-                    return;
-                case "3rdBombIcon":
-                    ItemManager.UnselectItem();
-                    BombManager.SetCurrentIndex(2);
-                    return;
-                case "RealBombIcon":
-                    ItemManager.UnselectItem();
-                    BombManager.SetCurrentIndex(3);
-                    return;
-                case "ItemIcon":
-                    ItemManager.SelectItem();
-                    BombManager.SetCurrentIndex(-1);
-                    return;
-            }
-        }
+        //     // 폭탄 선택 처리 (스프라이트에 Collider2D 필요)
+        //     switch (objectName)
+        //     {
+        //         case "1stBombIcon":
+        //             ItemManager.UnselectItem();
+        //             BombManager.SetCurrentIndex(0);
+        //             return;
+        //         case "2ndBombIcon":
+        //             ItemManager.UnselectItem();
+        //             BombManager.SetCurrentIndex(1);
+        //             return;
+        //         case "3rdBombIcon":
+        //             ItemManager.UnselectItem();
+        //             BombManager.SetCurrentIndex(2);
+        //             return;
+        //         case "RealBombIcon":
+        //             ItemManager.UnselectItem();
+        //             BombManager.SetCurrentIndex(3);
+        //             return;
+        //         case "ItemIcon":
+        //             ItemManager.SelectItem();
+        //             BombManager.SetCurrentIndex(-1);
+        //             return;
+        //     }
+        // }
 
         // 아이템 배치 처리
         if (ItemManager != null && ItemManager.HasItemSelected())
@@ -83,6 +83,18 @@ public partial class GameManager : MonoBehaviour
                 CreateAuxiliaryBomb(bx, by);
             }
         }
+    }
+
+    public void BombIconClick(int index)
+    {
+        ItemManager.UnselectItem();
+        BombManager.SetCurrentIndex(index);
+    }
+
+    public void ItemIconClick()
+    {
+        ItemManager.SelectItem();
+        BombManager.SetCurrentIndex(-1);
     }
 
     private void MouseRightClickProcess()

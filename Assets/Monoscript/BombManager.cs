@@ -3,6 +3,7 @@ using System.IO;
 using TMPro;
 using UnityEngine;
 using Entity;
+using UnityEngine.UI;
 
 public class BombManager : MonoBehaviour
 {
@@ -79,7 +80,7 @@ public class BombManager : MonoBehaviour
         GameObject _1stBombIcon, GameObject _2ndBombIcon, GameObject _3rdBombIcon, GameObject _realBombIcon,
         GameObject _1stBombChecked, GameObject _2ndBombChecked, GameObject _3rdBombChecked,
         GameObject realBombChecked, TMP_Text explodeButtonText,
-        SaveData saveData)
+        SaveData saveData, bool realBombEasyMode, bool realBombHardMode)
     {
         this.auxiliaryBomb = auxiliaryBomb;
         this.realBombPrefab = realBombPrefab;
@@ -109,22 +110,21 @@ public class BombManager : MonoBehaviour
         _leftoverBombs[1] = new BombCount { bombType = saveData.secondBombType, count = saveData.left2ndBomb };
         _leftoverBombs[2] = new BombCount { bombType = saveData.thirdBombType, count = saveData.left3rdBomb };
 
-        this._1stBombIcon.AddComponent<SpriteRenderer>();
-        this._2ndBombIcon.AddComponent<SpriteRenderer>();
-        this._3rdBombIcon.AddComponent<SpriteRenderer>();
-        this._realBombIcon.AddComponent<SpriteRenderer>();
-
-        // Add colliders for click detection
-        this._1stBombIcon.AddComponent<BoxCollider2D>();
-        this._2ndBombIcon.AddComponent<BoxCollider2D>();
-        this._3rdBombIcon.AddComponent<BoxCollider2D>();
-        this._realBombIcon.AddComponent<BoxCollider2D>();
-        
         // Initialize RealBomb count (1 per stage)
         _realBombCount = 1;
         
         // Load all bomb data from JSON
         LoadAllBombData();
+
+        // apply difficulty
+        if (realBombEasyMode)
+        {
+            _bombDataDict[BombType.RealBomb].range = 2;
+        }
+        else if (realBombHardMode)
+        {
+            _bombDataDict[BombType.RealBomb].range = 0;
+        }
         
         // Update UI
         UpdateAllBombTexts();
@@ -135,19 +135,19 @@ public class BombManager : MonoBehaviour
         // Initialize all icon UIs
         UpdateIconUI();
 
-        SpriteRenderer icon1 = this._1stBombIcon.GetComponent<SpriteRenderer>();
-        SpriteRenderer icon2 = this._2ndBombIcon.GetComponent<SpriteRenderer>();
-        SpriteRenderer icon3 = this._3rdBombIcon.GetComponent<SpriteRenderer>();
-        SpriteRenderer icon4 = this._realBombIcon.GetComponent<SpriteRenderer>();
-        float cellSize = _boardManager.GetCellSize();
+        Image icon1 = this._1stBombIcon.GetComponent<Image>();
+        Image icon2 = this._2ndBombIcon.GetComponent<Image>();
+        Image icon3 = this._3rdBombIcon.GetComponent<Image>();
+        Image icon4 = this._realBombIcon.GetComponent<Image>();
         Vector2 spriteSize = icon1.sprite.bounds.size;
-        float scaleX = cellSize / spriteSize.x;
-        float scaleY = cellSize / spriteSize.y;
-        float scale = Mathf.Min(scaleX, scaleY);  // Keep aspect ratio, fit within cell
-        icon1.transform.localScale = Vector3.one * scale;
-        icon2.transform.localScale = Vector3.one * scale;
-        icon3.transform.localScale = Vector3.one * scale;
-        icon4.transform.localScale = Vector3.one * scale;
+        float scaleX = spriteSize.x;
+        float scaleY = spriteSize.y;
+        float scale = Mathf.Max(scaleX, scaleY);  // Keep aspect ratio, fit within cell
+        // Hardcoded based on the relative size of the sprite
+        icon1.transform.localScale = Vector3.one * scale * 0.3f;
+        icon2.transform.localScale = Vector3.one * scale * 0.3f;
+        icon3.transform.localScale = Vector3.one * scale * 0.3f;
+        icon4.transform.localScale = Vector3.one * scale * 0.3f;
     }
     
     // Load all bomb data from JSON files
@@ -375,21 +375,21 @@ public class BombManager : MonoBehaviour
                 if (_1stBombIcon != null)
                 {
                     Sprite icon = GetBombData(_leftoverBombs[index].bombType).iconSprite;
-                    _1stBombIcon.GetComponent<SpriteRenderer>().sprite = icon;
+                    _1stBombIcon.GetComponent<Image>().sprite = icon;
                 }
                 break;
             case 1:
                 if (_2ndBombIcon != null)
                 {
                     Sprite icon = GetBombData(_leftoverBombs[index].bombType).iconSprite;
-                    _2ndBombIcon.GetComponent<SpriteRenderer>().sprite = icon;
+                    _2ndBombIcon.GetComponent<Image>().sprite = icon;
                 }
                 break;
             case 2:
                 if (_3rdBombIcon != null)
                 {
                     Sprite icon = GetBombData(_leftoverBombs[index].bombType).iconSprite;
-                    _3rdBombIcon.GetComponent<SpriteRenderer>().sprite = icon;
+                    _3rdBombIcon.GetComponent<Image>().sprite = icon;
                 }
                 break;
         }

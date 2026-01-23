@@ -12,6 +12,12 @@ EditorBuildSettings:
     path: Assets/Scenes/IngameScene.unity
     guid: 8c9cfa26abfee488c85f1582747f6a02
   - enabled: 1
+    path: Assets/Scenes/SettingScene.unity
+    guid: 6f0ae4d34cd0d2b4b89cb15d02f81abd
+  - enabled: 1
+    path: Assets/Scenes/IngameScene.unity
+    guid: 8c9cfa26abfee488c85f1582747f6a02
+  - enabled: 1
     path: Assets/Scenes/StageEditorScene.unity
     guid: 628ff87f35628b24f9dbb8549dced8eb
   m_configObjects:

@@ -61,6 +61,12 @@ public class StageRoot : MonoBehaviour
     private TMP_Text stageText;
     private TMP_Text timeText;
     private TMP_Text turnText;
+
+    // Difficulty mode
+    private bool _realBombEasyMode = false; // if difficulty == 0, range of real bomb becomes wider.
+    private bool _realBombHardMode = false; // if difficulty == 4, range of real bomb becomes narrower.
+    private bool _enemyMoveDisable = false; // if difficulty is 0~1, enemy move is disabled.
+    private bool _wallDisable = false; // if difficulty is 0~2, wall is disabled.
     
     // Public accessor for GameManager (used by StageManager)
     public GameManager GameManager => gameManager;
@@ -165,10 +171,33 @@ public class StageRoot : MonoBehaviour
                 exitButton.onClick.AddListener(() => GameService.Get<GameManager>()?.OnExitButtonClick());
             }
 
+            SaveData initData = JsonDataUtility.LoadGameData(1); // TODO: remove hardcoding on file number
+            switch (initData.difficulty)
+            {
+                case 0:
+                    _realBombEasyMode = true;
+                    _enemyMoveDisable = true;
+                    _wallDisable = true;
+                    break;
+                case 1:
+                    _enemyMoveDisable = true;
+                    _wallDisable = true;
+                    break;
+                case 2:
+                    _wallDisable = true;
+                    break;
+                case 3:
+                    break;
+                case 4:
+                    _realBombHardMode = true;
+                    break;
+            }
             _isInitialized = true;
+
         }
 
         // 2. Per-Stage Logic (Reset dynamic state)
+
 
         // set the center position of parent object
         Transform wallSet = GameObject.Find("WallSet").transform;
@@ -184,7 +213,7 @@ public class StageRoot : MonoBehaviour
         SaveData saveData = JsonDataUtility.LoadGameData(1); // TODO: remove hardcoding on file number
 
         // Initialize all managers with their scene references first.
-        gameManager.Initialize(stageId, commonData, centerX, centerY);
+        gameManager.Initialize(stageId, commonData, centerX, centerY, _enemyMoveDisable);
         // Corrected via hardcoding
         boardManager.Initialize(fieldSprite, centerX, centerY);
         enemyManager.Initialize(this.enemyPrefab, enemySet, this.enemySprite, this.stunnedEnemySprite);
@@ -194,7 +223,7 @@ public class StageRoot : MonoBehaviour
             _1stBombIcon, _2ndBombIcon, _3rdBombIcon, _realBombIcon,
             _1stBombChecked, _2ndBombChecked, _3rdBombChecked,
             realBombChecked, explodeButtonText,
-            saveData);
+            saveData, _realBombEasyMode, _realBombHardMode);
         itemManager.Initialize(itemPrefabs, itemSet, saveData.leftItem, itemIcon);
         wallManager.Initialize(wallPrefab, wallSprite);
         treasureChestManager.Initialize(treasureChestSet, treasureChestSprite, treasureChestPrefab);
@@ -211,7 +240,8 @@ public class StageRoot : MonoBehaviour
         enemyManager.SetEnemySprite(enemySprite);
         
         // Create objects for this stage'
-        gameManager.CreateWall();
+        if (!_wallDisable)
+            gameManager.CreateWall();
         gameManager.CreateEnemy();
         gameManager.CreateTreasureChest();
     }
