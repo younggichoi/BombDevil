@@ -1,5 +1,6 @@
 {
     "bombType": "FifthBomb",
+    "bombName": "5th Basic Bomb",
     "range": 1,
     "knockbackDistance": 5,
     "colorHex": "#4D96FF",

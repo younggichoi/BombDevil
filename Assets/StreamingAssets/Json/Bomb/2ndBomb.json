@@ -1,5 +1,6 @@
 {
     "bombType": "SecondBomb",
+    "bombName": "2nd Basic Bomb",
     "range": 1,
     "knockbackDistance": 2,
     "colorHex": "#FFB347",

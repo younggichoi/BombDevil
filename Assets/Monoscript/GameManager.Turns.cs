@@ -27,8 +27,8 @@ public partial class GameManager : MonoBehaviour
         if (!_enemyMoveDisable)
             yield return StartCoroutine(MoveAllEnemiesCoroutine());
         _remainingTurns--;
-        if (_turnText != null)
-            _turnText.text = $"Turns: {_remainingTurns}";
+        _elapsedTurns++;
+        _turnText.text = $"{_remainingTurns}";
 
         // Only check lose condition after all bombs and enemy moves are resolved
         if (_realBombUsedThisTurn && GetEnemyCount() > 0)
@@ -57,7 +57,7 @@ public partial class GameManager : MonoBehaviour
 #endif
             yield break;
         }
-        BombManager.ResetExplodeButtonText();
+        // BombManager.ResetExplodeButtonText();
         SetInfoMessage("Player's turn");
         CheckGameState();
         _isTurnInProgress = false;

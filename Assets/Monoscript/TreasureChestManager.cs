@@ -1,38 +1,71 @@
 using UnityEngine;
-using System.Collections.Generic;
+using UnityEngine.UI;
+using Entity;
 
 public class TreasureChestManager : MonoBehaviour
 {
-    private static Transform _treasureChestSet;
-    private static Sprite _treasureChestSprite;
-    private static GameObject _treasureChestPrefab;
-
+    private Transform treasureChestSet;
+    private Sprite treasureChestSprite;
+    private GameObject treasureChestPrefab;
+    
     public void Initialize(Transform treasureChestSet, Sprite treasureChestSprite, GameObject treasureChestPrefab)
     {
-        _treasureChestSet = treasureChestSet;
-        _treasureChestSprite = treasureChestSprite;
-        _treasureChestPrefab = treasureChestPrefab;
+        this.treasureChestSet = treasureChestSet;
+        this.treasureChestSprite = treasureChestSprite;
+        this.treasureChestPrefab = treasureChestPrefab;
     }
-
-    public static GameObject CreateTreasureChest(int x, int y, int durability, int value)
+    
+    public GameObject CreateTreasureChest(int x, int y, int durability, int value)
     {
         var boardManager = GameService.Get<BoardManager>();
-        Vector3 worldPos = boardManager.GridToWorld(x, y);
-        GameObject treasureChestObj = Instantiate(_treasureChestPrefab, worldPos, Quaternion.identity, _treasureChestSet);
-        TreasureChest treasureChest = treasureChestObj.GetComponent<TreasureChest>();
-        treasureChest.Initialize(durability, value);   
         
+        // Canvas UI mode only
+        Vector2 canvasPos = boardManager.GridToCanvasPosition(x, y);
+        GameObject treasureChestObj = Instantiate(treasureChestPrefab, treasureChestSet);
+        
+        // Setup RectTransform
+        RectTransform rectTransform = treasureChestObj.GetComponent<RectTransform>();
+        if (rectTransform == null)
+        {
+            rectTransform = treasureChestObj.AddComponent<RectTransform>();
+        }
+        rectTransform.anchoredPosition = canvasPos;
+        
+        // Set size based on cell size (converted to Canvas pixels)
+        float cellSizeCanvas = boardManager.GetCellSizeCanvas();
+        rectTransform.sizeDelta = new Vector2(cellSizeCanvas, cellSizeCanvas);
+        
+        // Setup Image component for UI rendering
+        Image image = treasureChestObj.GetComponent<Image>();
+        if (image == null)
+        {
+            image = treasureChestObj.AddComponent<Image>();
+        }
+        image.sprite = treasureChestSprite;
+        image.raycastTarget = false;
+        
+        // Remove SpriteRenderer if exists
         SpriteRenderer sr = treasureChestObj.GetComponent<SpriteRenderer>();
-        sr.sprite = _treasureChestSprite;
-
-        // Scale sprite to fit exactly one cell
-        float cellSize = boardManager.GetCellSize();
-        Vector2 spriteSize = sr.sprite.bounds.size;
-        float scaleX = cellSize / spriteSize.x;
-        float scaleY = cellSize / spriteSize.y;
-        float scale = Mathf.Min(scaleX, scaleY);  // Keep aspect ratio, fit within cell
-        treasureChestObj.transform.localScale = Vector3.one * scale;
+        if (sr != null)
+        {
+            Destroy(sr);
+        }
+        
+        // Initialize TreasureChest component
+        TreasureChest treasureChest = treasureChestObj.GetComponent<TreasureChest>();
+        treasureChest.Initialize(durability, value);
         
         return treasureChestObj;
+    }
+
+    public void ClearTreasureChests()
+    {
+        if (treasureChestSet != null)
+        {
+            foreach (Transform chest in treasureChestSet)
+            {
+                Destroy(chest.gameObject);
+            }
+        }
     }
 }

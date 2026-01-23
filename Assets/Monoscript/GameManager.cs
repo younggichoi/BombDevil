@@ -63,7 +63,10 @@ public partial class GameManager : MonoBehaviour
     private TMP_Text _stageText;
     private TMP_Text _timeText;
     private TMP_Text _turnText;
+    private TMP_Text _scoringText;
+
     private float _elapsedTime = 0f;
+    private int _elapsedTurns = 0;
 
     private GameObject _enemyPrefab;
     private Sprite _enemySprite;
@@ -79,17 +82,19 @@ public partial class GameManager : MonoBehaviour
         GameService.Get<BombManager>()?.ClearBombs();
         GameService.Get<EnemyManager>()?.ClearEnemies();
         GameService.Get<ItemManager>()?.ClearItems();
+        GameService.Get<TreasureChestManager>()?.ClearTreasureChests();
         HidePreview();
         HideItemPreview();
     }
 
-    public void Initialize(int stageId, IngameCommonData commonData, float centerX, float centerY, bool enemyMoveDisable)
+    public void Initialize(int stageId, IngameCommonData commonData, float centerX, float centerY, bool enemyMoveDisable, int scoring)
     {
         StopAllCoroutines();
         _isTurnInProgress = false;
         _centerX = centerX;
         _centerY = centerY;
         _enemyMoveDisable = enemyMoveDisable;
+        _scoring = scoring;
         
         ClearStage();
         SetStageState(stageId);
@@ -133,11 +138,12 @@ public partial class GameManager : MonoBehaviour
         this.bombManager = bombManager;
     }*/
 
-    public void SetStageStatsUI(TMP_Text stageText, TMP_Text timeText, TMP_Text turnText)
+    public void SetStageStatsUI(TMP_Text stageText, TMP_Text timeText, TMP_Text turnText, TMP_Text scoringText)
     {
         _stageText = stageText;
         _timeText = timeText;
         _turnText = turnText;
+        _scoringText = scoringText;
         UpdateStageStatsUI();
     }
 
@@ -195,6 +201,7 @@ public partial class GameManager : MonoBehaviour
             return;
         _elapsedTime += Time.deltaTime;
         UpdateTimeText();
+        UpdateScoringText();
 
         var itemManager = GameService.Get<ItemManager>();
         var bombManager = GameService.Get<BombManager>();
@@ -329,6 +336,19 @@ public partial class GameManager : MonoBehaviour
             }
 
             return _wallManager;
+        }
+    }
+
+    private TreasureChestManager _treasureChestManager;
+    private TreasureChestManager TreasureChestManager
+    {
+        get
+        {
+            if (_treasureChestManager == null)
+            {
+                _treasureChestManager = GameService.Get<TreasureChestManager>();
+            }
+            return _treasureChestManager;
         }
     }
 }

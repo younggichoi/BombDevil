@@ -10,7 +10,6 @@ public class SoundManager : MonoBehaviour
 
     void Awake()
     {
-        // ΩÃ±€≈Ê ∆–≈œ
         if (Instance == null)
         {
             Instance = this;

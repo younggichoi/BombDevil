@@ -100,6 +100,7 @@ public partial class GameManager : MonoBehaviour
         // Only check for win here. Lose condition is handled after all bombs have exploded in the turn sequence.
         if (GetEnemyCount() == 0 && _realBombKillCount == _totalEnemyCount)
         {
+            StageClearScoring();
             SetGameState(GameState.Win);
             return;
         }

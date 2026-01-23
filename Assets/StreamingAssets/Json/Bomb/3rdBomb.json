@@ -1,5 +1,6 @@
 {
     "bombType": "ThirdBomb",
+    "bombName": "3rd Basic Bomb",
     "range": 1,
     "knockbackDistance": 3,
     "colorHex": "#FFD93D",

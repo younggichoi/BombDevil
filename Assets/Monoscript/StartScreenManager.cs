@@ -16,7 +16,10 @@ public class StartScreenManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (Input.GetMouseButtonDown(0))
+        {
+            SoundManager.Instance.PlaySFX(SoundManager.Instance.clickClip);
+        }
     }
 
     void OnStartButtonClicked()

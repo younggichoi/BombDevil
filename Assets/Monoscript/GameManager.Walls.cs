@@ -15,6 +15,7 @@ public partial class GameManager : MonoBehaviour
                 GameObject wall = WallManager.CreateWall(x, y);
                 _board[x, y].Add(wall);
                 currentWall++;
+                Debug.Log($"Wall created at ({x}, {y})");
             }
         }
     }

@@ -7,6 +7,7 @@ namespace Entity
     public class BombData
     {
         public string bombType;
+        public string bombName;
         public int range;
         public int knockbackDistance;
         public string colorHex;

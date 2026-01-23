@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 // Path segment for multi-step movement (e.g., through teleporters)
 public struct PathSegment
@@ -94,10 +95,12 @@ public class Enemy : MonoBehaviour
         // Once stunned, cannot be unstunned
         if (!_isStunned) {
             _isStunned = true;
-            GetComponent<SpriteRenderer>().sprite = _stunnedSprite;
+            GetComponent<Image>().sprite = _stunnedSprite;
             // Hardcoded correction for the size and rotation difference between the normal and stunned sprites
-            transform.localScale *= 1.25f;
-            transform.Rotate(0, 0, 180f);
+            RectTransform rectTr = GetComponent<RectTransform>();
+
+            rectTr.sizeDelta *= 1.25f;
+            rectTr.Rotate(0, 0, 180f);
         }
     }
 

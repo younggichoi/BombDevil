@@ -50,7 +50,7 @@ public partial class GameManager : MonoBehaviour
         if (_stageText != null)
             _stageText.text = $"Stage {_stageId}";
         if (_turnText != null)
-            _turnText.text = $"Turns: {_remainingTurns}";
+            _turnText.text = $"{_remainingTurns}";
         UpdateTimeText();
     }
 
@@ -63,6 +63,12 @@ public partial class GameManager : MonoBehaviour
             int seconds = (int)(_elapsedTime % 60);
             _timeText.text = $"{hours:D2}:{minutes:D2}:{seconds:D2}";
         }
+    }
+
+    private void UpdateScoringText()
+    {
+        if (_scoringText != null)
+            _scoringText.text = _scoring.ToString("N0");
     }
 
     public void OnResetButtonClick()

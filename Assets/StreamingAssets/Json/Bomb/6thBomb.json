@@ -1,5 +1,6 @@
 {
     "bombType": "SixthBomb",
+    "bombName": "6th Basic Bomb",
     "range": 1,
     "knockbackDistance": 6,
     "colorHex": "#9B59B6",

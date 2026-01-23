@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public enum Direction
 {
@@ -52,31 +53,42 @@ public class EnemyManager : MonoBehaviour
     // create enemy API (call from GameManager)
     public GameObject CreateEnemy(int x, int y)
     {
-        Vector3 worldPos = _boardManager.GridToWorld(x, y);
-        GameObject enemyObj = Instantiate(enemy, worldPos, Quaternion.identity, enemySet);
+        // Canvas UI mode only
+        Vector2 canvasPos = _boardManager.GridToCanvasPosition(x, y);
+        GameObject enemyObj = Instantiate(enemy, enemySet);
         
-        SpriteRenderer sr = enemyObj.GetComponent<SpriteRenderer>();
-        sr.color = _enemyColor;
-        
-        // Set sprite if provided
-        if (_enemySprite != null)
+        // Setup RectTransform
+        RectTransform rectTransform = enemyObj.GetComponent<RectTransform>();
+        if (rectTransform == null)
         {
-            sr.sprite = _enemySprite;
+            rectTransform = enemyObj.AddComponent<RectTransform>();
+        }
+        rectTransform.anchoredPosition = canvasPos;
+        
+        // Set size based on cell size (converted to Canvas pixels)
+        float cellSizeCanvas = _boardManager.GetCellSizeCanvas();
+        rectTransform.sizeDelta = new Vector2(cellSizeCanvas, cellSizeCanvas);
+        
+        // Setup Image component for UI rendering
+        Image image = enemyObj.GetComponent<Image>();
+        if (image == null)
+        {
+            image = enemyObj.AddComponent<Image>();
+        }
+        image.sprite = _enemySprite;
+        image.color = _enemyColor;
+        image.raycastTarget = false;
+        
+        // Remove SpriteRenderer if exists (not needed for UI)
+        SpriteRenderer sr = enemyObj.GetComponent<SpriteRenderer>();
+        if (sr != null)
+        {
+            Destroy(sr);
         }
         
-        // Scale sprite to fit exactly one cell
-        float cellSize = _boardManager.GetCellSize();
-        Vector2 spriteSize = sr.sprite.bounds.size;
-        float scaleX = cellSize / spriteSize.x;
-        float scaleY = cellSize / spriteSize.y;
-        float scale = Mathf.Min(scaleX, scaleY);  // Keep aspect ratio, fit within cell
-        enemyObj.transform.localScale = Vector3.one * scale;
-        
-        // Initialize enemy with unique id
+        // Initialize enemy component
         Enemy enemyComponent = enemyObj.GetComponent<Enemy>();
         enemyComponent.Initialize(_enemySprite, _stunnedEnemySprite);
-        
-        // Set random direction for this enemy (Up, Down, Left, Right)
         enemyComponent.SetRandomDirection();
         
         return enemyObj;
@@ -92,4 +104,3 @@ public class EnemyManager : MonoBehaviour
         _enemySprite = enemySprite;
     }
 }
-

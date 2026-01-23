@@ -264,9 +264,10 @@ public partial class GameManager : MonoBehaviour
             }
             if(HasObjectAt(currentX, currentY, typeof(Wall)))
             {
-                Vector2Int finalDirection = new Vector2Int(currentX - x - normalizedDir.x, currentY - y - normalizedDir.y);
+                // Wall encountered: enemy stays at current position (x, y)
+                Vector2Int finalDirection = Vector2Int.zero;
                 enemy.Knockback(finalDirection);
-                _board[Mod(x + finalDirection.x, _width), Mod(y + finalDirection.y, _height)].Add(obj);
+                _board[x, y].Add(obj);
                 if (!isKnockback) //그냥 이동하는 경우 방향을 바꿈
                 {
                     enemy.SetDirection(-normalizedDir);

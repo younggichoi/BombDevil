@@ -2,9 +2,9 @@
     "left1stBomb": 3,
     "left2ndBomb": 2,
     "left3rdBomb": 4,
-    "firstBombType": 5,
+    "firstBombType": 0,
     "secondBombType": 1,
-    "thirdBombType": 0,
+    "thirdBombType": 2,
     "leftItem": [
         {
             "itemType": 0,
@@ -15,6 +15,6 @@
             "count": 2
         }
     ],
-    "scoring": 0,
-    "difficulty": 4
+    "scoring": 2400,
+    "difficulty": 0
 }

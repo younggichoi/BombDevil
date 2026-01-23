@@ -14,9 +14,13 @@ public class BombManager : MonoBehaviour
     private Transform realBombSet;
     
     // Text UI for each bomb type
-    private TMP_Text _1stBombText;
-    private TMP_Text _2ndBombText;
-    private TMP_Text _3rdBombText;
+    private TMP_Text _1stBombLeftoverText;
+    private TMP_Text _2ndBombLeftoverText;
+    private TMP_Text _3rdBombLeftoverText;
+
+    private TMP_Text _1stBombNameText;
+    private TMP_Text _2ndBombNameText;
+    private TMP_Text _3rdBombNameText;
 
     // Icon UI for each bomb type
     private GameObject _1stBombIcon;
@@ -24,15 +28,6 @@ public class BombManager : MonoBehaviour
     private GameObject _3rdBombIcon;
     private GameObject _realBombIcon;
     
-    // Check UI for each bomb type (shows which bomb is selected)
-    private GameObject _1stBombChecked;
-    private GameObject _2ndBombChecked;
-    private GameObject _3rdBombChecked;
-    private GameObject _realBombChecked;
-
-    // Explode button text
-    private TMP_Text _explodeButtonText;
-
     // BoardManager reference for coordinate conversion
     private BoardManager _boardManager;
     
@@ -56,7 +51,7 @@ public class BombManager : MonoBehaviour
     public void ClearBombs()
     {
         _currentIndex = -1;
-        UpdateCheckedUI();
+        UpdateAllBombTexts();
         if (auxiliaryBombSet != null)
         {
             foreach (Transform bomb in auxiliaryBombSet)
@@ -76,33 +71,30 @@ public class BombManager : MonoBehaviour
 
     public void Initialize(GameObject auxiliaryBomb, GameObject realBombPrefab, 
         Transform auxiliaryBombSet, Transform realBombSet,
-        TMP_Text _1stBombText, TMP_Text _2ndBombText, TMP_Text _3rdBombText, 
+        TMP_Text _1stBombLeftoverText, TMP_Text _2ndBombLeftoverText, TMP_Text _3rdBombLeftoverText, 
+        TMP_Text _1stBombNameText, TMP_Text _2ndBombNameText, TMP_Text _3rdBombNameText, 
         GameObject _1stBombIcon, GameObject _2ndBombIcon, GameObject _3rdBombIcon, GameObject _realBombIcon,
-        GameObject _1stBombChecked, GameObject _2ndBombChecked, GameObject _3rdBombChecked,
-        GameObject realBombChecked, TMP_Text explodeButtonText,
         SaveData saveData, bool realBombEasyMode, bool realBombHardMode)
     {
         this.auxiliaryBomb = auxiliaryBomb;
         this.realBombPrefab = realBombPrefab;
         this.auxiliaryBombSet = auxiliaryBombSet;
         this.realBombSet = realBombSet;
-        this._1stBombText = _1stBombText;
-        this._2ndBombText = _2ndBombText;
-        this._3rdBombText = _3rdBombText;
+        this._1stBombLeftoverText = _1stBombLeftoverText;
+        this._2ndBombLeftoverText = _2ndBombLeftoverText;
+        this._3rdBombLeftoverText = _3rdBombLeftoverText;
+        this._1stBombNameText = _1stBombNameText;
+        this._2ndBombNameText = _2ndBombNameText;
+        this._3rdBombNameText = _3rdBombNameText;
         this._1stBombIcon = _1stBombIcon;
         this._2ndBombIcon = _2ndBombIcon;
         this._3rdBombIcon = _3rdBombIcon;
         this._realBombIcon = _realBombIcon;
-        this._1stBombChecked = _1stBombChecked;
-        this._2ndBombChecked = _2ndBombChecked;
-        this._3rdBombChecked = _3rdBombChecked;
-        this._realBombChecked = realBombChecked;
-        _explodeButtonText = explodeButtonText;
         _boardManager = GameService.Get<BoardManager>();
 
         // Set initial explode button text
-        if (_explodeButtonText != null)
-            _explodeButtonText.text = "PASS";
+        // if (_explodeButtonText != null)
+        //     _explodeButtonText.text = "PASS";
         
         // Initialize leftover bombs from SaveData
         _leftoverBombs = new BombCount[3];
@@ -128,9 +120,6 @@ public class BombManager : MonoBehaviour
         
         // Update UI
         UpdateAllBombTexts();
-        
-        // Initialize all check UIs to inactive
-        UpdateCheckedUI();
 
         // Initialize all icon UIs
         UpdateIconUI();
@@ -144,10 +133,10 @@ public class BombManager : MonoBehaviour
         float scaleY = spriteSize.y;
         float scale = Mathf.Max(scaleX, scaleY);  // Keep aspect ratio, fit within cell
         // Hardcoded based on the relative size of the sprite
-        icon1.transform.localScale = Vector3.one * scale * 0.3f;
-        icon2.transform.localScale = Vector3.one * scale * 0.3f;
-        icon3.transform.localScale = Vector3.one * scale * 0.3f;
-        icon4.transform.localScale = Vector3.one * scale * 0.3f;
+        icon1.transform.localScale = Vector3.one * scale * 0.23f;
+        icon2.transform.localScale = Vector3.one * scale * 0.23f;
+        icon3.transform.localScale = Vector3.one * scale * 0.23f;
+        icon4.transform.localScale = Vector3.one * scale * 0.23f;
     }
     
     // Load all bomb data from JSON files
@@ -190,19 +179,64 @@ public class BombManager : MonoBehaviour
     {
         if (index < 0 || index >= 3) return;
         
+        // Null safety checks
+        if (_bombDataDict == null || _leftoverBombs == null) return;
+
+        BombData bombData = _bombDataDict[_leftoverBombs[index].bombType];
+        if (bombData == null) return;
+        
         switch (index)
         {
             case 0:
-                if (_1stBombText != null)
-                    _1stBombText.text = $"leftover: {_leftoverBombs[index].count}";
+                if (_1stBombLeftoverText == null || _1stBombNameText == null) return;
+                _1stBombLeftoverText.text = $"{_leftoverBombs[index].count:D3}";
+                if (_leftoverBombs[index].count == 0)
+                {
+                    _1stBombNameText.color = Color.red;
+                }
+                else if (_currentIndex == index)
+                {
+                    _1stBombNameText.color = Color.green;
+                }
+                else
+                {
+                    _1stBombNameText.color = Color.white;
+                }
+                _1stBombNameText.text = bombData.bombName;
                 break;
             case 1:
-                if (_2ndBombText != null)
-                    _2ndBombText.text = $"leftover: {_leftoverBombs[index].count}";
+                if (_2ndBombLeftoverText == null || _2ndBombNameText == null) return;
+                _2ndBombLeftoverText.text = $"{_leftoverBombs[index].count:D3}";
+                if (_leftoverBombs[index].count == 0)
+                {
+                    _2ndBombNameText.color = Color.red;
+                }
+                else if (_currentIndex == index)
+                {
+                    _2ndBombNameText.color = Color.green;
+                }
+                else
+                {
+                    _2ndBombNameText.color = Color.white;
+                }
+                _2ndBombNameText.text = bombData.bombName;
                 break;
             case 2:
-                if (_3rdBombText != null)
-                    _3rdBombText.text = $"leftover: {_leftoverBombs[index].count}";
+                if (_3rdBombLeftoverText == null || _3rdBombNameText == null) return;
+                _3rdBombLeftoverText.text = $"{_leftoverBombs[index].count:D3}";
+                if (_leftoverBombs[index].count == 0)
+                {
+                    _3rdBombNameText.color = Color.red;
+                }
+                else if (_currentIndex == index)
+                {
+                    _3rdBombNameText.color = Color.green;
+                }
+                else
+                {
+                    _3rdBombNameText.color = Color.white;
+                }
+                _3rdBombNameText.text = bombData.bombName;
                 break;
         }
     }
@@ -248,13 +282,20 @@ public class BombManager : MonoBehaviour
     public void SetCurrentIndex(int index)
     {
         _currentIndex = index;
-        UpdateCheckedUI();
+        UpdateAllBombTexts();
+    }
+
+    public bool IsBombLeft(int index)
+    {
+        if (index == 3)
+            return true;
+        return _leftoverBombs[index].count > 0;
     }
 
     public void ClearCurrentBombType()
     {
         _currentIndex = -1;
-        UpdateCheckedUI();
+        UpdateAllBombTexts();
     }
     
     // Restore a bomb to inventory (used when removing placed bombs)
@@ -324,40 +365,34 @@ public class BombManager : MonoBehaviour
     }
     
     // Reset explode button text to PASS (called after turn ends)
-    public void ResetExplodeButtonText()
-    {
-        if (_explodeButtonText != null)
-            _explodeButtonText.text = "PASS";
-    }
+    // public void ResetExplodeButtonText()
+    // {
+    //     if (_explodeButtonText != null)
+    //         _explodeButtonText.text = "PASS";
+    // }
     
     // Update checked UI based on current selection
-    private void UpdateCheckedUI()
-    {
-        // Deactivate all check UIs first
-        if (_1stBombChecked != null) _1stBombChecked.SetActive(false);
-        if (_2ndBombChecked != null) _2ndBombChecked.SetActive(false);
-        if (_3rdBombChecked != null) _3rdBombChecked.SetActive(false);
-        if (_realBombChecked != null) _realBombChecked.SetActive(false);
-
-        if (_currentIndex == -1)
-            return;
-        
-        switch (_currentIndex)
-        {
-            case 0:
-                if (_1stBombChecked != null) _1stBombChecked.SetActive(true);
-                break;
-            case 1:
-                if (_2ndBombChecked != null) _2ndBombChecked.SetActive(true);
-                break;
-            case 2:
-                if (_3rdBombChecked != null) _3rdBombChecked.SetActive(true);
-                break;
-            case 3:
-                if (_realBombChecked != null) _realBombChecked.SetActive(true);
-                break;
-        }
-    }
+    // private void UpdateCheckedUI()
+    // {
+    //     _1stBombLeftoverText.color = Color.white;
+    //     _2ndBombLeftoverText.color = Color.white;
+    //     _3rdBombLeftoverText.color = Color.white;
+    //     switch (_currentIndex)
+    //     {
+    //         case 0:
+    //             _1stBombLeftoverText.color = Color.green;
+    //             break;
+    //         case 1:
+    //             _2ndBombLeftoverText.color = Color.green;
+    //             break;
+    //         case 2:
+    //             _3rdBombLeftoverText.color = Color.green;
+    //             break;
+    //         case 3:
+    //             // TODO: specify that real bomb is selected
+    //             break;
+    //     }
+    // }
 
     private void UpdateIconUI()
     {
@@ -417,32 +452,56 @@ public class BombManager : MonoBehaviour
             return null;
         }
         
-        Vector3 worldPos = _boardManager.GridToWorld(x, y);
-        GameObject bomb = Instantiate(auxiliaryBomb, worldPos, Quaternion.identity, auxiliaryBombSet);
+        // Canvas UI mode only
+        Vector2 canvasPos = _boardManager.GridToCanvasPosition(x, y);
+        GameObject bomb = Instantiate(auxiliaryBomb, auxiliaryBombSet);
+        
+        // Setup RectTransform
+        RectTransform rectTransform = bomb.GetComponent<RectTransform>();
+        if (rectTransform == null)
+        {
+            rectTransform = bomb.AddComponent<RectTransform>();
+        }
+        rectTransform.anchoredPosition = canvasPos;
+        
+        // Set size based on cell size (converted to Canvas pixels)
+        float cellSizeCanvas = _boardManager.GetCellSizeCanvas();
+        rectTransform.sizeDelta = new Vector2(cellSizeCanvas, cellSizeCanvas);
+        
+        // Setup Image component for UI rendering
+        Image image = bomb.GetComponent<Image>();
+        if (image == null)
+        {
+            image = bomb.AddComponent<Image>();
+        }
+        if (bombData.fieldSprite != null)
+        {
+            image.sprite = bombData.fieldSprite;
+        }
+        image.raycastTarget = false;
+        
+        // Remove SpriteRenderer if exists
+        SpriteRenderer sr = bomb.GetComponent<SpriteRenderer>();
+        if (sr != null)
+        {
+            Destroy(sr);
+        }
         
         // Initialize bomb with data
         AuxiliaryBomb bombComponent = bomb.GetComponent<AuxiliaryBomb>();
         bombComponent.Initialize(bombData);
-        
-        // Apply scale based on cell size and sprite bounds
-        SpriteRenderer sr = bomb.GetComponent<SpriteRenderer>();
-        if (sr != null && sr.sprite != null)
-        {
-            float cellSize = _boardManager.GetCellSize();
-            Vector2 spriteSize = sr.sprite.bounds.size;
-            float scaleX = cellSize / spriteSize.x;
-            float scaleY = cellSize / spriteSize.y;
-            float scale = Mathf.Min(scaleX, scaleY);  // Keep aspect ratio, fit within cell
-            bomb.transform.localScale = Vector3.one * scale;
-        }
 
         // Decrease leftover count for this bomb type
         _leftoverBombs[index].count--;
+        if (_leftoverBombs[index].count == 0)
+        {
+            _currentIndex = -1;
+        }
         UpdateBombText(index);
         
         // Change explode button text to EXPLOSION
-        if (_explodeButtonText != null)
-            _explodeButtonText.text = "EXPLOSION";
+        // if (_explodeButtonText != null)
+        //     _explodeButtonText.text = "EXPLOSION";
         
         return bomb;
     }
@@ -515,8 +574,40 @@ public class BombManager : MonoBehaviour
             return null;
         }
         
-        Vector3 worldPos = _boardManager.GridToWorld(x, y);
-        GameObject bomb = Instantiate(realBombPrefab, worldPos, Quaternion.identity, realBombSet);
+        // Canvas UI mode only
+        Vector2 canvasPos = _boardManager.GridToCanvasPosition(x, y);
+        GameObject bomb = Instantiate(realBombPrefab, realBombSet);
+        
+        // Setup RectTransform
+        RectTransform rectTransform = bomb.GetComponent<RectTransform>();
+        if (rectTransform == null)
+        {
+            rectTransform = bomb.AddComponent<RectTransform>();
+        }
+        rectTransform.anchoredPosition = canvasPos;
+        
+        // Set size based on cell size (converted to Canvas pixels)
+        float cellSizeCanvas = _boardManager.GetCellSizeCanvas();
+        rectTransform.sizeDelta = new Vector2(cellSizeCanvas, cellSizeCanvas);
+        
+        // Setup Image component for UI rendering
+        Image image = bomb.GetComponent<Image>();
+        if (image == null)
+        {
+            image = bomb.AddComponent<Image>();
+        }
+        if (bombData.fieldSprite != null)
+        {
+            image.sprite = bombData.fieldSprite;
+        }
+        image.raycastTarget = false;
+        
+        // Remove SpriteRenderer if exists
+        SpriteRenderer sr = bomb.GetComponent<SpriteRenderer>();
+        if (sr != null)
+        {
+            Destroy(sr);
+        }
         
         // Initialize bomb with data
         RealBomb bombComponent = bomb.GetComponent<RealBomb>();
@@ -525,24 +616,12 @@ public class BombManager : MonoBehaviour
             bombComponent.Initialize(bombData);
         }
         
-        // Apply scale based on cell size and sprite bounds
-        SpriteRenderer sr = bomb.GetComponent<SpriteRenderer>();
-        if (sr != null && sr.sprite != null)
-        {
-            float cellSize = _boardManager.GetCellSize();
-            Vector2 spriteSize = sr.sprite.bounds.size;
-            float scaleX = cellSize / spriteSize.x;
-            float scaleY = cellSize / spriteSize.y;
-            float scale = Mathf.Min(scaleX, scaleY);  // Keep aspect ratio, fit within cell
-            bomb.transform.localScale = Vector3.one * scale;
-        }
-        
         // Decrease RealBomb count
         _realBombCount--;
         
         // Change explode button text to EXPLOSION
-        if (_explodeButtonText != null)
-            _explodeButtonText.text = "EXPLOSION";
+        // if (_explodeButtonText != null)
+        //     _explodeButtonText.text = "EXPLOSION";
         
         return bomb;
     }

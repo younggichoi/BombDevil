@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections.Generic;
 using Entity;
 
@@ -44,37 +45,38 @@ public partial class GameManager : MonoBehaviour
         if (!bombType.HasValue) return;
         BombData bombData = BombManager.GetBombData(bombType.Value);
         if (bombData == null) return;
-        float cellSize = BoardManager.GetCellSize();
-        Vector3 worldPos = BoardManager.GridToWorld(x, y);
+        
+        // Canvas UI mode only
+        Vector2 canvasPos = BoardManager.GridToCanvasPosition(x, y);
+        float cellSizeCanvas = BoardManager.GetCellSizeCanvas();
+        
         if (_ghostBomb == null)
         {
             _ghostBomb = new GameObject("GhostBomb");
-            SpriteRenderer sr = _ghostBomb.AddComponent<SpriteRenderer>();
-            sr.sortingOrder = 5;
+            _ghostBomb.transform.SetParent(BoardManager.GetParentCanvas(), false);
+            _ghostBomb.AddComponent<RectTransform>();
+            _ghostBomb.AddComponent<Image>();
         }
-        _ghostBomb.transform.position = worldPos;
-        _ghostBomb.transform.localScale = Vector3.one * cellSize;
-        SpriteRenderer ghostSr = _ghostBomb.GetComponent<SpriteRenderer>();
-        if (ghostSr != null)
+        
+        RectTransform rect = _ghostBomb.GetComponent<RectTransform>();
+        rect.anchoredPosition = canvasPos;
+        rect.sizeDelta = new Vector2(cellSizeCanvas, cellSizeCanvas);
+        
+        Image image = _ghostBomb.GetComponent<Image>();
+        Color bombColor = Color.white;
+        if (bombData.fieldSprite != null)
         {
-            Color bombColor = Color.white;
-            if (bombData.fieldSprite != null)
-            {
-                ghostSr.sprite = bombData.fieldSprite;
-                Vector2 spriteSize = ghostSr.sprite.bounds.size;
-                float scaleX = cellSize / spriteSize.x;
-                float scaleY = cellSize / spriteSize.y;
-                float scale = Mathf.Min(scaleX, scaleY);  // Keep aspect ratio, fit within cell
-                _ghostBomb.transform.localScale = Vector3.one * scale;
-            }
-            else
-            {
-                ghostSr.sprite = CreateSquareSprite();
-                bombColor = bombData.GetColor();
-            }
-            bombColor.a = 0.5f;
-            ghostSr.color = bombColor;
+            image.sprite = bombData.fieldSprite;
         }
+        else
+        {
+            image.sprite = CreateSquareSprite();
+            bombColor = bombData.GetColor();
+        }
+        bombColor.a = 0.5f;
+        image.color = bombColor;
+        image.raycastTarget = false;
+        
         _ghostBomb.SetActive(true);
         
         // SkyblueBomb shows cross-shaped range, others show square range
@@ -92,6 +94,31 @@ public partial class GameManager : MonoBehaviour
         ShowEnemyPredictions(x, y, bombType.Value, bombData);
     }
 
+    private GameObject CreateRangeIndicator(string name, int sortingOrder)
+    {
+        GameObject indicator = new GameObject(name);
+        indicator.transform.SetParent(BoardManager.GetParentCanvas(), false);
+        indicator.AddComponent<RectTransform>();
+        Image image = indicator.AddComponent<Image>();
+        image.sprite = CreateSquareSprite();
+        image.raycastTarget = false;
+        
+        return indicator;
+    }
+
+    private void PositionRangeIndicator(GameObject indicator, int gridX, int gridY, Color color, float sizeMultiplier = 1f)
+    {
+        Vector2 canvasPos = BoardManager.GridToCanvasPosition(gridX, gridY);
+        float cellSizeCanvas = BoardManager.GetCellSizeCanvas();
+        
+        RectTransform rect = indicator.GetComponent<RectTransform>();
+        rect.anchoredPosition = canvasPos;
+        rect.sizeDelta = new Vector2(cellSizeCanvas * sizeMultiplier, cellSizeCanvas * sizeMultiplier);
+        
+        Image image = indicator.GetComponent<Image>();
+        image.color = color;
+    }
+
     private void ShowRangeIndicators(int centerX, int centerY, int range)
     {
         if (_rangeIndicators == null)
@@ -101,7 +128,7 @@ public partial class GameManager : MonoBehaviour
             if (indicator != null)
                 indicator.SetActive(false);
         }
-        float cellSize = BoardManager.GetCellSize();
+        
         int indicatorIndex = 0;
         for (int dx = -range; dx <= range; dx++)
         {
@@ -111,23 +138,14 @@ public partial class GameManager : MonoBehaviour
                     continue;
                 int targetX = Mod(centerX + dx, _width);
                 int targetY = Mod(centerY + dy, _height);
-                Vector3 worldPos = BoardManager.GridToWorld(targetX, targetY);
+                
                 while (indicatorIndex >= _rangeIndicators.Count)
                 {
-                    GameObject indicator = new GameObject($"RangeIndicator_{_rangeIndicators.Count}");
-                    SpriteRenderer sr = indicator.AddComponent<SpriteRenderer>();
-                    sr.sprite = CreateSquareSprite();
-                    sr.sortingOrder = 4;
+                    GameObject indicator = CreateRangeIndicator($"RangeIndicator_{_rangeIndicators.Count}", 4);
                     _rangeIndicators.Add(indicator);
                 }
                 GameObject rangeObj = _rangeIndicators[indicatorIndex];
-                rangeObj.transform.position = worldPos;
-                rangeObj.transform.localScale = Vector3.one * cellSize;
-                SpriteRenderer rangeSr = rangeObj.GetComponent<SpriteRenderer>();
-                if (rangeSr != null)
-                {
-                    rangeSr.color = new Color(1f, 0.3f, 0.3f, 0.4f);
-                }
+                PositionRangeIndicator(rangeObj, targetX, targetY, new Color(1f, 0.3f, 0.3f, 0.4f));
                 rangeObj.SetActive(true);
                 indicatorIndex++;
             }
@@ -144,7 +162,7 @@ public partial class GameManager : MonoBehaviour
             if (indicator != null)
                 indicator.SetActive(false);
         }
-        float cellSize = BoardManager.GetCellSize();
+        
         int indicatorIndex = 0;
         
         // Horizontal line (same Y as bomb, all X)
@@ -152,23 +170,13 @@ public partial class GameManager : MonoBehaviour
         {
             if (dx == centerX) continue;  // Skip bomb position
             
-            Vector3 worldPos = BoardManager.GridToWorld(dx, centerY);
             while (indicatorIndex >= _rangeIndicators.Count)
             {
-                GameObject indicator = new GameObject($"RangeIndicator_{_rangeIndicators.Count}");
-                SpriteRenderer sr = indicator.AddComponent<SpriteRenderer>();
-                sr.sprite = CreateSquareSprite();
-                sr.sortingOrder = 4;
+                GameObject indicator = CreateRangeIndicator($"RangeIndicator_{_rangeIndicators.Count}", 4);
                 _rangeIndicators.Add(indicator);
             }
             GameObject rangeObj = _rangeIndicators[indicatorIndex];
-            rangeObj.transform.position = worldPos;
-            rangeObj.transform.localScale = Vector3.one * cellSize;
-            SpriteRenderer rangeSr = rangeObj.GetComponent<SpriteRenderer>();
-            if (rangeSr != null)
-            {
-                rangeSr.color = new Color(0.3f, 0.8f, 1f, 0.4f);  // Skyblue color
-            }
+            PositionRangeIndicator(rangeObj, dx, centerY, new Color(0.3f, 0.8f, 1f, 0.4f));
             rangeObj.SetActive(true);
             indicatorIndex++;
         }
@@ -178,23 +186,13 @@ public partial class GameManager : MonoBehaviour
         {
             if (dy == centerY) continue;  // Skip bomb position
             
-            Vector3 worldPos = BoardManager.GridToWorld(centerX, dy);
             while (indicatorIndex >= _rangeIndicators.Count)
             {
-                GameObject indicator = new GameObject($"RangeIndicator_{_rangeIndicators.Count}");
-                SpriteRenderer sr = indicator.AddComponent<SpriteRenderer>();
-                sr.sprite = CreateSquareSprite();
-                sr.sortingOrder = 4;
+                GameObject indicator = CreateRangeIndicator($"RangeIndicator_{_rangeIndicators.Count}", 4);
                 _rangeIndicators.Add(indicator);
             }
             GameObject rangeObj = _rangeIndicators[indicatorIndex];
-            rangeObj.transform.position = worldPos;
-            rangeObj.transform.localScale = Vector3.one * cellSize;
-            SpriteRenderer rangeSr = rangeObj.GetComponent<SpriteRenderer>();
-            if (rangeSr != null)
-            {
-                rangeSr.color = new Color(0.3f, 0.8f, 1f, 0.4f);  // Skyblue color
-            }
+            PositionRangeIndicator(rangeObj, centerX, dy, new Color(0.3f, 0.8f, 1f, 0.4f));
             rangeObj.SetActive(true);
             indicatorIndex++;
         }
@@ -214,7 +212,6 @@ public partial class GameManager : MonoBehaviour
         // RealBomb kills enemies, no knockback prediction needed
         if (bombType == BombType.RealBomb) return;
         
-        float cellSize = BoardManager.GetCellSize();
         int indicatorIndex = 0;
         int range = bombData.range;
         int knockbackDistance = bombData.knockbackDistance;
@@ -286,23 +283,13 @@ public partial class GameManager : MonoBehaviour
                     // Show prediction indicator if we have a predicted position
                     if (predictedPos.HasValue)
                     {
-                        Vector3 worldPos = BoardManager.GridToWorld(predictedPos.Value.x, predictedPos.Value.y);
                         while (indicatorIndex >= _enemyPredictionIndicators.Count)
                         {
-                            GameObject indicator = new GameObject($"EnemyPrediction_{_enemyPredictionIndicators.Count}");
-                            SpriteRenderer sr = indicator.AddComponent<SpriteRenderer>();
-                            sr.sprite = CreateSquareSprite();
-                            sr.sortingOrder = 6;  // Above range indicators
+                            GameObject indicator = CreateRangeIndicator($"EnemyPrediction_{_enemyPredictionIndicators.Count}", 6);
                             _enemyPredictionIndicators.Add(indicator);
                         }
                         GameObject predObj = _enemyPredictionIndicators[indicatorIndex];
-                        predObj.transform.position = worldPos;
-                        predObj.transform.localScale = Vector3.one * cellSize * 0.6f;  // Smaller than cell
-                        SpriteRenderer predSr = predObj.GetComponent<SpriteRenderer>();
-                        if (predSr != null)
-                        {
-                            predSr.color = new Color(0.2f, 1f, 0.2f, 0.6f);  // Green for predicted
-                        }
+                        PositionRangeIndicator(predObj, predictedPos.Value.x, predictedPos.Value.y, new Color(0.2f, 1f, 0.2f, 0.6f), 0.6f);
                         predObj.SetActive(true);
                         indicatorIndex++;
                     }

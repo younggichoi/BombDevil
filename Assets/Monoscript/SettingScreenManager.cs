@@ -36,6 +36,14 @@ public class SettingScreenManager : MonoBehaviour
         UpdateDifficultyButtonIcon();
     }
 
+        void Update()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            SoundManager.Instance.PlaySFX(SoundManager.Instance.clickClip);
+        }
+    }
+
     public void OnSettingButtonClicked()
     {
         // Validate selections

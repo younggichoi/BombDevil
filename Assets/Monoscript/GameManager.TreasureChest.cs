@@ -21,7 +21,7 @@ public partial class GameManager : MonoBehaviour
             while (_board[x, y].Count > 0);
             
 
-            GameObject treasureChest = TreasureChestManager.CreateTreasureChest(x, y, chestData.durability, chestData.value);
+            GameObject treasureChest = this.TreasureChestManager.CreateTreasureChest(x, y, chestData.durability, chestData.value);
             
             // Record in board
             _board[x, y].Add(treasureChest);

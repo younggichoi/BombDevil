@@ -1,5 +1,6 @@
 {
     "bombType": "SkyblueBomb",
+    "bombName": "Skyblue Bomb",
     "range": 1,
     "knockbackDistance": 3,
     "colorHex": "#87CEFA",

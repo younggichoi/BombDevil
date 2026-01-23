@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections.Generic;
 using Entity;
 
@@ -18,20 +19,48 @@ public class WallManager : MonoBehaviour
 
     public static GameObject CreateWall(int x, int y)
     {
-        /*if (_wallPrefab == null)
+        var boardManager = GameService.Get<BoardManager>();
+        
+        // Canvas UI mode only
+        Vector2 canvasPos = boardManager.GridToCanvasPosition(x, y);
+        GameObject wallGO = Instantiate(_wallPrefab, _wallSet.transform);
+        
+        // Setup RectTransform
+        RectTransform rectTransform = wallGO.GetComponent<RectTransform>();
+        if (rectTransform == null)
         {
-            _wallPrefab = Resources.Load<GameObject>("Prefab/Wall/Wall");
+            rectTransform = wallGO.AddComponent<RectTransform>();
+        }
+        rectTransform.anchoredPosition = canvasPos;
+        
+        // Set size based on cell size (converted to Canvas pixels)
+        float cellSizeCanvas = boardManager.GetCellSizeCanvas();
+        rectTransform.sizeDelta = new Vector2(cellSizeCanvas, cellSizeCanvas);
+        
+        // Setup Image component for UI rendering
+        Image image = wallGO.GetComponent<Image>();
+        if (image == null)
+        {
+            image = wallGO.AddComponent<Image>();
+        }
+        image.sprite = _wallSprite;
+        image.raycastTarget = false;
+        
+        // Remove SpriteRenderer if exists
+        SpriteRenderer sr = wallGO.GetComponent<SpriteRenderer>();
+        if (sr != null)
+        {
+            Object.Destroy(sr);
         }
         
-        if (_wallSet == null)
+        // Initialize Wall component
+        Wall wall = wallGO.GetComponent<Wall>();
+        if (wall == null)
         {
-        }*/
-
-        var boardManager = GameService.Get<BoardManager>();
-        GameObject wallGO = Instantiate(_wallPrefab, boardManager.GridToWorld(x, y), Quaternion.identity);
-        wallGO.transform.SetParent(_wallSet.transform);
-        var wall = wallGO.AddComponent<Wall>();
-        wall.Initialize(_wallSprite);
+            wall = wallGO.AddComponent<Wall>();
+        }
+        // wall.Initialize(_wallSprite);
+        
         return wallGO;
     }
 
