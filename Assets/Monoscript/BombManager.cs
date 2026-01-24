@@ -1,3 +1,5 @@
+#define USE_EDITOR
+
 using System.Collections.Generic;
 using System.IO;
 using TMPro;
@@ -91,16 +93,15 @@ public class BombManager : MonoBehaviour
         this._3rdBombIcon = _3rdBombIcon;
         this._realBombIcon = _realBombIcon;
         _boardManager = GameService.Get<BoardManager>();
-
-        // Set initial explode button text
-        // if (_explodeButtonText != null)
-        //     _explodeButtonText.text = "PASS";
         
-        // Initialize leftover bombs from SaveData
         _leftoverBombs = new BombCount[3];
+
+#if !USE_EDITOR
+        // Initialize leftover bombs from SaveData
         _leftoverBombs[0] = new BombCount { bombType = saveData.firstBombType, count = saveData.left1stBomb };
         _leftoverBombs[1] = new BombCount { bombType = saveData.secondBombType, count = saveData.left2ndBomb };
         _leftoverBombs[2] = new BombCount { bombType = saveData.thirdBombType, count = saveData.left3rdBomb };
+#endif
 
         // Initialize RealBomb count (1 per stage)
         _realBombCount = 1;
@@ -139,6 +140,15 @@ public class BombManager : MonoBehaviour
         icon4.transform.localScale = Vector3.one * scale * 0.23f;
     }
     
+    public void SetInitialBombCounts(int count1, int count2, int count3, BombType type1, BombType type2, BombType type3)
+    {
+        _leftoverBombs = new BombCount[3];
+        _leftoverBombs[0] = new BombCount { bombType = type1, count = count1 };
+        _leftoverBombs[1] = new BombCount { bombType = type2, count = count2 };
+        _leftoverBombs[2] = new BombCount { bombType = type3, count = count3 };
+        UpdateAllBombTexts();
+    }
+
     // Load all bomb data from JSON files
     private void LoadAllBombData()
     {

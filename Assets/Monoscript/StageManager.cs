@@ -1,3 +1,5 @@
+#define USE_EDITOR
+
 using UnityEngine;
 using Entity;
 using UnityEngine.UI;
@@ -65,10 +67,12 @@ public class StageManager : MonoBehaviour
     // init new stage
     public void StageInitialize(int stageId)
     {
+#if !USE_EDITOR
         if (stageId == 1)
         {
             JsonDataUtility.ResetSaveData(1);
         }
+#endif
 
         // Don't destroy the stage root, just prepare it
         if (currStage == null)

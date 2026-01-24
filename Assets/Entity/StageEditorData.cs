@@ -1,4 +1,6 @@
-﻿namespace Entity
+﻿using System.Collections.Generic;
+
+namespace Entity
 {
     [System.Serializable]
     public class StageEditorData : StageData
@@ -7,30 +9,35 @@
         public int initial1stBomb;
         public int initial2ndBomb;
         public int initial3rdBomb;
-        public int initial4thBomb;
-        public int initial5thBomb;
-        public int initial6thBomb;
-        public int initialSkyblueBomb;
+        
+        // Initial item counts per type
+        public int initialTeleporter;
+        public int initialMegaphone;
 
         // Get initial bomb count by type
-        public int GetInitialBombCount(BombType bombType)
+        public int GetInitialBombCount(int slotNum)
         {
-            switch (bombType)
+            switch (slotNum)
             {
-                case BombType.FirstBomb:
+                case 0:
                     return initial1stBomb;
-                case BombType.SecondBomb:
+                case 1:
                     return initial2ndBomb;
-                case BombType.ThirdBomb:
+                case 2:
                     return initial3rdBomb;
-                case BombType.FourthBomb:
-                    return initial4thBomb;
-                case BombType.FifthBomb:
-                    return initial5thBomb;
-                case BombType.SixthBomb:
-                    return initial6thBomb;
-                case BombType.SkyblueBomb:
-                    return initialSkyblueBomb;
+                default:
+                    return 0;
+            }
+        }
+
+        public int GetInitialItemCount(ItemType itemType)
+        {
+            switch (itemType)
+            {
+                case ItemType.Teleporter:
+                    return initialTeleporter;
+                case ItemType.Megaphone:
+                    return initialMegaphone;
                 default:
                     return 0;
             }
@@ -39,8 +46,13 @@
         // Get total initial bomb count
         public int GetTotalInitialBombs()
         {
-            return initial1stBomb + initial2ndBomb + initial3rdBomb + 
-                   initial4thBomb + initial5thBomb + initial6thBomb + initialSkyblueBomb;
+            return initial1stBomb + initial2ndBomb + initial3rdBomb;
+        }
+        
+        // Get total initial item count
+        public int GetTotalInitialItems()
+        {
+            return initialTeleporter + initialMegaphone;
         }
     }
 }

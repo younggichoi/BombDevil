@@ -1,3 +1,5 @@
+#define USE_EDITOR
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -176,15 +178,21 @@ public partial class GameManager : MonoBehaviour
     }
 
     private void SetStageState(int stageId)
-    { 
+    {
+#if USE_EDITOR
+        string path = Path.Combine(Application.streamingAssetsPath, "Json/StageEditor/stage" + stageId + ".json");
+#else
         string path = Path.Combine(Application.streamingAssetsPath, "Json/Stage/stage" + stageId + ".json");
+#endif
         if (!File.Exists(path))
         {
             Debug.LogError($"Failed to load stage{stageId}.json from {path}");
             return;
         }
         string json = File.ReadAllText(path);
-        StageData editorData = JsonUtility.FromJson<StageData>(json);
+
+#if USE_EDITOR
+        StageEditorData editorData = JsonUtility.FromJson<StageEditorData>(json);
         _stageId = stageId;
         _width = editorData.width;
         _height = editorData.height;
@@ -192,6 +200,37 @@ public partial class GameManager : MonoBehaviour
         _wallNumber = editorData.wallNumber;
         _remainingTurns = editorData.remainingTurns;
         _treasureChests = editorData.treasureChest;
+
+        string initPath = Path.Combine(Application.streamingAssetsPath, "Json/Run/init.json");
+        if (!File.Exists(initPath))
+        {
+            Debug.LogError($"Failed to load init.json from {initPath}");
+            return;
+        }
+        string initJson = File.ReadAllText(initPath);
+        SaveData saveData = JsonUtility.FromJson<SaveData>(initJson);
+
+        var bombManager = GameService.Get<BombManager>();
+        if (bombManager != null)
+        {
+            bombManager.SetInitialBombCounts(editorData.initial1stBomb, editorData.initial2ndBomb, editorData.initial3rdBomb, saveData.firstBombType, saveData.secondBombType, saveData.thirdBombType);
+        }
+
+        var itemManager = GameService.Get<ItemManager>();
+        if (itemManager != null)
+        {
+            itemManager.SetInitialItemCounts(editorData);
+        }
+#else
+        StageData stageData = JsonUtility.FromJson<StageData>(json);
+        _stageId = stageId;
+        _width = stageData.width;
+        _height = stageData.height;
+        _enemyNumber = stageData.enemyNumber;
+        _wallNumber = stageData.wallNumber;
+        _remainingTurns = stageData.remainingTurns;
+        _treasureChests = stageData.treasureChest;
+#endif
     }
 
     void Update()

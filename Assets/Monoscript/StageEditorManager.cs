@@ -14,11 +14,10 @@ public class StageEditorManager : MonoBehaviour
     public TMP_InputField Initial1stBombInput;
     public TMP_InputField Initial2ndBombInput;
     public TMP_InputField Initial3rdBombInput;
-    public TMP_InputField Initial4thBombInput;
-    public TMP_InputField Initial5thBombInput;
-    public TMP_InputField Initial6thBombInput;
-    public TMP_InputField InitialSkyblueBombInput;
+    public TMP_InputField InitialTeleporterInput;    
+    public TMP_InputField InitialMegaphoneInput;
     public TMP_InputField RemainingTurnsInput;
+    public TMP_InputField WallNumberInput;
     public TMP_Dropdown StageDropdown;
     public TextMeshProUGUI StageLabel;
     private int _stageId = 1;
@@ -66,10 +65,9 @@ public class StageEditorManager : MonoBehaviour
             Initial1stBombInput.text = stageData.initial1stBomb.ToString();
             Initial2ndBombInput.text = stageData.initial2ndBomb.ToString();
             Initial3rdBombInput.text = stageData.initial3rdBomb.ToString();
-            Initial4thBombInput.text = stageData.initial4thBomb.ToString();
-            Initial5thBombInput.text = stageData.initial5thBomb.ToString();
-            Initial6thBombInput.text = stageData.initial6thBomb.ToString();
-            InitialSkyblueBombInput.text = stageData.initialSkyblueBomb.ToString();
+            InitialTeleporterInput.text = stageData.initialTeleporter.ToString();
+            InitialMegaphoneInput.text = stageData.initialMegaphone.ToString();
+            WallNumberInput.text = stageData.wallNumber.ToString();
             RemainingTurnsInput.text = stageData.remainingTurns.ToString();
         }
     }
@@ -85,10 +83,9 @@ public class StageEditorManager : MonoBehaviour
             initial1stBomb = int.Parse(Initial1stBombInput.text),
             initial2ndBomb = int.Parse(Initial2ndBombInput.text),
             initial3rdBomb = int.Parse(Initial3rdBombInput.text),
-            initial4thBomb = int.Parse(Initial4thBombInput.text),
-            initial5thBomb = int.Parse(Initial5thBombInput.text),
-            initial6thBomb = int.Parse(Initial6thBombInput.text),
-            initialSkyblueBomb = int.Parse(InitialSkyblueBombInput.text),
+            initialTeleporter = int.Parse(InitialTeleporterInput.text),
+            initialMegaphone = int.Parse(InitialMegaphoneInput.text),
+            wallNumber = int.Parse(WallNumberInput.text),
             remainingTurns = int.Parse(RemainingTurnsInput.text)
         };
         JsonDataUtility.SaveStageEditorData(stageData);
