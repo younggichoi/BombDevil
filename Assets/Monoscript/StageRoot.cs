@@ -1,3 +1,5 @@
+#define USE_EDITOR
+
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -182,7 +184,7 @@ public class StageRoot : MonoBehaviour
             }
             SaveData initData;
 
-#if UNITY_EDITOR
+#if USE_EDITOR
             initData = GameManager.pendingSaveData;
             Debug.Log("StageRoot loaded settings from memory.");
 #else
