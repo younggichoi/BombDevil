@@ -79,17 +79,8 @@ public class SettingScreenManager : MonoBehaviour
         initData.leftItem.Add(new ItemCount(ItemType.Teleporter, 0));
         initData.leftItem.Add(new ItemCount(ItemType.Megaphone, 0));
 
-        // Save to init.json
-        string directoryPath = Path.Combine(Application.streamingAssetsPath, "Json", "Run");
-        if (!Directory.Exists(directoryPath))
-        {
-            Directory.CreateDirectory(directoryPath);
-        }
-
-        string json = JsonUtility.ToJson(initData, true);
-        string filePath = Path.Combine(directoryPath, "init.json");
-        File.WriteAllText(filePath, json);
-        Debug.Log($"Settings saved to: {filePath}");
+        // Pass data to GameManager
+        GameManager.pendingSaveData = initData;
 
         // Load IngameScene
         UnityEngine.SceneManagement.SceneManager.LoadScene("IngameScene");

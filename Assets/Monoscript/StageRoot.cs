@@ -180,11 +180,15 @@ public class StageRoot : MonoBehaviour
                 _exitButton.onClick.RemoveAllListeners();
                 _exitButton.onClick.AddListener(() => GameService.Get<GameManager>()?.OnExitButtonClick());
             }
+            SaveData initData;
+
 #if UNITY_EDITOR
-            SaveData initData = JsonDataUtility.LoadInitData(1); // TODO: remove hardcoding on file number
+            initData = GameManager.pendingSaveData;
+            Debug.Log("StageRoot loaded settings from memory.");
 #else
-            SaveData initData = JsonDataUtility.LoadGameData(1); // TODO: remove hardcoding on file number
+            initData = JsonDataUtility.LoadGameData(1); // TODO: remove hardcoding on file number
 #endif
+            Debug.Log("StageRoot loaded settings from file.");
             switch (initData.difficulty)
             {
                 case 0:

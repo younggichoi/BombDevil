@@ -9,6 +9,8 @@ using TMPro;
 
 public partial class GameManager : MonoBehaviour
 {
+    public static SaveData pendingSaveData = null;
+
     // Manager references (set via Initialize)
     /*private EnemyManager enemyManager;
     private BombManager bombManager;
@@ -202,14 +204,26 @@ public partial class GameManager : MonoBehaviour
         _treasureChests = editorData.treasureChest;
         Debug.Log($"StageEditorData loaded: Walls={_wallNumber}");
 
-        string initPath = Path.Combine(Application.streamingAssetsPath, "Json/Run/init.json");
-        if (!File.Exists(initPath))
+        SaveData saveData;
+
+        if (pendingSaveData != null)
         {
-            Debug.LogError($"Failed to load init.json from {initPath}");
-            return;
+            saveData = pendingSaveData;
+            pendingSaveData = null; // Clear the data after using it
+            Debug.Log($"Loaded settings from memory. {saveData.difficulty}");
         }
-        string initJson = File.ReadAllText(initPath);
-        SaveData saveData = JsonUtility.FromJson<SaveData>(initJson);
+        else
+        {
+            string initPath = Path.Combine(Application.streamingAssetsPath, "Json/Run/init.json");
+            if (!File.Exists(initPath))
+            {
+                Debug.LogError($"Failed to load init.json from {initPath}");
+                return;
+            }
+            string initJson = File.ReadAllText(initPath);
+            saveData = JsonUtility.FromJson<SaveData>(initJson);
+            Debug.Log("Loaded settings from init.json file.");
+        }
 
         var bombManager = GameService.Get<BombManager>();
         if (bombManager != null)
