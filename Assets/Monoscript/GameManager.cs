@@ -200,6 +200,7 @@ public partial class GameManager : MonoBehaviour
         _wallNumber = editorData.wallNumber;
         _remainingTurns = editorData.remainingTurns;
         _treasureChests = editorData.treasureChest;
+        Debug.Log($"StageEditorData loaded: Walls={_wallNumber}");
 
         string initPath = Path.Combine(Application.streamingAssetsPath, "Json/Run/init.json");
         if (!File.Exists(initPath))

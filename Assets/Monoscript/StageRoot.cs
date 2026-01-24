@@ -180,8 +180,11 @@ public class StageRoot : MonoBehaviour
                 _exitButton.onClick.RemoveAllListeners();
                 _exitButton.onClick.AddListener(() => GameService.Get<GameManager>()?.OnExitButtonClick());
             }
-
+#if UNITY_EDITOR
+            SaveData initData = JsonDataUtility.LoadInitData(1); // TODO: remove hardcoding on file number
+#else
             SaveData initData = JsonDataUtility.LoadGameData(1); // TODO: remove hardcoding on file number
+#endif
             switch (initData.difficulty)
             {
                 case 0:
