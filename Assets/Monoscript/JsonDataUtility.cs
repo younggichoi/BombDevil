@@ -1,4 +1,4 @@
-#define UNITY_EDITOR
+#define USE_EDITOR
 
 using System.IO;
 using Entity;
@@ -112,6 +112,7 @@ public static class JsonDataUtility
 #if UNITY_EDITOR
         UnityEditor.AssetDatabase.Refresh();
 #endif
+
     }
 
     public static StageEditorData LoadStageEditorData(int stageId)
@@ -151,7 +152,7 @@ public static class JsonDataUtility
         }
     }
 
-#if UNITY_EDITOR
+#if USE_EDITOR
     public static SaveData LoadInitData(int stageId)
     {
         string filePath = Path.Combine(Application.streamingAssetsPath, "Json", "Run", $"init.json");
