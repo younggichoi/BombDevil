@@ -9,8 +9,8 @@ public class StartScreenManager : MonoBehaviour
     {
         StartButton = GameObject.Find("NewGameButton").GetComponent<UnityEngine.UI.Button>();
         StartButton.onClick.AddListener(OnStartButtonClicked);
-        // EditorButton = GameObject.Find("EditorButton").GetComponent<UnityEngine.UI.Button>();
-        // EditorButton.onClick.AddListener(OnEditorButtonClicked);
+        EditorButton = GameObject.Find("EditorButton").GetComponent<UnityEngine.UI.Button>();
+        EditorButton.onClick.AddListener(OnEditorButtonClicked);
     }
 
     // Update is called once per frame
