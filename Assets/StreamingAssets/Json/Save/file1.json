@@ -1,7 +1,7 @@
 {
-    "left1stBomb": 3,
-    "left2ndBomb": 0,
-    "left3rdBomb": 2,
+    "left1stBomb": 4,
+    "left2ndBomb": 2,
+    "left3rdBomb": 3,
     "firstBombType": 0,
     "secondBombType": 1,
     "thirdBombType": 2,
@@ -15,6 +15,6 @@
             "count": 2
         }
     ],
-    "scoring": 3600,
-    "difficulty": 0
+    "scoring": 0,
+    "difficulty": 1
 }

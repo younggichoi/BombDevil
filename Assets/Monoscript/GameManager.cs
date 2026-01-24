@@ -1,4 +1,4 @@
-#define USE_EDITOR
+//#define USE_EDITOR
 
 using System;
 using System.Collections.Generic;

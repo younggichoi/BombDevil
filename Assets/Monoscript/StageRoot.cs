@@ -1,4 +1,4 @@
-#define USE_EDITOR
+//#define USE_EDITOR
 
 using UnityEngine;
 using UnityEngine.UI;
@@ -83,6 +83,7 @@ public class StageRoot : MonoBehaviour
         Sprite enemySprite, Sprite stunnedEnemySprite, Sprite fieldSprite,
         Sprite wallSprite, Sprite treasureChestSprite, float centerX, float centerY)
     {
+        SaveData initData = null;
         // 1. One-time Init (Find objects, cache references, set listeners)
         if (!_isInitialized)
         {
@@ -182,13 +183,25 @@ public class StageRoot : MonoBehaviour
                 _exitButton.onClick.RemoveAllListeners();
                 _exitButton.onClick.AddListener(() => GameService.Get<GameManager>()?.OnExitButtonClick());
             }
-            SaveData initData;
-
 #if USE_EDITOR
             initData = GameManager.pendingSaveData;
             Debug.Log("StageRoot loaded settings from memory.");
-#else
-            initData = JsonDataUtility.LoadGameData(1); // TODO: remove hardcoding on file number
+            if(initData == null)
+            {
+                initData = JsonDataUtility.LoadGameData(1); // TODO: remove hardcoding on file number
+                Debug.Log("StageRoot pendingSaveData was null, loaded from file instead.");
+            }
+#else //TODO: might change later
+            initData = GameManager.pendingSaveData;
+            Debug.Log("StageRoot loaded settings from memory.");
+            Debug.Log($"initData bomb settings: 1stBombType={initData.firstBombType}, left1stBomb={initData.left1stBomb}, " +
+                      $"2ndBombType={initData.secondBombType}, left2ndBomb={initData.left2ndBomb}, " +
+                      $"3rdBombType={initData.thirdBombType}, left3rdBomb={initData.left3rdBomb}");
+            if(initData == null)
+            {
+                initData = JsonDataUtility.LoadGameData(1); // TODO: remove hardcoding on file number
+                Debug.Log("StageRoot pendingSaveData was null, loaded from file instead.");
+            }
 #endif
             Debug.Log("StageRoot loaded settings from file.");
             switch (initData.difficulty)
@@ -254,20 +267,40 @@ public class StageRoot : MonoBehaviour
             treasureChestSet.position = new Vector3(centerX, centerY, 0);
         }
 
-        // Load SaveData for initial bomb/item values
-        SaveData saveData = JsonDataUtility.LoadGameData(1); // TODO: remove hardcoding on file number
-
+        if (initData == null)
+        {
+#if USE_EDITOR
+            initData = GameManager.pendingSaveData;
+            Debug.Log("StageRoot loaded settings from memory.");
+            if(initData == null)
+            {
+                initData = JsonDataUtility.LoadGameData(1); // TODO: remove hardcoding on file number
+                Debug.Log("StageRoot pendingSaveData was null, loaded from file instead.");
+            }
+#else //TODO: might change later
+            initData = GameManager.pendingSaveData;
+            Debug.Log("StageRoot loaded settings from memory.");
+            Debug.Log($"initData bomb settings: 1stBombType={initData.firstBombType}, left1stBomb={initData.left1stBomb}, " +
+                      $"2ndBombType={initData.secondBombType}, left2ndBomb={initData.left2ndBomb}, " +
+                      $"3rdBombType={initData.thirdBombType}, left3rdBomb={initData.left3rdBomb}");
+            if(initData == null)
+            {
+                initData = JsonDataUtility.LoadGameData(1); // TODO: remove hardcoding on file number
+                Debug.Log("StageRoot pendingSaveData was null, loaded from file instead.");
+            }
+#endif
+        }
         // Initialize BombManager and ItemManager before GameManager
         _bombManager.Initialize(_auxiliaryBombPrefab, _realBombPrefab,
             _auxiliaryBombSet, _realBombSet,
             _1StBombLeftoverText, _2NdBombLeftoverText, _3RdBombLeftoverText,
             _1StBombNameText, _2NdBombNameText, _3RdBombNameText,
             _1StBombIcon, _2NdBombIcon, _3RdBombIcon, _realBombIcon,
-            saveData, _realBombEasyMode, _realBombHardMode);
+            initData, _realBombEasyMode, _realBombHardMode);
         _itemManager.Initialize(_itemPrefabs, _itemSet, itemIcon, _itemLeftoverText);
 
         // Initialize all managers with their scene references first.
-        _gameManager.Initialize(stageId, commonData, centerX, centerY, _enemyMoveDisable, saveData.scoring);
+        _gameManager.Initialize(stageId, commonData, centerX, centerY, _enemyMoveDisable, initData.scoring);
 
         // Initialize BoardManager with Canvas UI or legacy World Space mode
         _boardManager.Initialize(_canvasRectTransform, _fieldSprite, centerX, centerY);

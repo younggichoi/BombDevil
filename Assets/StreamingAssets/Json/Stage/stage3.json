@@ -1,0 +1,14 @@
+{
+    "stageId": 2,
+    "width": 8,
+    "height": 8,
+    "enemyNumber": 10,
+    "wallNumber": 10,
+    "remainingTurns": 20,
+    "treasureChest": [
+        {
+            "durability": 3,
+            "value": 1
+        }
+    ]
+}

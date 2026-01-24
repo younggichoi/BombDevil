@@ -62,7 +62,14 @@ public class SettingScreenManager : MonoBehaviour
         _selectedBombIndices.Sort();
 
         // Create SaveData with selected settings
-        SaveData initData = new SaveData
+
+        SaveData initData = JsonDataUtility.LoadGameData(1); // TODO: remove hardcoding on file number
+        //initData에서 폭탄과 아이템 개수, 점수는 그대로 두고 나머지만 변경
+        initData.difficulty = _selectedDifficultyIndex;
+        initData.firstBombType = (BombType)_selectedBombIndices[0];
+        initData.secondBombType = (BombType)_selectedBombIndices[1];
+        initData.thirdBombType = (BombType)_selectedBombIndices[2];
+        /*SaveData initData = new SaveData
         {
             difficulty = _selectedDifficultyIndex,
             firstBombType = (BombType)_selectedBombIndices[0],
@@ -77,7 +84,7 @@ public class SettingScreenManager : MonoBehaviour
 
         // Add default items, hardcoded for now
         initData.leftItem.Add(new ItemCount(ItemType.Teleporter, 0));
-        initData.leftItem.Add(new ItemCount(ItemType.Megaphone, 0));
+        initData.leftItem.Add(new ItemCount(ItemType.Megaphone, 0));*/
 
         // Pass data to GameManager
         GameManager.pendingSaveData = initData;

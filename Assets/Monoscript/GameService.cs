@@ -21,7 +21,6 @@ public static class GameService
         {
             services.Add(type, service);
         }
-        Debug.Log($"Service of type {type.Name} registered.");
     }
 
     public static T Get<T>() where T : class

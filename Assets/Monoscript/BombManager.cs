@@ -1,4 +1,4 @@
-#define USE_EDITOR
+//#define USE_EDITOR
 
 using System.Collections.Generic;
 using System.IO;
@@ -96,12 +96,13 @@ public class BombManager : MonoBehaviour
         
         _leftoverBombs = new BombCount[3];
 
-#if !USE_EDITOR
         // Initialize leftover bombs from SaveData
+        Debug.Log($"Initializing BombManager with SaveData: 1stBombType={saveData.firstBombType}, left1stBomb={saveData.left1stBomb}, " +
+                  $"2ndBombType={saveData.secondBombType}, left2ndBomb={saveData.left2ndBomb}, " +
+                  $"3rdBombType={saveData.thirdBombType}, left3rdBomb={saveData.left3rdBomb}");
         _leftoverBombs[0] = new BombCount { bombType = saveData.firstBombType, count = saveData.left1stBomb };
         _leftoverBombs[1] = new BombCount { bombType = saveData.secondBombType, count = saveData.left2ndBomb };
         _leftoverBombs[2] = new BombCount { bombType = saveData.thirdBombType, count = saveData.left3rdBomb };
-#endif
 
         // Initialize RealBomb count (1 per stage)
         _realBombCount = 1;
@@ -406,6 +407,7 @@ public class BombManager : MonoBehaviour
 
     private void UpdateIconUI()
     {
+        Debug.Log("Updating bomb icons");
         for (int i = 0; i < 3; i++)
         {
             UpdateIcon(i);
@@ -414,28 +416,20 @@ public class BombManager : MonoBehaviour
 
     private void UpdateIcon(int index)
     {
+        Sprite icon;
         switch (index)
         {
             case 0:
-                if (_1stBombIcon != null)
-                {
-                    Sprite icon = GetBombData(_leftoverBombs[index].bombType).iconSprite;
-                    _1stBombIcon.GetComponent<Image>().sprite = icon;
-                }
+                icon = GetBombData(_leftoverBombs[index].bombType).iconSprite;
+                _1stBombIcon.GetComponent<Image>().sprite = icon;
                 break;
             case 1:
-                if (_2ndBombIcon != null)
-                {
-                    Sprite icon = GetBombData(_leftoverBombs[index].bombType).iconSprite;
-                    _2ndBombIcon.GetComponent<Image>().sprite = icon;
-                }
+                icon = GetBombData(_leftoverBombs[index].bombType).iconSprite;
+                _2ndBombIcon.GetComponent<Image>().sprite = icon;
                 break;
             case 2:
-                if (_3rdBombIcon != null)
-                {
-                    Sprite icon = GetBombData(_leftoverBombs[index].bombType).iconSprite;
-                    _3rdBombIcon.GetComponent<Image>().sprite = icon;
-                }
+                icon = GetBombData(_leftoverBombs[index].bombType).iconSprite;
+                _3rdBombIcon.GetComponent<Image>().sprite = icon;
                 break;
         }
     }
