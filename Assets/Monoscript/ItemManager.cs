@@ -74,7 +74,21 @@ public class ItemManager : MonoBehaviour
             new ItemCount(ItemType.Megaphone, editorData.GetInitialItemCount(ItemType.Megaphone))
         };
         _initialItems = new List<ItemCount>(initialItems);
-        _leftoverItems = new List<ItemCount>(_initialItems);
+        _leftoverItems = _initialItems.FindAll(item => item.count > 0);
+        _currentItemIndex = 0;
+        UpdateItemIcon();
+    }
+
+    public void SetInitialItemCounts(SaveData saveData)
+    {
+        var initialItems = new List<ItemCount>();
+        var teleporterCount = saveData.leftItem.Find(ic => ic.itemType == ItemType.Teleporter);
+        initialItems.Add(new ItemCount(ItemType.Teleporter, teleporterCount.Equals(default(ItemCount)) ? 0 : teleporterCount.count));
+        var megaphoneCount = saveData.leftItem.Find(ic => ic.itemType == ItemType.Megaphone);
+        initialItems.Add(new ItemCount(ItemType.Megaphone, megaphoneCount.Equals(default(ItemCount)) ? 0 : megaphoneCount.count));
+
+        _initialItems = new List<ItemCount>(initialItems);
+        _leftoverItems = _initialItems.FindAll(item => item.count > 0);
         _currentItemIndex = 0;
         UpdateItemIcon();
     }
@@ -182,6 +196,11 @@ public class ItemManager : MonoBehaviour
     {
         if (_leftoverItems == null || _leftoverItems.Count == 0) return;
         _currentItemIndex = (_currentItemIndex + 1) % _leftoverItems.Count;
+        if (_leftoverItems[_currentItemIndex].count == 0)
+        {
+            SetNextIndex();
+            return;
+        }
         UpdateItemIcon();
     }
 
@@ -189,6 +208,11 @@ public class ItemManager : MonoBehaviour
     {
         if (_leftoverItems == null || _leftoverItems.Count == 0) return;
         _currentItemIndex = (_currentItemIndex - 1 + _leftoverItems.Count) % _leftoverItems.Count;
+        if (_leftoverItems[_currentItemIndex].count == 0)
+        {
+            SetPreviousIndex();
+            return;
+        }
         UpdateItemIcon();
     }
 
@@ -211,9 +235,9 @@ public class ItemManager : MonoBehaviour
 
     public GameObject PlaceItem(int x, int y)
     {
-        if (!_hasItemSelected)
+        if (!_hasItemSelected || GetLeftoverItem() <= 0)
         {
-            Debug.LogWarning($"PlaceItem failed: No item type selected.");
+            Debug.LogWarning($"PlaceItem failed: No item type selected or no items left.");
             return null;
         }
         ItemType itemType = _leftoverItems[_currentItemIndex].itemType;
@@ -262,25 +286,25 @@ public class ItemManager : MonoBehaviour
         // Modify struct by creating new instance
         ItemCount current = _leftoverItems[_currentItemIndex];
         current.count--;
-        if (current.count == 0)
+        _leftoverItems[_currentItemIndex] = current;
+
+        if (current.count <= 0)
         {
-            _leftoverItems.RemoveAt(_currentItemIndex);
-            if (_currentItemIndex >= _leftoverItems.Count && _leftoverItems.Count > 0)
+            _hasItemSelected = false;
+            if (GetTotalLeftoverItems() > 0)
             {
-                _currentItemIndex = _leftoverItems.Count - 1;
+                SetNextIndex();
             }
-            else if (_leftoverItems.Count == 0)
+            else
             {
-                _hasItemSelected = false;
                 _currentItemIndex = -1;
+                UpdateItemIcon();
             }
         }
         else
         {
-            _leftoverItems[_currentItemIndex] = current;
+            UpdateItemIcon();
         }
-        // UpdateAllItemButtonTexts();
-        UpdateItemIcon();
         Debug.Log($"Placed item {itemType} at ({x}, {y}). Leftover: {current.count}.");
         return item;
     }
@@ -355,7 +379,7 @@ public class ItemManager : MonoBehaviour
             return;
         }
         // Reset leftover items from stored initial values
-        _leftoverItems = new List<ItemCount>(_initialItems);
+        _leftoverItems = _initialItems.FindAll(item => item.count > 0);
         _currentItemIndex = 0;
         // UpdateAllItemButtonTexts();
         UpdateItemIcon();
@@ -363,10 +387,7 @@ public class ItemManager : MonoBehaviour
 
     private void UpdateItemIcon()
     {
-        if (_itemIcon == null || _itemLeftoverText == null) return;
-
         var image = _itemIcon.GetComponent<Image>();
-        if (image == null) return;
 
         if (_currentItemIndex == -1 || _leftoverItems == null || _leftoverItems.Count == 0)
         {

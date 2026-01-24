@@ -278,11 +278,16 @@ public class StageRoot : MonoBehaviour
                 Debug.Log("StageRoot pendingSaveData was null, loaded from file instead.");
             }
 #else //TODO: might change later
-            initData = GameManager.pendingSaveData;
-            Debug.Log("StageRoot loaded settings from memory.");
-            Debug.Log($"initData bomb settings: 1stBombType={initData.firstBombType}, left1stBomb={initData.left1stBomb}, " +
-                      $"2ndBombType={initData.secondBombType}, left2ndBomb={initData.left2ndBomb}, " +
-                      $"3rdBombType={initData.thirdBombType}, left3rdBomb={initData.left3rdBomb}");
+            if(stageId == 1)
+            {
+                initData = GameManager.pendingSaveData;
+                Debug.Log("StageRoot loaded settings from memory.");
+            }
+            else
+            {
+                initData = JsonDataUtility.LoadGameData(1); // TODO: remove hardcoding on file number
+                Debug.Log("StageRoot loaded settings from file.");
+            }
             if(initData == null)
             {
                 initData = JsonDataUtility.LoadGameData(1); // TODO: remove hardcoding on file number
@@ -298,6 +303,7 @@ public class StageRoot : MonoBehaviour
             _1StBombIcon, _2NdBombIcon, _3RdBombIcon, _realBombIcon,
             initData, _realBombEasyMode, _realBombHardMode);
         _itemManager.Initialize(_itemPrefabs, _itemSet, itemIcon, _itemLeftoverText);
+        _itemManager.SetInitialItemCounts(initData);
 
         // Initialize all managers with their scene references first.
         _gameManager.Initialize(stageId, commonData, centerX, centerY, _enemyMoveDisable, initData.scoring);

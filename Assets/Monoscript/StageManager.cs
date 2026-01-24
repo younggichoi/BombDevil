@@ -61,6 +61,7 @@ public class StageManager : MonoBehaviour
     public void StartGame()
     {
         _currentStageId = 1;
+        Debug.Log("Starting game at Stage 1");
         StageInitialize(_currentStageId);
     }
 
@@ -70,6 +71,7 @@ public class StageManager : MonoBehaviour
 #if !USE_EDITOR
         if (stageId == 1)
         {
+            Debug.Log("Loading initial SaveData for stage 1.");
             JsonDataUtility.ResetSaveData(1);
         }
 #endif

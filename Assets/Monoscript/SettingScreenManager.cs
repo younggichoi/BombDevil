@@ -62,7 +62,7 @@ public class SettingScreenManager : MonoBehaviour
         _selectedBombIndices.Sort();
 
         // Create SaveData with selected settings
-
+        JsonDataUtility.ResetSaveData(1);
         SaveData initData = JsonDataUtility.LoadGameData(1); // TODO: remove hardcoding on file number
         //initData에서 폭탄과 아이템 개수, 점수는 그대로 두고 나머지만 변경
         initData.difficulty = _selectedDifficultyIndex;

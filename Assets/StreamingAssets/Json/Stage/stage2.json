@@ -5,10 +5,5 @@
     "enemyNumber": 10,
     "wallNumber": 10,
     "remainingTurns": 20,
-    "treasureChest": [
-        {
-            "durability": 3,
-            "value": 1
-        }
-    ]
+    "treasureChest": []
 }
