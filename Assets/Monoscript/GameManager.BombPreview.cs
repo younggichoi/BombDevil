@@ -60,7 +60,10 @@ public partial class GameManager : MonoBehaviour
         
         RectTransform rect = _ghostBomb.GetComponent<RectTransform>();
         rect.anchoredPosition = canvasPos;
-        rect.sizeDelta = new Vector2(cellSizeCanvas, cellSizeCanvas);
+        if (bombType != BombType.RealBomb)
+            rect.sizeDelta = new Vector2(cellSizeCanvas, cellSizeCanvas) * 0.7f;
+        else
+            rect.sizeDelta = new Vector2(cellSizeCanvas, cellSizeCanvas);
         
         Image image = _ghostBomb.GetComponent<Image>();
         Color bombColor = Color.white;

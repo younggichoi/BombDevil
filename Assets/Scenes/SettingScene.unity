@@ -453,6 +453,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!82 &252822362 stripped
+AudioSource:
+  m_CorrespondingSourceObject: {fileID: 16544006474042320, guid: e428508be4dff2b479fe241934415e5a, type: 3}
+  m_PrefabInstance: {fileID: 1287396236}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &282716076
 GameObject:
   m_ObjectHideFlags: 0
@@ -791,6 +796,81 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 555394386}
+  m_CullTransparentMesh: 1
+--- !u!1 &641381022
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 641381023}
+  - component: {fileID: 641381025}
+  - component: {fileID: 641381024}
+  m_Layer: 5
+  m_Name: TitleCharacterImage
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &641381023
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 641381022}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1086012791}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -500, y: 160}
+  m_SizeDelta: {x: 535, y: 690}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &641381024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 641381022}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 5611389392209885078, guid: 08f1ec6024f5e1948aa09c20b07af9b3, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &641381025
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 641381022}
   m_CullTransparentMesh: 1
 --- !u!1 &768385247
 GameObject:
@@ -1166,6 +1246,7 @@ RectTransform:
   - {fileID: 555394387}
   - {fileID: 2139909148}
   - {fileID: 1905734463}
+  - {fileID: 641381023}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -1225,6 +1306,22 @@ PrefabInstance:
       propertyPath: m_Name
       value: SoundManager
       objectReference: {fileID: 0}
+    - target: {fileID: 8729982826536880037, guid: e428508be4dff2b479fe241934415e5a, type: 3}
+      propertyPath: loopSource
+      value: 
+      objectReference: {fileID: 252822362}
+    - target: {fileID: 8729982826536880037, guid: e428508be4dff2b479fe241934415e5a, type: 3}
+      propertyPath: realBombClip
+      value: 
+      objectReference: {fileID: 8300000, guid: 9af16e7e366c1bd4babf49bd7929582e, type: 3}
+    - target: {fileID: 8729982826536880037, guid: e428508be4dff2b479fe241934415e5a, type: 3}
+      propertyPath: loopRealBombClip
+      value: 
+      objectReference: {fileID: 8300000, guid: d80764785678bdc498fe6d50be7ddd58, type: 3}
+    - target: {fileID: 8729982826536880037, guid: e428508be4dff2b479fe241934415e5a, type: 3}
+      propertyPath: startRealBombClip
+      value: 
+      objectReference: {fileID: 8300000, guid: 8f315c202903ecc48bdec196b9d4761a, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

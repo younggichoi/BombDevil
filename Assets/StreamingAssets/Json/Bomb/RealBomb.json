@@ -3,5 +3,117 @@
     "bombName": "Real Bomb",
     "range": 1,
     "knockbackDistance": 0,
-    "colorHex": "#FF0000"
+    "colorHex": "#FF0000",
+    "fieldSpriteName": "RealBomb/bomb_main_field_1",
+    "iconSpriteName": "RealBomb/bomb_main_field_1",
+    "animationSpriteNames": [
+        "RealBomb/bomb_main_field_1",
+        "RealBomb/bomb_main_field_2",
+        "RealBomb/bomb_main_field_3",
+        "RealBomb/bomb_main_field_4",
+        "RealBomb/bomb_main_field_5",
+        "RealBomb/bomb_main_field_6",
+        "RealBomb/bomb_main_field_7",
+        "RealBomb/bomb_main_field_8",
+        "RealBomb/bomb_main_field_9",
+        "RealBomb/bomb_main_field_10",
+        "RealBomb/bomb_main_field_11",
+        "RealBomb/bomb_main_field_12",
+        "RealBomb/bomb_main_field_13",
+        "RealBomb/bomb_main_field_14",
+        "RealBomb/bomb_main_field_15",
+        "RealBomb/bomb_main_field_16",
+        "RealBomb/bomb_main_field_17",
+        "RealBomb/bomb_main_field_18",
+        "RealBomb/bomb_main_field_19",
+        "RealBomb/bomb_main_field_20",
+        "RealBomb/bomb_main_field_21"
+    ],
+    "animationPositionCorrection": [
+        {
+            "x": -1,
+            "y": 1
+        },
+        {
+            "x": 0,
+            "y": 0
+        },
+        {
+            "x": 0,
+            "y": 0
+        },
+        {
+            "x": -2,
+            "y": 2
+        },
+        {
+            "x": -2,
+            "y": 2
+        },
+        {
+            "x": -2,
+            "y": 2
+        },
+        {
+            "x": -1,
+            "y": 3
+        },
+        {
+            "x": -1,
+            "y": 3
+        },
+        {
+            "x": -1,
+            "y": 3
+        },
+        {
+            "x": -1,
+            "y": 3
+        },
+        {
+            "x": -2,
+            "y": 1
+        },
+        {
+            "x": -1,
+            "y": 3
+        },
+        {
+            "x": -2,
+            "y": 2
+        },
+        {
+            "x": 0,
+            "y": 0
+        },
+        {
+            "x": 0,
+            "y": 0
+        },
+        {
+            "x": -1,
+            "y": 1
+        },
+        {
+            "x": -1,
+            "y": 1
+        },
+        {
+            "x": -1,
+            "y": 1
+        },
+        {
+            "x": -1,
+            "y": 1
+        },
+        {
+            "x": -1,
+            "y": 1
+        },
+        {
+            "x": -1,
+            "y": 1
+        }
+    ],
+    "animationPeriod": 0.9741
 }

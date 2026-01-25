@@ -138,7 +138,7 @@ public class BombManager : MonoBehaviour
         icon1.transform.localScale = Vector3.one * scale * 0.23f;
         icon2.transform.localScale = Vector3.one * scale * 0.23f;
         icon3.transform.localScale = Vector3.one * scale * 0.23f;
-        icon4.transform.localScale = Vector3.one * scale * 0.23f;
+        icon4.transform.localScale = Vector3.one * scale * 0.27f;
     }
     
     public void SetInitialBombCounts(int count1, int count2, int count3, BombType type1, BombType type2, BombType type3)
@@ -163,7 +163,7 @@ public class BombManager : MonoBehaviour
         LoadBombData("5thBomb");
         LoadBombData("6thBomb");
         LoadBombData("SkyblueBomb");
-        LoadBombData("RealBomb");
+        LoadRealBombData();
     }
     
     // Load single bomb data from JSON
@@ -184,6 +184,40 @@ public class BombManager : MonoBehaviour
         _bombDataDict[bombType] = bombData;
         
     }
+
+    private void LoadRealBombData()
+    {
+        string bombTypeName = "RealBomb";
+        string path = Path.Combine(Application.streamingAssetsPath, $"Json/Bomb/{bombTypeName}.json");
+        if (!File.Exists(path))
+        {
+            Debug.LogError($"Failed to load {bombTypeName}.json from {path}");
+            return;
+        }
+
+        string json = File.ReadAllText(path);
+        BombData bombData = JsonUtility.FromJson<BombData>(json);
+        bombData.fieldSprite = Resources.Load<Sprite>($"Sprites/Bomb/{bombData.fieldSpriteName}");
+        bombData.iconSprite = Resources.Load<Sprite>($"Sprites/Bomb/{bombData.iconSpriteName}");
+        
+        if (bombData.animationSpriteNames != null)
+        {
+            bombData.animationSprites = new List<Sprite>();
+            foreach (string spriteName in bombData.animationSpriteNames)
+            {
+                Sprite sprite = Resources.Load<Sprite>($"Sprites/Bomb/{spriteName}");
+                if (sprite != null)
+                {
+                    bombData.animationSprites.Add(sprite);
+                }
+            }
+        }
+
+        BombType bombType = bombData.GetBombType();
+        _bombDataDict[bombType] = bombData;
+    }
+
+
 
     // Update specific bomb text UI by slot index
     private void UpdateBombText(int index)
@@ -332,6 +366,7 @@ public class BombManager : MonoBehaviour
     // Restore RealBomb to inventory
     public void RestoreRealBomb()
     {
+        SoundManager.Instance.StopRealBombSound();
         _realBombCount++;
     }
     
@@ -412,6 +447,7 @@ public class BombManager : MonoBehaviour
         {
             UpdateIcon(i);
         }
+        _realBombIcon.GetComponent<Image>().sprite = GetBombData(BombType.RealBomb).iconSprite;
     }
 
     private void UpdateIcon(int index)
@@ -470,7 +506,8 @@ public class BombManager : MonoBehaviour
         
         // Set size based on cell size (converted to Canvas pixels)
         float cellSizeCanvas = _boardManager.GetCellSizeCanvas();
-        rectTransform.sizeDelta = new Vector2(cellSizeCanvas, cellSizeCanvas);
+        // Scale the bomb to 70% of the cell size for better visual fit within the grid
+        rectTransform.sizeDelta = new Vector2(cellSizeCanvas, cellSizeCanvas) * 0.7f;
         
         // Setup Image component for UI rendering
         Image image = bomb.GetComponent<Image>();
@@ -606,13 +643,6 @@ public class BombManager : MonoBehaviour
         }
         image.raycastTarget = false;
         
-        // Remove SpriteRenderer if exists
-        SpriteRenderer sr = bomb.GetComponent<SpriteRenderer>();
-        if (sr != null)
-        {
-            Destroy(sr);
-        }
-        
         // Initialize bomb with data
         RealBomb bombComponent = bomb.GetComponent<RealBomb>();
         if (bombComponent != null)
@@ -622,10 +652,8 @@ public class BombManager : MonoBehaviour
         
         // Decrease RealBomb count
         _realBombCount--;
-        
-        // Change explode button text to EXPLOSION
-        // if (_explodeButtonText != null)
-        //     _explodeButtonText.text = "EXPLOSION";
+
+        _currentIndex = -1;
         
         return bomb;
     }

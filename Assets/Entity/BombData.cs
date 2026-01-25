@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace Entity
 {
@@ -15,6 +16,11 @@ namespace Entity
         public string iconSpriteName;
         public Sprite fieldSprite;
         public Sprite iconSprite;
+        // only for real bomb
+        public List<string> animationSpriteNames;
+        public List<Sprite> animationSprites;
+        public List<Vector2> animationPositionCorrection;
+        public float animationPeriod;
         
         // Get Color from hex string
         public Color GetColor()
