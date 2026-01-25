@@ -1,6 +1,6 @@
-# BombDevil
+# BombVoyage
 
-BombDevil은 Unity를 사용하여 개발된 그리드 기반의 전략 퍼즐 게임입니다. 플레이어는 보조 폭탄(Auxiliary Bomb)을 설치하여 적을 물리치고 스테이지를 클리어해야 합니다.
+BombVoyage는 Unity를 사용하여 개발된 그리드 기반의 전략 퍼즐 게임입니다. 플레이어는 보조 폭탄(Auxiliary Bomb)을 설치하여 적을 물리치고 스테이지를 클리어해야 합니다.
 
 ## 🎮 게임 소개
 

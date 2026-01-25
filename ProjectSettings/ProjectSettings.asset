@@ -13,7 +13,7 @@ PlayerSettings:
   useOnDemandResources: 0
   accelerometerFrequency: 60
   companyName: DefaultCompany
-  productName: BombDevil
+  productName: BombVoyage
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
@@ -606,14 +606,14 @@ PlayerSettings:
   editorAssembliesCompatibilityLevel: 1
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
-  metroPackageName: BombDevil
+  metroPackageName: BombVoyage
   metroPackageVersion: 
   metroCertificatePath: 
   metroCertificatePassword: 
   metroCertificateSubject: 
   metroCertificateIssuer: 
   metroCertificateNotAfter: 0000000000000000
-  metroApplicationDescription: BombDevil
+  metroApplicationDescription: BombVoyage
   wsaImages: {}
   metroTileShortName: 
   metroTileShowName: 0
@@ -687,7 +687,7 @@ PlayerSettings:
   cloudProjectId: 6de241da-8dea-4a1f-8638-9c96836cf711
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: BombDevil 2025-11-09_15-02-57
+  projectName: BombVoyage 2025-11-09_15-02-57
   organizationId: younggichoi
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
