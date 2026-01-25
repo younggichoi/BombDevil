@@ -1,20 +1,20 @@
 {
     "left1stBomb": 3,
-    "left2ndBomb": 2,
-    "left3rdBomb": 4,
+    "left2ndBomb": 0,
+    "left3rdBomb": 2,
     "firstBombType": 0,
     "secondBombType": 1,
     "thirdBombType": 2,
     "leftItem": [
         {
             "itemType": 0,
-            "count": 2
+            "count": 0
         },
         {
             "itemType": 1,
             "count": 2
         }
     ],
-    "scoring": 2400,
+    "scoring": 1800,
     "difficulty": 0
 }

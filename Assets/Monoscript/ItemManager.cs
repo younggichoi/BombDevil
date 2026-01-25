@@ -1,3 +1,5 @@
+//#define USE_EDITOR
+
 using System.Collections.Generic;
 using System.IO;
 using TMPro;
@@ -37,10 +39,10 @@ public class ItemManager : MonoBehaviour
         {
             _itemPrefabs = new Dictionary<ItemType, GameObject>();
         }
+        _itemDataDict = new Dictionary<ItemType, ItemData>();
     }
 
-    public void Initialize(Dictionary<ItemType, GameObject> itemPrefabs, Transform itemSet, 
-        List<ItemCount> initialItems, GameObject itemIcon, TMP_Text itemLeftoverText)
+    public void Initialize(Dictionary<ItemType, GameObject> itemPrefabs, Transform itemSet, GameObject itemIcon, TMP_Text itemLeftoverText)
     {
         _itemPrefabs = itemPrefabs;
         _boardManager = GameService.Get<BoardManager>();
@@ -48,11 +50,13 @@ public class ItemManager : MonoBehaviour
         _itemIcon = itemIcon;
         _itemLeftoverText = itemLeftoverText;
 
+#if !USE_EDITOR
         // Store initial items for reset
-        _initialItems = new List<ItemCount>(initialItems ?? new List<ItemCount>());
+        _initialItems = new List<ItemCount>();
         
         // Initialize leftover items dictionary
-        _leftoverItems = new List<ItemCount>(_initialItems);
+        _leftoverItems = new List<ItemCount>();
+#endif
 
         // Load all item data from JSON
         LoadAllItemData();
@@ -62,9 +66,36 @@ public class ItemManager : MonoBehaviour
         UpdateItemIcon();
     }
 
+    public void SetInitialItemCounts(StageEditorData editorData)
+    {
+        var initialItems = new List<ItemCount>
+        {
+            new ItemCount(ItemType.Teleporter, editorData.GetInitialItemCount(ItemType.Teleporter)),
+            new ItemCount(ItemType.Megaphone, editorData.GetInitialItemCount(ItemType.Megaphone))
+        };
+        _initialItems = new List<ItemCount>(initialItems);
+        _leftoverItems = _initialItems.FindAll(item => item.count > 0);
+        _currentItemIndex = 0;
+        UpdateItemIcon();
+    }
+
+    public void SetInitialItemCounts(SaveData saveData)
+    {
+        var initialItems = new List<ItemCount>();
+        var teleporterCount = saveData.leftItem.Find(ic => ic.itemType == ItemType.Teleporter);
+        initialItems.Add(new ItemCount(ItemType.Teleporter, teleporterCount.Equals(default(ItemCount)) ? 0 : teleporterCount.count));
+        var megaphoneCount = saveData.leftItem.Find(ic => ic.itemType == ItemType.Megaphone);
+        initialItems.Add(new ItemCount(ItemType.Megaphone, megaphoneCount.Equals(default(ItemCount)) ? 0 : megaphoneCount.count));
+
+        _initialItems = new List<ItemCount>(initialItems);
+        _leftoverItems = _initialItems.FindAll(item => item.count > 0);
+        _currentItemIndex = 0;
+        UpdateItemIcon();
+    }
+
     private void LoadAllItemData()
     {
-        _itemDataDict = new Dictionary<ItemType, ItemData>();
+        //if (_itemPrefabs == null) return;
         foreach (var itemType in _itemPrefabs.Keys)
         {
             LoadItemData(itemType.ToString());
@@ -128,7 +159,11 @@ public class ItemManager : MonoBehaviour
 
     public ItemType? GetCurrentItemType()
     {
-        return _leftoverItems[_currentItemIndex].itemType;
+        if (_leftoverItems != null && _leftoverItems.Count > _currentItemIndex && _currentItemIndex >= 0)
+        {
+            return _leftoverItems[_currentItemIndex].itemType;
+        }
+        return null;
     }
 
     public bool HasItemSelected()
@@ -159,13 +194,25 @@ public class ItemManager : MonoBehaviour
     // }
     public void SetNextIndex()
     {
+        if (_leftoverItems == null || _leftoverItems.Count == 0) return;
         _currentItemIndex = (_currentItemIndex + 1) % _leftoverItems.Count;
+        if (_leftoverItems[_currentItemIndex].count == 0)
+        {
+            SetNextIndex();
+            return;
+        }
         UpdateItemIcon();
     }
 
     public void SetPreviousIndex()
     {
+        if (_leftoverItems == null || _leftoverItems.Count == 0) return;
         _currentItemIndex = (_currentItemIndex - 1 + _leftoverItems.Count) % _leftoverItems.Count;
+        if (_leftoverItems[_currentItemIndex].count == 0)
+        {
+            SetPreviousIndex();
+            return;
+        }
         UpdateItemIcon();
     }
 
@@ -188,9 +235,9 @@ public class ItemManager : MonoBehaviour
 
     public GameObject PlaceItem(int x, int y)
     {
-        if (!_hasItemSelected)
+        if (!_hasItemSelected || GetLeftoverItem() <= 0)
         {
-            Debug.LogWarning($"PlaceItem failed: No item type selected.");
+            Debug.LogWarning($"PlaceItem failed: No item type selected or no items left.");
             return null;
         }
         ItemType itemType = _leftoverItems[_currentItemIndex].itemType;
@@ -239,25 +286,25 @@ public class ItemManager : MonoBehaviour
         // Modify struct by creating new instance
         ItemCount current = _leftoverItems[_currentItemIndex];
         current.count--;
-        if (current.count == 0)
+        _leftoverItems[_currentItemIndex] = current;
+
+        if (current.count <= 0)
         {
-            _leftoverItems.RemoveAt(_currentItemIndex);
-            if (_currentItemIndex >= _leftoverItems.Count && _leftoverItems.Count > 0)
+            _hasItemSelected = false;
+            if (GetTotalLeftoverItems() > 0)
             {
-                _currentItemIndex = _leftoverItems.Count - 1;
+                SetNextIndex();
             }
-            else if (_leftoverItems.Count == 0)
+            else
             {
-                _hasItemSelected = false;
                 _currentItemIndex = -1;
+                UpdateItemIcon();
             }
         }
         else
         {
-            _leftoverItems[_currentItemIndex] = current;
+            UpdateItemIcon();
         }
-        // UpdateAllItemButtonTexts();
-        UpdateItemIcon();
         Debug.Log($"Placed item {itemType} at ({x}, {y}). Leftover: {current.count}.");
         return item;
     }
@@ -332,7 +379,7 @@ public class ItemManager : MonoBehaviour
             return;
         }
         // Reset leftover items from stored initial values
-        _leftoverItems = new List<ItemCount>(_initialItems);
+        _leftoverItems = _initialItems.FindAll(item => item.count > 0);
         _currentItemIndex = 0;
         // UpdateAllItemButtonTexts();
         UpdateItemIcon();
@@ -341,26 +388,35 @@ public class ItemManager : MonoBehaviour
     private void UpdateItemIcon()
     {
         var image = _itemIcon.GetComponent<Image>();
-        if (_currentItemIndex == -1)
+
+        if (_currentItemIndex == -1 || _leftoverItems == null || _leftoverItems.Count == 0)
         {
             image.sprite = null;
             _itemLeftoverText.text = "";
             image.color = Color.clear;
             return;
         }
+        
+        if (_currentItemIndex >= _leftoverItems.Count)
+        {
+            _currentItemIndex = 0;
+        }
+
         ItemData data = GetItemData(_leftoverItems[_currentItemIndex].itemType);
+        if (data == null || data.iconSprite == null)
+        {
+            image.sprite = null;
+            image.color = Color.clear;
+            _itemLeftoverText.text = "";
+            return;
+        }
+
         image.sprite = data.iconSprite;
         image.color = Color.white;
         // Resize to match cell size
         // float cellSize = _boardManager.GetCellSize();
         Vector2 spriteSize = image.sprite.bounds.size;
-        // float scaleX = cellSize / spriteSize.x;
-        // float scaleY = cellSize / spriteSize.y;
-        // float scale = Mathf.Min(scaleX, scaleY);
-        float scaleX = spriteSize.x;
-        float scaleY = spriteSize.y;
-        float scale = Mathf.Max(scaleX, scaleY);
-        // Hardcoded to match the size of the item slot sprite
+        float scale = Mathf.Max(spriteSize.x, spriteSize.y);
         _itemIcon.transform.localScale = Vector3.one * scale * 0.1f;
 
         _itemLeftoverText.text = $"{_leftoverItems[_currentItemIndex].count}";
@@ -369,5 +425,4 @@ public class ItemManager : MonoBehaviour
         else
             _itemLeftoverText.color = Color.white;
     }
-
 }

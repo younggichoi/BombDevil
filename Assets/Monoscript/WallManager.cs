@@ -55,10 +55,7 @@ public class WallManager : MonoBehaviour
         
         // Initialize Wall component
         Wall wall = wallGO.GetComponent<Wall>();
-        if (wall == null)
-        {
-            wall = wallGO.AddComponent<Wall>();
-        }
+        wall = wallGO.AddComponent<Wall>();
         // wall.Initialize(_wallSprite);
         
         return wallGO;

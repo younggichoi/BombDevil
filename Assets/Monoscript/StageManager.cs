@@ -1,3 +1,5 @@
+//#define USE_EDITOR
+
 using UnityEngine;
 using Entity;
 using UnityEngine.UI;
@@ -59,16 +61,20 @@ public class StageManager : MonoBehaviour
     public void StartGame()
     {
         _currentStageId = 1;
+        Debug.Log("Starting game at Stage 1");
         StageInitialize(_currentStageId);
     }
 
     // init new stage
     public void StageInitialize(int stageId)
     {
+#if !USE_EDITOR
         if (stageId == 1)
         {
+            Debug.Log("Loading initial SaveData for stage 1.");
             JsonDataUtility.ResetSaveData(1);
         }
+#endif
 
         // Don't destroy the stage root, just prepare it
         if (currStage == null)

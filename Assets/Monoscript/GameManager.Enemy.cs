@@ -265,9 +265,9 @@ public partial class GameManager : MonoBehaviour
             if(HasObjectAt(currentX, currentY, typeof(Wall)))
             {
                 // Wall encountered: enemy stays at current position (x, y)
-                Vector2Int finalDirection = Vector2Int.zero;
+                Vector2Int finalDirection = normalizedDir * (step - 1);
                 enemy.Knockback(finalDirection);
-                _board[x, y].Add(obj);
+                _board[Mod(currentX - normalizedDir.x, _width), Mod(currentY - normalizedDir.y, _height)].Add(obj);
                 if (!isKnockback) //그냥 이동하는 경우 방향을 바꿈
                 {
                     enemy.SetDirection(-normalizedDir);
@@ -314,7 +314,7 @@ public partial class GameManager : MonoBehaviour
             // 5. Apply path-based knockback for visual teleporter traversal
             enemy.KnockbackPath(path);
             _board[finalPos.x, finalPos.y].Add(obj);
-            Debug.Log($"Enemy at ({x}, {y}) path via teleporter. Entry: {entryTeleporterPos.Value}, Exit: {exitTeleporterPos.Value}, Final: {finalPos}");
+            //Debug.Log($"Enemy at ({x}, {y}) path via teleporter. Entry: {entryTeleporterPos.Value}, Exit: {exitTeleporterPos.Value}, Final: {finalPos}");
             return;
         }
         else {

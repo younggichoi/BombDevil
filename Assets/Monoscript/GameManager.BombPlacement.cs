@@ -49,13 +49,19 @@ public partial class GameManager : MonoBehaviour
         
         if (objectToRemove != null)
         {
-            // Remove from board
-            _board[x, y].Remove(objectToRemove);
-            Vector2Int pos = new Vector2Int(x, y);
-
             AuxiliaryBomb auxBomb = objectToRemove.GetComponent<AuxiliaryBomb>();
             RealBomb realBomb = objectToRemove.GetComponent<RealBomb>();
             Item item = objectToRemove.GetComponent<Item>();
+
+            // Only remove if it is a bomb or an item
+            if (auxBomb == null && realBomb == null && item == null)
+            {
+                return;
+            }
+            
+            // Remove from board
+            _board[x, y].Remove(objectToRemove);
+            Vector2Int pos = new Vector2Int(x, y);
 
             if (auxBomb != null)
             {

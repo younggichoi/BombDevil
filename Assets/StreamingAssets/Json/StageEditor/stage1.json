@@ -1,15 +1,14 @@
 {
     "stageId": 1,
-    "width": 9,
-    "height": 9,
+    "width": 8,
+    "height": 8,
     "enemyNumber": 4,
+    "wallNumber": 2,
     "remainingTurns": 10,
-    "boardSpritePath": "Sprites/Boards/board_7x7",
-    "initial1stBomb": 3,
-    "initial2ndBomb": 1,
-    "initial3rdBomb": 1,
-    "initial4thBomb": 1,
-    "initial5thBomb": 1,
-    "initial6thBomb": 1,
-    "initialSkyblueBomb": 1
+    "treasureChest": [],
+    "initial1stBomb": 4,
+    "initial2ndBomb": 2,
+    "initial3rdBomb": 3,
+    "initialTeleporter": 2,
+    "initialMegaphone": 2
 }

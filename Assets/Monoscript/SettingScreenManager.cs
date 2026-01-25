@@ -59,34 +59,35 @@ public class SettingScreenManager : MonoBehaviour
             return;
         }
 
+        _selectedBombIndices.Sort();
+
         // Create SaveData with selected settings
-        SaveData initData = new SaveData
+        JsonDataUtility.ResetSaveData(1);
+        SaveData initData = JsonDataUtility.LoadGameData(1); // TODO: remove hardcoding on file number
+        //initData에서 폭탄과 아이템 개수, 점수는 그대로 두고 나머지만 변경
+        initData.difficulty = _selectedDifficultyIndex;
+        initData.firstBombType = (BombType)_selectedBombIndices[0];
+        initData.secondBombType = (BombType)_selectedBombIndices[1];
+        initData.thirdBombType = (BombType)_selectedBombIndices[2];
+        /*SaveData initData = new SaveData
         {
             difficulty = _selectedDifficultyIndex,
             firstBombType = (BombType)_selectedBombIndices[0],
             secondBombType = (BombType)_selectedBombIndices[1],
             thirdBombType = (BombType)_selectedBombIndices[2],
-            left1stBomb = 3,
-            left2ndBomb = 2,
-            left3rdBomb = 4,
+            //Bomb counts hardcoded to 0 for now, can be modified later
+            left1stBomb = 0,
+            left2ndBomb = 0,
+            left3rdBomb = 0,
             scoring = 0
         };
 
-        // Add default items
-        initData.leftItem.Add(new ItemCount(ItemType.Teleporter, 2));
-        initData.leftItem.Add(new ItemCount(ItemType.Megaphone, 2));
+        // Add default items, hardcoded for now
+        initData.leftItem.Add(new ItemCount(ItemType.Teleporter, 0));
+        initData.leftItem.Add(new ItemCount(ItemType.Megaphone, 0));*/
 
-        // Save to init.json
-        string directoryPath = Path.Combine(Application.streamingAssetsPath, "Json", "Run");
-        if (!Directory.Exists(directoryPath))
-        {
-            Directory.CreateDirectory(directoryPath);
-        }
-
-        string json = JsonUtility.ToJson(initData, true);
-        string filePath = Path.Combine(directoryPath, "init.json");
-        File.WriteAllText(filePath, json);
-        Debug.Log($"Settings saved to: {filePath}");
+        // Pass data to GameManager
+        GameManager.pendingSaveData = initData;
 
         // Load IngameScene
         UnityEngine.SceneManagement.SceneManager.LoadScene("IngameScene");

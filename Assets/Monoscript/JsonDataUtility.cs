@@ -1,3 +1,5 @@
+//#define USE_EDITOR
+
 using System.IO;
 using Entity;
 using UnityEngine;
@@ -110,6 +112,7 @@ public static class JsonDataUtility
 #if UNITY_EDITOR
         UnityEditor.AssetDatabase.Refresh();
 #endif
+
     }
 
     public static StageEditorData LoadStageEditorData(int stageId)
@@ -148,4 +151,13 @@ public static class JsonDataUtility
             Debug.LogError($"Initial data file not found: {initFilePath}");
         }
     }
+
+#if USE_EDITOR
+    public static SaveData LoadInitData(int stageId)
+    {
+        string filePath = Path.Combine(Application.streamingAssetsPath, "Json", "Run", $"init.json");
+        string json = File.ReadAllText(filePath);
+        return JsonUtility.FromJson<SaveData>(json);
+    }
+#endif
 }

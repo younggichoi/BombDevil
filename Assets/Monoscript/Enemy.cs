@@ -164,7 +164,6 @@ public class Enemy : MonoBehaviour
     // directionAndDistance: the vector from current position to target cell (in board units, not normalized)
     public void Knockback(Vector2Int directionAndDistance)
     {
-        Debug.Log($"Enemy at {transform.position} knocked back by {directionAndDistance}");
         // Stun is permanent; do not remove stun here
         StartCoroutine(Move(directionAndDistance, _knockbackDuration));
     }
@@ -173,7 +172,6 @@ public class Enemy : MonoBehaviour
     // Executes each path segment sequentially, showing visual teleporter pass-through
     public void KnockbackPath(List<PathSegment> path)
     {
-        Debug.Log($"Enemy at {transform.position} knockback via path with {path.Count} segments");
         StartCoroutine(MoveAlongPath(path, _knockbackDuration));
     }
 
@@ -366,7 +364,6 @@ public class Enemy : MonoBehaviour
         // If 2 or more enemies at the same position, stun them all
         if (enemies.Count >= 2)
         {
-            Debug.Log($"Collision detected at ({gridPos.x}, {gridPos.y}): {enemies.Count} enemies stunned");
             foreach (var enemy in enemies)
             {
                 enemy.SetStunned(true);

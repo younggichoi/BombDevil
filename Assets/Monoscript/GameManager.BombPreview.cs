@@ -27,7 +27,7 @@ public partial class GameManager : MonoBehaviour
             Vector2Int currentCell = new Vector2Int(x, y);
             if (currentCell != _lastHoveredCell || _bombTypeChanged)
             {
-                Debug.Log("Bomb preview updated");
+                //Debug.Log("Bomb preview updated");
                 ShowPreview(x, y);
                 _lastHoveredCell = currentCell;
             }
